@@ -6,33 +6,41 @@
 
 #IncludeRegexTransform: 
 
-/home/mcshell/projects/axi_psdf/Baryons.hpp
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/Baryons.hpp
 complex
 -
 
-/home/mcshell/projects/axi_psdf/Baryons_A.cpp
-complex
--
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/Baryons_A.cpp
 Baryons_A.hpp
-/home/mcshell/projects/axi_psdf/Baryons_A.hpp
-Structs.hpp
-/home/mcshell/projects/axi_psdf/Structs.hpp
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/Baryons_A.hpp
 
-/home/mcshell/projects/axi_psdf/Baryons_A.hpp
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/Baryons_A.hpp
 complex
 -
 Baryons.hpp
-/home/mcshell/projects/axi_psdf/Baryons.hpp
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/Baryons.hpp
+Parametric_funcs.hpp
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/Parametric_funcs.hpp
 Structs.hpp
-/home/mcshell/projects/axi_psdf/Structs.hpp
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/Structs.hpp
 
-/home/mcshell/projects/axi_psdf/Structs.hpp
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/Parametric_funcs.cpp
+Parametric_funcs.hpp
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/Parametric_funcs.hpp
 
-/home/mcshell/projects/axi_psdf/main.cpp
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/Parametric_funcs.hpp
+complex
+-
+Structs.hpp
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/Structs.hpp
+
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/Structs.hpp
+
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/main.cpp
 iostream
 -
 Baryons_A.hpp
-/home/mcshell/projects/axi_psdf/Baryons_A.hpp
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/Baryons_A.hpp
 Structs.hpp
-/home/mcshell/projects/axi_psdf/Structs.hpp
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/Structs.hpp
 

@@ -54,10 +54,47 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mcshell/projects/axi_psdf
+CMAKE_SOURCE_DIR = /home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mcshell/projects/axi_psdf/build
+CMAKE_BINARY_DIR = /home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/build
+
+#=============================================================================
+# Target rules for target CMakeFiles/tests.dir
+
+# All Build rule for target.
+CMakeFiles/tests.dir/all:
+	$(MAKE) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/depend
+	$(MAKE) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/build/CMakeFiles --progress-num=5,6,7 "Built target tests"
+.PHONY : CMakeFiles/tests.dir/all
+
+# Include target in all.
+all: CMakeFiles/tests.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/tests.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/build/CMakeFiles 3
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/tests.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/build/CMakeFiles 0
+.PHONY : CMakeFiles/tests.dir/rule
+
+# Convenience name for target.
+tests: CMakeFiles/tests.dir/rule
+
+.PHONY : tests
+
+# clean rule for target.
+CMakeFiles/tests.dir/clean:
+	$(MAKE) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/clean
+.PHONY : CMakeFiles/tests.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/tests.dir/clean
+
+.PHONY : clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/axi_psdf.dir
@@ -66,7 +103,7 @@ CMAKE_BINARY_DIR = /home/mcshell/projects/axi_psdf/build
 CMakeFiles/axi_psdf.dir/all:
 	$(MAKE) -f CMakeFiles/axi_psdf.dir/build.make CMakeFiles/axi_psdf.dir/depend
 	$(MAKE) -f CMakeFiles/axi_psdf.dir/build.make CMakeFiles/axi_psdf.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/mcshell/projects/axi_psdf/build/CMakeFiles --progress-num=1,2,3 "Built target axi_psdf"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/build/CMakeFiles --progress-num=1,2,3,4 "Built target axi_psdf"
 .PHONY : CMakeFiles/axi_psdf.dir/all
 
 # Include target in all.
@@ -76,9 +113,9 @@ all: CMakeFiles/axi_psdf.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/axi_psdf.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/mcshell/projects/axi_psdf/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/build/CMakeFiles 4
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/axi_psdf.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/mcshell/projects/axi_psdf/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/build/CMakeFiles 0
 .PHONY : CMakeFiles/axi_psdf.dir/rule
 
 # Convenience name for target.

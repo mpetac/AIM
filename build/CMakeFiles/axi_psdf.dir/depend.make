@@ -4,10 +4,16 @@
 CMakeFiles/axi_psdf.dir/Baryons_A.cpp.o: ../Baryons.hpp
 CMakeFiles/axi_psdf.dir/Baryons_A.cpp.o: ../Baryons_A.cpp
 CMakeFiles/axi_psdf.dir/Baryons_A.cpp.o: ../Baryons_A.hpp
+CMakeFiles/axi_psdf.dir/Baryons_A.cpp.o: ../Parametric_funcs.hpp
 CMakeFiles/axi_psdf.dir/Baryons_A.cpp.o: ../Structs.hpp
+
+CMakeFiles/axi_psdf.dir/Parametric_funcs.cpp.o: ../Parametric_funcs.cpp
+CMakeFiles/axi_psdf.dir/Parametric_funcs.cpp.o: ../Parametric_funcs.hpp
+CMakeFiles/axi_psdf.dir/Parametric_funcs.cpp.o: ../Structs.hpp
 
 CMakeFiles/axi_psdf.dir/main.cpp.o: ../Baryons.hpp
 CMakeFiles/axi_psdf.dir/main.cpp.o: ../Baryons_A.hpp
+CMakeFiles/axi_psdf.dir/main.cpp.o: ../Parametric_funcs.hpp
 CMakeFiles/axi_psdf.dir/main.cpp.o: ../Structs.hpp
 CMakeFiles/axi_psdf.dir/main.cpp.o: ../main.cpp
 

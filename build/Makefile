@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mcshell/projects/axi_psdf
+CMAKE_SOURCE_DIR = /home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mcshell/projects/axi_psdf/build
+CMAKE_BINARY_DIR = /home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -68,16 +68,17 @@ install/strip/fast: preinstall/fast
 	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
 .PHONY : install/strip/fast
 
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
-.PHONY : edit_cache
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
 
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
-
-.PHONY : edit_cache/fast
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
 
 # Special rule for the target rebuild_cache
 rebuild_cache:
@@ -90,6 +91,17 @@ rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
 
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
+	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
+
 # Special rule for the target list_install_components
 list_install_components:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
@@ -99,18 +111,6 @@ list_install_components:
 list_install_components/fast: list_install_components
 
 .PHONY : list_install_components/fast
-
-# Special rule for the target install/local
-install/local: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
-	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
-.PHONY : install/local
-
-# Special rule for the target install/local
-install/local/fast: preinstall/fast
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
-	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
-.PHONY : install/local/fast
 
 # Special rule for the target install
 install: preinstall
@@ -126,9 +126,9 @@ install/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/mcshell/projects/axi_psdf/build/CMakeFiles /home/mcshell/projects/axi_psdf/build/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/build/CMakeFiles /home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/mcshell/projects/axi_psdf/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -155,6 +155,19 @@ preinstall/fast:
 depend:
 	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
+
+#=============================================================================
+# Target rules for targets named tests
+
+# Build rule for target.
+tests: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 tests
+.PHONY : tests
+
+# fast build rule for target.
+tests/fast:
+	$(MAKE) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/build
+.PHONY : tests/fast
 
 #=============================================================================
 # Target rules for targets named axi_psdf
@@ -196,6 +209,63 @@ Baryons_A.cpp.s:
 	$(MAKE) -f CMakeFiles/axi_psdf.dir/build.make CMakeFiles/axi_psdf.dir/Baryons_A.cpp.s
 .PHONY : Baryons_A.cpp.s
 
+Parametric_funcs.o: Parametric_funcs.cpp.o
+
+.PHONY : Parametric_funcs.o
+
+# target to build an object file
+Parametric_funcs.cpp.o:
+	$(MAKE) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/Parametric_funcs.cpp.o
+	$(MAKE) -f CMakeFiles/axi_psdf.dir/build.make CMakeFiles/axi_psdf.dir/Parametric_funcs.cpp.o
+.PHONY : Parametric_funcs.cpp.o
+
+Parametric_funcs.i: Parametric_funcs.cpp.i
+
+.PHONY : Parametric_funcs.i
+
+# target to preprocess a source file
+Parametric_funcs.cpp.i:
+	$(MAKE) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/Parametric_funcs.cpp.i
+	$(MAKE) -f CMakeFiles/axi_psdf.dir/build.make CMakeFiles/axi_psdf.dir/Parametric_funcs.cpp.i
+.PHONY : Parametric_funcs.cpp.i
+
+Parametric_funcs.s: Parametric_funcs.cpp.s
+
+.PHONY : Parametric_funcs.s
+
+# target to generate assembly for a file
+Parametric_funcs.cpp.s:
+	$(MAKE) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/Parametric_funcs.cpp.s
+	$(MAKE) -f CMakeFiles/axi_psdf.dir/build.make CMakeFiles/axi_psdf.dir/Parametric_funcs.cpp.s
+.PHONY : Parametric_funcs.cpp.s
+
+Tests.o: Tests.cpp.o
+
+.PHONY : Tests.o
+
+# target to build an object file
+Tests.cpp.o:
+	$(MAKE) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/Tests.cpp.o
+.PHONY : Tests.cpp.o
+
+Tests.i: Tests.cpp.i
+
+.PHONY : Tests.i
+
+# target to preprocess a source file
+Tests.cpp.i:
+	$(MAKE) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/Tests.cpp.i
+.PHONY : Tests.cpp.i
+
+Tests.s: Tests.cpp.s
+
+.PHONY : Tests.s
+
+# target to generate assembly for a file
+Tests.cpp.s:
+	$(MAKE) -f CMakeFiles/tests.dir/build.make CMakeFiles/tests.dir/Tests.cpp.s
+.PHONY : Tests.cpp.s
+
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -230,15 +300,22 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... install/strip"
-	@echo "... edit_cache"
+	@echo "... install/local"
+	@echo "... tests"
 	@echo "... axi_psdf"
 	@echo "... rebuild_cache"
+	@echo "... edit_cache"
 	@echo "... list_install_components"
-	@echo "... install/local"
 	@echo "... install"
 	@echo "... Baryons_A.o"
 	@echo "... Baryons_A.i"
 	@echo "... Baryons_A.s"
+	@echo "... Parametric_funcs.o"
+	@echo "... Parametric_funcs.i"
+	@echo "... Parametric_funcs.s"
+	@echo "... Tests.o"
+	@echo "... Tests.i"
+	@echo "... Tests.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

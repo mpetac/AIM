@@ -1,0 +1,1 @@
+/usr/bin/c++  -g  -rdynamic CMakeFiles/tests.dir/Tests.cpp.o CMakeFiles/tests.dir/Parametric_funcs.cpp.o  -o tests -lCppUTest 

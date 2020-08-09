@@ -1,7 +1,8 @@
-/home/mcshell/projects/axi_psdf/build/CMakeFiles/install/strip.dir
-/home/mcshell/projects/axi_psdf/build/CMakeFiles/edit_cache.dir
-/home/mcshell/projects/axi_psdf/build/CMakeFiles/axi_psdf.dir
-/home/mcshell/projects/axi_psdf/build/CMakeFiles/rebuild_cache.dir
-/home/mcshell/projects/axi_psdf/build/CMakeFiles/list_install_components.dir
-/home/mcshell/projects/axi_psdf/build/CMakeFiles/install/local.dir
-/home/mcshell/projects/axi_psdf/build/CMakeFiles/install.dir
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/build/CMakeFiles/install/strip.dir
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/build/CMakeFiles/install/local.dir
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/build/CMakeFiles/tests.dir
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/build/CMakeFiles/axi_psdf.dir
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/build/CMakeFiles/rebuild_cache.dir
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/build/CMakeFiles/edit_cache.dir
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/build/CMakeFiles/list_install_components.dir
+/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/build/CMakeFiles/install.dir
