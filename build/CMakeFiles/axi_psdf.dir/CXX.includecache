@@ -1,0 +1,38 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/mcshell/projects/axi_psdf/Baryons.hpp
+complex
+-
+
+/home/mcshell/projects/axi_psdf/Baryons_A.cpp
+complex
+-
+Baryons_A.hpp
+/home/mcshell/projects/axi_psdf/Baryons_A.hpp
+Structs.hpp
+/home/mcshell/projects/axi_psdf/Structs.hpp
+
+/home/mcshell/projects/axi_psdf/Baryons_A.hpp
+complex
+-
+Baryons.hpp
+/home/mcshell/projects/axi_psdf/Baryons.hpp
+Structs.hpp
+/home/mcshell/projects/axi_psdf/Structs.hpp
+
+/home/mcshell/projects/axi_psdf/Structs.hpp
+
+/home/mcshell/projects/axi_psdf/main.cpp
+iostream
+-
+Baryons_A.hpp
+/home/mcshell/projects/axi_psdf/Baryons_A.hpp
+Structs.hpp
+/home/mcshell/projects/axi_psdf/Structs.hpp
+
