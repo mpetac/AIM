@@ -1,1 +1,0 @@
-/usr/bin/c++  -g  -rdynamic CMakeFiles/axi_psdf.dir/main.cpp.o CMakeFiles/axi_psdf.dir/Baryons_A.cpp.o CMakeFiles/axi_psdf.dir/Parametric_funcs.cpp.o  -o axi_psdf 
