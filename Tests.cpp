@@ -58,77 +58,77 @@ TEST(ParametricFuncsTestGroup, Potential_Hernquist) {
 
 TEST(ParametricFuncsTestGroup, Potential_NFW) {
     
-    halo_2p halo = {1.3, 0.4};
+    halo_2p halo = {1e-2, 16};
     std::complex<double> r(1.3, 2.7);
     
     std::complex<double> val_psi = Parametric_funcs::psi_NFW(r, halo);
-    DOUBLES_EQUAL(4.80163e-6, std::real(val_psi), 1e-5);
-    DOUBLES_EQUAL(-1.32217e-6, std::imag(val_psi), 1e-5);
+    DOUBLES_EQUAL(1.31913e-4, std::real(val_psi), 1e-5);
+    DOUBLES_EQUAL(-1.03862e-5, std::imag(val_psi), 1e-5);
+    
     
     std::complex<double> val_psi_dr2 = Parametric_funcs::psi_NFW_dr2(r, halo);
-    DOUBLES_EQUAL(-2.40653e-7, std::real(val_psi_dr2), 1e-5);
-    DOUBLES_EQUAL(2.50829e-7, std::imag(val_psi_dr2), 1e-5);
+    DOUBLES_EQUAL(-1.52629e-7, std::real(val_psi_dr2), 1e-5);
+    DOUBLES_EQUAL(6.2169e-7, std::imag(val_psi_dr2), 1e-5);
     
     std::complex<double> val_psi_d2r2 = Parametric_funcs::psi_NFW_d2r2(r, halo);
-    DOUBLES_EQUAL(-3.40482e-7, std::real(val_psi_d2r2), 1e-5);
-    DOUBLES_EQUAL(6.75805e-7, std::imag(val_psi_d2r2), 1e-5);
-    
+    DOUBLES_EQUAL(-3.93567e-8, std::real(val_psi_d2r2), 1e-5);
+    DOUBLES_EQUAL(1.06767e-8, std::imag(val_psi_d2r2), 1e-5);
 };
 
 TEST(ParametricFuncsTestGroup, Potential_BUR) {
     
-    halo_2p halo = {1.3, 0.4};
+    halo_2p halo = {1e-2, 16};
     std::complex<double> r(1.3, 2.7);
     
     std::complex<double> val_psi = Parametric_funcs::psi_BUR(r, halo);
-    DOUBLES_EQUAL(4.80163e-6, std::real(val_psi), 1e-5);
-    DOUBLES_EQUAL(-1.32217e-6, std::imag(val_psi), 1e-5);
+    DOUBLES_EQUAL(1.09075e-4, std::real(val_psi), 1e-5);
+    DOUBLES_EQUAL(-6.49125e-7, std::imag(val_psi), 1e-5);
     
     std::complex<double> val_psi_dr2 = Parametric_funcs::psi_BUR_dr2(r, halo);
-    DOUBLES_EQUAL(-2.40653e-7, std::real(val_psi_dr2), 1e-5);
-    DOUBLES_EQUAL(2.50829e-7, std::imag(val_psi_dr2), 1e-5);
+    DOUBLES_EQUAL(-8.45544e-8, std::real(val_psi_dr2), 1e-5);
+    DOUBLES_EQUAL(1.14395e-8, std::imag(val_psi_dr2), 1e-5);
     
     std::complex<double> val_psi_d2r2 = Parametric_funcs::psi_BUR_d2r2(r, halo);
-    DOUBLES_EQUAL(-3.40482e-7, std::real(val_psi_d2r2), 1e-5);
-    DOUBLES_EQUAL(6.75805e-7, std::imag(val_psi_d2r2), 1e-5);
+    DOUBLES_EQUAL(3.10035e-10, std::real(val_psi_d2r2), 1e-5);
+    DOUBLES_EQUAL(-6.43393e-10, std::imag(val_psi_d2r2), 1e-5);
     
 };
 
 TEST(ParametricFuncsTestGroup, Rho_NFW) {
     
-    halo_2p halo = {1.3, 0.4};
+    halo_2p halo = {1e-2, 16.};
     std::complex<double> r(1.3, 2.7);
     
     std::complex<double> val_rho = Parametric_funcs::rho_NFW(r, halo);
-    DOUBLES_EQUAL(4.80163e-6, std::real(val_rho), 1e-5);
-    DOUBLES_EQUAL(-1.32217e-6, std::imag(val_rho), 1e-5);
+    DOUBLES_EQUAL(0.00618087, std::real(val_rho), 1e-5);
+    DOUBLES_EQUAL(-0.0441534, std::imag(val_rho), 1e-5);
     
     std::complex<double> val_rho_dr2 = Parametric_funcs::rho_NFW_dr2(r, halo);
-    DOUBLES_EQUAL(-2.40653e-7, std::real(val_rho_dr2), 1e-5);
-    DOUBLES_EQUAL(2.50829e-7, std::imag(val_rho_dr2), 1e-5);
+    DOUBLES_EQUAL(0.00290775, std::real(val_rho_dr2), 1e-5);
+    DOUBLES_EQUAL(-0.000907542, std::imag(val_rho_dr2), 1e-5);
     
     std::complex<double> val_rho_d2r2 = Parametric_funcs::rho_NFW_d2r2(r, halo);
-    DOUBLES_EQUAL(-3.40482e-7, std::real(val_rho_d2r2), 1e-5);
-    DOUBLES_EQUAL(6.75805e-7, std::imag(val_rho_d2r2), 1e-5);
+    DOUBLES_EQUAL(0.000405253, std::real(val_rho_d2r2), 1e-5);
+    DOUBLES_EQUAL(0.000303309, std::imag(val_rho_d2r2), 1e-5);
     
 };
 
 TEST(ParametricFuncsTestGroup, Rho_BUR) {
     
-    halo_2p halo = {1.3, 0.4};
+    halo_2p halo = {1e-2, 16.};
     std::complex<double> r(1.3, 2.7);
     
     std::complex<double> val_rho = Parametric_funcs::rho_BUR(r, halo);
-    DOUBLES_EQUAL(4.80163e-6, std::real(val_rho), 1e-5);
-    DOUBLES_EQUAL(-1.32217e-6, std::imag(val_rho), 1e-5);
+    DOUBLES_EQUAL(0.00918295, std::real(val_rho), 1e-5);
+    DOUBLES_EQUAL(-0.00169805, std::imag(val_rho), 1e-5);
     
     std::complex<double> val_rho_dr2 = Parametric_funcs::rho_BUR_dr2(r, halo);
-    DOUBLES_EQUAL(-2.40653e-7, std::real(val_rho_dr2), 1e-5);
-    DOUBLES_EQUAL(2.50829e-7, std::imag(val_rho_dr2), 1e-5);
+    DOUBLES_EQUAL(-0.0000463169, std::real(val_rho_dr2), 1e-5);
+    DOUBLES_EQUAL(0.0000962455, std::imag(val_rho_dr2), 1e-5);
     
     std::complex<double> val_rho_d2r2 = Parametric_funcs::rho_BUR_d2r2(r, halo);
-    DOUBLES_EQUAL(-3.40482e-7, std::real(val_rho_d2r2), 1e-5);
-    DOUBLES_EQUAL(6.75805e-7, std::imag(val_rho_d2r2), 1e-5);
+    DOUBLES_EQUAL(-5.40276e-6, std::real(val_rho_d2r2), 1e-5);
+    DOUBLES_EQUAL(1.19492e-6, std::imag(val_rho_d2r2), 1e-5);
     
 };
 
