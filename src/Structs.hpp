@@ -1,5 +1,7 @@
 #pragma once
 
+#include <complex>
+
 /**
  * Struct for three-parameter component.
  * @param M Mass of the disk
@@ -63,3 +65,29 @@ struct halo_4p {
     double q;
 };
 
+/**
+ * Struct with halo rotation parameters
+ * @param omega Angular velocity
+ * @param r_a Rotatinal scale radius
+ */
+
+struct halo_rot_2p {
+    double omega;
+    double r_a;
+};
+
+struct psi_inverse_params {
+    void *model;
+    std::complex<double> xi;
+    std::complex<double> R2;
+};
+
+struct inversion_params {
+    void *model;
+    void *z2interp;
+    double E;
+    double Lz;
+    double Rc;
+    double psiEnv;
+    double h;
+};

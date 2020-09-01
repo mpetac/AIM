@@ -203,3 +203,14 @@ std::complex<double> Parametric_funcs::rho_BUR_d2r2(std::complex<double> r, cons
     std::complex<double> x = r / obj.r_s;
     return 0.25 * obj.rho_s * std::pow(obj.r_s, -4) * (1. + 3. * x * (1. + x * (2. + x * (6. + x * (7. + 5. * x))))) * std::pow(x * (1. + x + std::pow(x, 2) + std::pow(x, 3)), -3);
 }
+
+/** 
+ * @param R2 Value of the R-coordinate squared
+ * @param obj Struct with the halo parameters
+ */
+
+std::complex<double> Parametric_funcs::v_phi(std::complex<double> R2, const struct halo_rot_2p& obj) {
+    std::complex<double> R = std::sqrt(R2);
+    return obj.omega * R / (1. + std::pow(R / obj.r_a, 2));
+}
+

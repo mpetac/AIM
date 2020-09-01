@@ -2,9 +2,13 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTest/PlatformSpecificFunctions.h>
 #include <complex>
+#include <iostream>
 
-#include "Structs.hpp"
-#include "Parametric_funcs.hpp"
+#include "src/Structs.hpp"
+#include "src/Parametric_funcs.hpp"
+#include "src/Model.hpp"
+#include "src/halos/Halo_NFW.hpp"
+#include "src/baryons/Baryons_H_2MN.hpp"
 
 TEST_GROUP(ParametricFuncsTestGroup) {
 };
@@ -130,6 +134,35 @@ TEST(ParametricFuncsTestGroup, Rho_BUR) {
     DOUBLES_EQUAL(-5.40276e-6, std::real(val_rho_d2r2), 1e-5);
     DOUBLES_EQUAL(1.19492e-6, std::imag(val_rho_d2r2), 1e-5);
     
+};
+
+TEST_GROUP(ModelTestGroup) {
+};
+
+TEST(ModelTestGroup, Model) {
+    halo_2p halo = {1e-2, 13};
+    disk_3p disk1 = {1, 1, 0.1};
+    disk_3p disk2 = {0.5, 2, 0.3};
+    bulge_2p bulge = {1, 0.5};
+    
+    Halo_NFW DM(halo);
+    Baryons_H_2MN baryons(disk1, disk2, bulge);
+    
+    Model m(&DM, &baryons);
+    
+    double Rc = 2.13;
+    double E_Rc = std::real(m.psi(std::pow(Rc, 2), 0, Rc) + std::pow(Rc, 2) * m.psi_dR2(std::pow(Rc, 2), 0, Rc));
+    DOUBLES_EQUAL(m.Rcirc(E_Rc), Rc, 1e-3);
+    
+    
+    double E = 0.78 * std::real(m.psi(0, 0, 0));
+    double Rc_E = m.Rcirc(E);
+    double Lz = 0.28 * std::real(m.psi_dR2(std::pow(Rc_E, 2), 0, Rc_E));
+    std::complex<double> R2(1.18, 0.3);
+    std::complex<double> xi = std::pow(Lz, 2) / (2. * R2) + E;
+    std::complex<double> z2 = m.psi_inverse(xi, E, Lz);
+    DOUBLES_EQUAL(std::real(xi), std::real(m.psi(R2, z2, std::sqrt(R2 + z2))), 1e-5);
+    DOUBLES_EQUAL(std::imag(xi), std::imag(m.psi(R2, z2, std::sqrt(R2 + z2))), 1e-5);
 };
 
 int main(int ac, char** av) {

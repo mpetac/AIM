@@ -1,8 +1,19 @@
 cmake_minimum_required(VERSION 2.6)
 project(axi_psdf)
 
-add_executable(axi_psdf main.cpp Baryons_A.cpp Parametric_funcs.cpp)
-add_executable(tests Tests.cpp Parametric_funcs.cpp)
-target_link_libraries(tests CppUTest )
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED YES)
+
+file(GLOB srcs "src/*.cpp")
+file(GLOB halos "src/halos/*.cpp")
+file(GLOB baryons "src/baryons/*.cpp")
+
+
+find_package(GSL REQUIRED)
+add_executable(axi_psdf main.cpp ${halos} ${baryons} ${srcs})
+target_link_libraries(axi_psdf GSL::gsl GSL::gslcblas pthread)
+
+add_executable(tests tests.cpp ${halos} ${baryons} ${srcs})
+target_link_libraries(tests CppUTest GSL::gsl GSL::gslcblas pthread)
 
 install(TARGETS axi_psdf RUNTIME DESTINATION bin)
