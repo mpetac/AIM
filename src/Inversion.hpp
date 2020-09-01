@@ -36,7 +36,7 @@ private:
     double F_odd(double *params);
     
 public:
-    Inversion(Model *model, int N_E, int N_Lz, int N_Lc = 930, double tolerance_F = 1e-3, bool verbose = 1);
+    Inversion(Model *model, int N_E, int N_Lz, int N_Lc = 930, double tolerance_F = 1e-3, bool verbose = 0);
     
     ~Inversion();
     

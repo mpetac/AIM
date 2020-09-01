@@ -85,6 +85,7 @@ void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, doubl
             for (int j = 0; j < N_Lz; j++) {
                 double val_even = vals_even[i * N_Lz + j].get();
                 double val_odd = vals_odd[i * N_Lz + j].get();
+                std::cout << "PSDF computed: " << Epts[i] << ", " << Lzpts[j] << std::endl;
                 Fpts[(N_Lz - 1 + j) * N_E + i] = std::log(1. + val_even + val_odd);
                 Fpts[(N_Lz - 1 - j) * N_E + i] = std::log(1. + val_even - val_odd);
             }
@@ -172,6 +173,6 @@ double Inversion::F_odd(double* params) {
 }
 
 void Inversion::GSL_error_func(const char* reason, const char* file, int line, int gsl_errno) {
-    std::cout << " -> GSL error #" << gsl_errno << "in line " << line << " of " << file <<": " << gsl_strerror(gsl_errno) << std::endl;
+    std::cout << " -> GSL error #" << gsl_errno << " in line " << line << " of " << file <<": " << gsl_strerror(gsl_errno) << std::endl;
 }
 
