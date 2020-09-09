@@ -1,5 +1,13 @@
 #include "Model.hpp"
 
+Model::Model(Halo* halo_model, Baryons* baryons_model, bool v) {
+    Model::halo = halo_model;
+    Model::baryons = baryons_model;
+    Model::verbose = v;
+    Model::psi0 = std::real(Model::psi(0, 0, 0));
+}
+
+
 /** 
  * @param R2 Value of the R-coordinate squared
  * @param z2 Value of the z-coordinate squared

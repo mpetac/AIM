@@ -61,6 +61,12 @@ public:
     /// Destructor
     ~Inversion();
     
+    /// Returns the value of the PSDF
+    double eval_F(double E, double Lz);
+    
+    /// Returns the inverse of maximum circular velocity
+    double eval_LcI(double E);
+    
     /// GSL error handler
     static void GSL_error_func(const char * reason, const char * file, int line, int gsl_errno);
     

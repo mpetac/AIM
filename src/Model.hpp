@@ -22,13 +22,11 @@ public:
     Halo* halo;
     /// Class desribing the baryons
     Baryons* baryons;
+    /// Normalization of the gravitational potential
+    double psi0;
     
     /// Initializer for th galactic model
-    Model(Halo* halo_model, Baryons* baryons_model, bool v = 1) {
-        halo = halo_model;
-        baryons = baryons_model;
-        verbose = v;
-    }
+    Model(Halo* halo_model, Baryons* baryons_model, bool v = 1);
     
     /// Computes the total gravitational potential
     std::complex<double> psi(std::complex<double> R2, std::complex<double> z2, std::complex<double> r);

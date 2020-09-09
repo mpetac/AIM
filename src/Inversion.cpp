@@ -13,19 +13,18 @@ Inversion::Inversion(Model *model, int N_E, int N_Lz, int N_Lc, double tolerance
     Inversion::model = model;
     Inversion::tolerance_F = tolerance_F;
     Inversion::verbose = verbose;
-    Inversion::psi0 = std::real(Inversion::model->psi(0, 0, 0));
     
-    gsl_set_error_handler(&GSL_error_func);
+    gsl_set_error_handler(&Inversion::GSL_error_func);
     
     double Epts[N_E];
-    double Lzpts[N_Lz];
+    double Lzpts[2 * N_Lz - 1];
     double Fpts[N_E * (2 * N_Lz - 1)];
     
     for (int i = 0; i < N_E; i++) {
         Epts[i] = std::pow(2. - 1e-4, 1. * i / (N_E - 1)) - 1;
     }
     
-    for (int i = 0; i < N_Lz; i++) {
+    for (int i = 0; i < 2 * N_Lz - 1; i++) {
         Lzpts[i] = 2. * i / (2. * N_Lz - 2.) - 1;
     }
     
@@ -37,18 +36,17 @@ Inversion::Inversion(Model *model, int N_E, int N_Lz, int N_Lc, double tolerance
     gsl_spline2d_init(Inversion::F, Epts, Lzpts, Fpts, N_E, 2 * N_Lz - 1);
     
     
-    
     double Lcpts[N_Lc];
     double LcI[N_Lc];
     
     double epsilon = 1.02;
     for (int i = 0; i < N_Lc; i++) {
-        Lcpts[N_Lc - 1 - i] = 1. - std::pow(epsilon, i) / std::pow(epsilon, N_Lc - 1);
+        Lcpts[N_Lc - 1 - i] = 1. - std::pow(epsilon, i) / std::pow(epsilon, N_Lc);
     }
     
     for (int i = 0; i < N_Lc; i++) {
-        double Rc = model->Rcirc(Lcpts[i] * Inversion::psi0);
-        double psi_dR2_Rc = std::real(model->psi_dR2(std::pow(Rc, 2), 0, 0));
+        double Rc = model->Rcirc(Lcpts[i] * Inversion::model->psi0);
+        double psi_dR2_Rc = std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc));
         LcI[i] = 1. / (std::pow(Rc, 2) * std::sqrt(-2. * psi_dR2_Rc));
     }
     
@@ -65,7 +63,13 @@ Inversion::~Inversion() {
     gsl_interp_accel_free(LcAcc);
 }
 
-
+/**
+ * @param N_E Number of interpolation points for relative energy
+ * @param N_Lz Number of interpolation points for angular momentum
+ * @param Epts Array of interpolation points for the relative energy
+ * @param Lzpts Array of interpolation points for the angular momentum
+ * @param Fpts Array where the tabulated PSDF is stored
+ */
 
 void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, double* Fpts) {
     if(Inversion::model->psi(1., 0, 1.) == Inversion::model->psi(0, 1., 1.)) {
@@ -98,10 +102,17 @@ void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, doubl
                 std::cout << "PSDF computed: " << Epts[i] << ", " << Lzpts[j] << std::endl;
                 Fpts[(N_Lz - 1 + j) * N_E + i] = std::log(1. + val_even + val_odd);
                 Fpts[(N_Lz - 1 - j) * N_E + i] = std::log(1. + val_even - val_odd);
+                
             }
         }
     }
+    std::cout << "Tabulation done" << std::endl;
 }
+
+/**
+ * @param t Angle parametrizing the position along the contour
+ * @param params Struct with data needed for evaluating the contour integral
+ */
 
 double F_even_integrand(double t, void *params) {
     inversion_params *p = (inversion_params *) params;
@@ -117,13 +128,17 @@ double F_even_integrand(double t, void *params) {
     return std::real(dxi * jac * drho_dpsi);
 }
 
+/**
+ * @param params Values of the relative energy and angular momentum (expressed as a vector in E-Lz plane)
+ */
+
 double Inversion::F_even(double* params) {
     if (Inversion::verbose) std::cout << "Computing F-even: " << params[0] << ", " << params[1] << std::endl;
     
     if (params[0] == 0) return 0;
     
     double result, abserr;
-    double E = params[0] * Inversion::psi0;
+    double E = params[0] * Inversion::model->psi0;
     double Rc = Inversion::model->Rcirc(E);
     double Rc2 = std::pow(Rc, 2);
     double psiEnv = std::real(Inversion::model->psi(Rc2, 0, Rc));
@@ -142,6 +157,11 @@ double Inversion::F_even(double* params) {
     return result * Inversion::result_fact_even;
 }
 
+/**
+ * @param t Angle parametrizing the position along the contour
+ * @param params Struct with data needed for evaluating the contour integral
+ */
+
 double F_odd_integrand(double t, void *params) {
     inversion_params *p = (inversion_params *) params;
     Model *model = (Model *) p->model;
@@ -157,13 +177,17 @@ double F_odd_integrand(double t, void *params) {
     return std::real(dxi * jac * drho_dpsi * vPhi);
 }
 
+/**
+ * @param params Values of the relative energy and angular momentum (expressed as a vector in E-Lz plane)
+ */
+
 double Inversion::F_odd(double* params) {
     if (Inversion::verbose) std::cout << "Computing F-odd: " << params[0] << ", " << params[1] << std::endl;
     
     if (!Inversion::model->is_rotating() || params[0] == 0 || params[1] == 0) return 0;
     
     double result, abserr;
-    double E = params[0] * Inversion::psi0;
+    double E = params[0] * Inversion::model->psi0;
     double Rc = Inversion::model->Rcirc(E);
     double Rc2 = std::pow(Rc, 2);
     double psiEnv = std::real(Inversion::model->psi(Rc2, 0, Rc));
@@ -182,7 +206,35 @@ double Inversion::F_odd(double* params) {
     return result * Inversion::result_fact_odd;
 }
 
+/**
+ * @param E Value of the relative energy
+ * @param Lz Value of the angular momentum
+ */
+
+double Inversion::eval_F(double E, double Lz) {
+    return std::exp(gsl_spline2d_eval(F, E, Lz, EAcc, LzAcc)) - 1.;
+}
+
+/**
+ * @param E Value of the relative energy
+ */
+
+double Inversion::eval_LcI(double E) {
+    return gsl_spline_eval(LcInv, E, LcAcc);
+}
+
+
+
+
+/**
+ * @param reason Reason for raising the error
+ * @param file Name of the file in which the error occured
+ * @param line Line in which the error occured
+ * @param gsl_errno GSL error code
+ */
+
 void Inversion::GSL_error_func(const char* reason, const char* file, int line, int gsl_errno) {
     std::cout << " -> GSL error #" << gsl_errno << " in line " << line << " of " << file <<": " << gsl_strerror(gsl_errno) << std::endl;
+    std::cout << " -> " << reason << std::endl;
 }
 

@@ -99,3 +99,13 @@ struct inversion_params {
     double psiEnv;
     double h;
 };
+
+struct velocity_int_params {
+    void *model;
+    void *inversion;
+    size_t nIntervals;
+    double tolerance;
+    double R;
+    double psiRz;
+    double v;
+};
