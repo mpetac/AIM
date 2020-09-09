@@ -1,5 +1,14 @@
 #include "InversionInterp.hpp"
 
+/**
+ * @param model Galactic model
+ * @param E Relative energy
+ * @param Lz Angular momentum around the z-axis
+ * @param psiEnv Value of the gravitational potential corresponding to the circular radius
+ * @param h Width of the contour
+ * @param n Number of ponts used in the interpolation
+ */
+
 InversionInterp::InversionInterp(Model* model, double E, double Lz, double psiEnv, double h, int n) {
     std::complex<double> z2(1e4, 1e4);
     double theta[n], z2re[n], z2im[n];
@@ -21,6 +30,9 @@ InversionInterp::InversionInterp(Model* model, double E, double Lz, double psiEn
     gsl_spline_init(z2Imag, theta, z2im, n);
 }
 
+/**
+ * @param t Angle corresponging to the point along the contour
+ */
 
 std::complex<double> InversionInterp::z2_eval(double t) {
     return gsl_spline_eval(InversionInterp::z2Real, t, InversionInterp::reAcc) + 1.0i * gsl_spline_eval(InversionInterp::z2Imag, t, InversionInterp::imAcc);

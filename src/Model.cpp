@@ -1,51 +1,113 @@
 #include "Model.hpp"
 
+/** 
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ * @param r Value of radial coordinate
+ */
+
 std::complex<double> Model::psi(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
     return Model::halo->psi(R2, z2, r) + Model::baryons->psi(R2, z2, r);
 }
+
+/** 
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ * @param r Value of radial coordinate
+ */
 
 std::complex<double> Model::psi_dR2(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
     return Model::halo->psi_dR2(R2, z2, r) + Model::baryons->psi_dR2(R2, z2, r);
 }
 
+/** 
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ * @param r Value of radial coordinate
+ */
+
 std::complex<double> Model::psi_dz2(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
     return Model::halo->psi_dz2(R2, z2, r) + Model::baryons->psi_dz2(R2, z2, r);
 }
+
+/** 
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ * @param r Value of radial coordinate
+ */
 
 std::complex<double> Model::psi_d2R2z2(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
     return Model::halo->psi_d2R2z2(R2, z2, r) + Model::baryons->psi_d2R2z2(R2, z2, r);
 }
 
+/** 
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ * @param r Value of radial coordinate
+ */
+
 std::complex<double> Model::psi_d2z2(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
     return Model::halo->psi_d2z2(R2, z2, r) + Model::baryons->psi_d2z2(R2, z2, r);
 }
+
+/** 
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ * @param r Value of radial coordinate
+ */
 
 std::complex<double> Model::rho(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
     return Model::halo->rho(R2, z2, r);
 }
 
+/** 
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ * @param r Value of radial coordinate
+ */
+
 std::complex<double> Model::rho_dz2(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
     return Model::halo->rho_dz2(R2, z2, r);
 }
 
+/** 
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ * @param r Value of radial coordinate
+ */
+
 std::complex<double> Model::rho_d2z2(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
     return Model::halo->rho_d2z2(R2, z2, r);
 }
+
+/** 
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ * @param r Value of radial coordinate
+ */
 
 std::complex<double> Model::rho_d2psi2(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
     std::complex<double> dpsi_dz2 = Model::psi_dz2(R2, z2, r);
     return Model::psi(R2, z2, r) * std::pow(dpsi_dz2, -2) - Model::rho_dz2(R2, z2, r) * Model::psi_d2z2(R2, z2, r) * std::pow(dpsi_dz2, -3);
 }
 
+/** 
+ * @param R2 Value of the R-coordinate squared
+ */
+
 std::complex<double> Model::v_phi(std::complex<double> R2) {
     return Model::halo->v_phi(R2);
 }
 
-
-
 bool Model::is_rotating() {
     return Model::halo->is_rotating();
 }
+
+/** 
+ * Computes the relative difference between psi(R2,z2) and xi
+ * @param v Vector of complex and imaginary value of z2 that is being searched for
+ * @param p Struct containing the remianing relevant information
+ */
 
 double psi_inverse_diff(const gsl_vector* v, void* p) {
     psi_inverse_params *params = (psi_inverse_params *) p;
@@ -55,6 +117,15 @@ double psi_inverse_diff(const gsl_vector* v, void* p) {
     std::complex<double> psi_val = model->psi(params->R2, z2, r);
     return std::abs((params->xi - psi_val) / psi_val);
 }
+
+/** 
+ * @param xi Target value of total gravitational potential
+ * @param E Relative energy
+ * @param Lz Angular momentum around z-axis
+ * @param z0 Inital guess for z2
+ * @param tolerance Requested relative tolerance
+ * @param limit Maximum number of iterations
+ */
 
 std::complex<double> Model::psi_inverse(std::complex<double> xi, double E, double Lz, std::complex<double> z0, double tolerance, int limit) {
     int i = 0;
@@ -94,6 +165,11 @@ std::complex<double> Model::psi_inverse(std::complex<double> xi, double E, doubl
     return result;
 }
 
+/** 
+ * @param E Relative energy
+ * @param tolerance Requested relative tolerance
+ * @param limit Maximum number of iterations
+ */
 
 double Model::Rcirc(double E, double tolerance, int limit) {
     int i = 0;

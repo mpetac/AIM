@@ -4,9 +4,9 @@
 
 /**
  * Struct for three-parameter component.
- * @param M Mass of the disk
- * @param a Scale length of the disk
- * @param b Scale heigh of the disk
+ * @param M Mass of the disk [M_sol]
+ * @param a Scale length of the disk [kpc]
+ * @param b Scale heigh of the disk [kpc]
  */
 
 struct disk_3p {
@@ -17,8 +17,8 @@ struct disk_3p {
 
 /**
  * Struct for two-parameter bulge.
- * @param M Mass of the bulge
- * @param a Scale parameter of the bulge
+ * @param M Mass of the bulge [M_sol]
+ * @param a Scale parameter of the bulge [kpc]
  */
 
 struct bulge_2p {
@@ -28,8 +28,8 @@ struct bulge_2p {
 
 /**
  * Struct for two-parameter halo density profile.
- * @param rho_s Scale density of the halo
- * @param r_s Scale radius of the halo
+ * @param rho_s Scale density of the halo [M_sol / kpc^3]
+ * @param r_s Scale radius of the halo [kpc]
  */
 
 struct halo_2p {
@@ -39,8 +39,8 @@ struct halo_2p {
 
 /**
  * Struct for three-parameter halo density profile.
- * @param rho_s Scale density of the halo
- * @param r_s Scale radius of the halo
+ * @param rho_s Scale density of the halo [M_sol / kpc^3]
+ * @param r_s Scale radius of the halo [kpc]
  * @param gamma Central density slope of the halo
  */
 
@@ -52,8 +52,8 @@ struct halo_3p {
 
 /**
  * Struct for four-parameter halo density profile.
- * @param rho_s Scale density of the halo
- * @param r_s Scale radius of the halo
+ * @param rho_s Scale density of the halo [M_sol / kpc^3]
+ * @param r_s Scale radius of the halo [kpc]
  * @param gamma Central density slope of the halo
  * @param q Flattening of the halo along the axis of symmetry
  */
@@ -67,8 +67,8 @@ struct halo_4p {
 
 /**
  * Struct with halo rotation parameters
- * @param omega Angular velocity
- * @param r_a Rotatinal scale radius
+ * @param omega Angular velocity [Hz]
+ * @param r_a Rotatinal scale radius [kpc]
  */
 
 struct halo_rot_2p {
@@ -76,11 +76,19 @@ struct halo_rot_2p {
     double r_a;
 };
 
+/**
+ * Auxilary struct for computing the inverse of gravitational potential
+ */
+
 struct psi_inverse_params {
     void *model;
     std::complex<double> xi;
     std::complex<double> R2;
 };
+
+/**
+ * Auxilary struct for computing the inversion contour integrals
+ */
 
 struct inversion_params {
     void *model;

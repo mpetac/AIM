@@ -1,5 +1,14 @@
 #include "Inversion.hpp"
 
+/**
+ * @param model Galactic model
+ * @param N_E Number of relative energy interpolation points
+ * @param N_Lz Number of angular momentum interpolation points
+ * @param N_Lc Number of maximum angular momentum interpolation points
+ * @param tolerance_F Tolerance used for computing the PSDF
+ * @param verobse Verbose output
+ */
+
 Inversion::Inversion(Model *model, int N_E, int N_Lz, int N_Lc, double tolerance_F, bool verbose) {
     Inversion::model = model;
     Inversion::tolerance_F = tolerance_F;
@@ -55,6 +64,7 @@ Inversion::~Inversion() {
     gsl_interp_accel_free(LzAcc);
     gsl_interp_accel_free(LcAcc);
 }
+
 
 
 void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, double* Fpts) {
