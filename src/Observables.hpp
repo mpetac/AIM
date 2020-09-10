@@ -27,9 +27,6 @@ private:
 public:
     /// Initializer
     Observables(Model *model, Inversion *inversion);
-    
-    /// Destructor
-    ~Observables();
 
     /// Computes the DM density profile
     void rho(int N, double *Rpts, double *zpts, double *result, double tolerance=1e-3);

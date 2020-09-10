@@ -32,7 +32,7 @@ private:
     /// Parameter controling verbose output
     bool verbose;
     /// Number of interpolation points used in the inversion of total gravitational potential
-    int nInterp = 100;
+    int nInterp = 200;
     /// Relative tolerance used in performing the contour integrals
     double tolerance_F;
     /// Width of the contours
@@ -70,4 +70,5 @@ public:
     /// GSL error handler
     static void GSL_error_func(const char * reason, const char * file, int line, int gsl_errno);
     
+    void test();
 };

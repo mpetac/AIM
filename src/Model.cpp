@@ -96,7 +96,7 @@ std::complex<double> Model::rho_d2z2(std::complex<double> R2, std::complex<doubl
 
 std::complex<double> Model::rho_d2psi2(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
     std::complex<double> dpsi_dz2 = Model::psi_dz2(R2, z2, r);
-    return Model::psi(R2, z2, r) * std::pow(dpsi_dz2, -2) - Model::rho_dz2(R2, z2, r) * Model::psi_d2z2(R2, z2, r) * std::pow(dpsi_dz2, -3);
+    return Model::rho_d2z2(R2, z2, r) * std::pow(dpsi_dz2, -2) - Model::rho_dz2(R2, z2, r) * Model::psi_d2z2(R2, z2, r) * std::pow(dpsi_dz2, -3);
 }
 
 /** 
@@ -164,6 +164,12 @@ std::complex<double> Model::psi_inverse(std::complex<double> xi, double E, doubl
         gsl_multimin_fminimizer_iterate(s);
         diff = s->fval;
     }
+    
+    /*
+    if (diff > tolerance) {
+        std::cout << "Inversion failed! xi: " << xi << ", E: " << E << ", Lz: " << Lz << ", iter: " << i << ", delta: " << s->fval << ", z0: " << z0 << std::endl;
+    }
+    */
     
     std::complex<double> result(gsl_vector_get(s->x, 0), gsl_vector_get(s->x, 1));
     gsl_vector_free(x);

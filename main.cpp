@@ -14,29 +14,53 @@ int main(int argc, char **argv) {
     
     time_t tStart = time(NULL);
     
-    halo_2p halo = {1e-2, 13};
-    disk_3p disk1 = {1, 1, 0.1};
-    disk_3p disk2 = {0.5, 2, 0.3};
-    bulge_2p bulge = {1, 0.5};
+    halo_2p halo = {1e7, 13};
+    disk_3p disk1 = {5e10, 3.6, 0.5};
+    disk_3p disk2 = {0., 2., 0.3};
+    bulge_2p bulge = {1e11, 1.};
     
     Halo_NFW DM(halo);
     Baryons_H_2MN baryons(disk1, disk2, bulge);
     
     Model model(&DM, &baryons);
     
-    Inversion psdf(&model, 100, 10);
     
+    Inversion psdf(&model, 100, 2);
+    
+    psdf.test();
+    
+    /*
+    int N = 100;
+    for (int i = 0; i < N; i++) {
+        double E = 1. - pow(10., -4. + 4. * i / (N - 1.));
+        double F = psdf.eval_F(E, 0);
+        std::cout << "F(" << E << ", 0) = " << F << std::endl;
+    }
+    */
+    
+    /*
     Observables obs(&model, &psdf);
     
     int nPts = 10;
     double Rpts[nPts], zpts[nPts], result[nPts];
-    double Rmin = 1e-3, Rmax = 1e2;
+    double logRmin = -3., logRmax = 2.;
     for (int i = 0; i < nPts; i++) {
-        //Rpts[i] = (Rmax - Rmin) * std::exp(
+        Rpts[i] = std::pow(10., logRmin + (logRmax - logRmin) * i / (nPts - 1));
+        zpts[i] = 0;
+        result[i] = 0;
     }
+    
+    obs.rho(nPts, Rpts, zpts, result);
+    
+    for (int i = 0; i < nPts; i++) {
+        double rho_true = std::real(model.rho(Rpts[i] * Rpts[i], 0, Rpts[i]));
+        std::cout << "rho(" << Rpts[i] << "): " << result[i] << " / " << rho_true << " (" << result[i] / rho_true << ")" << std::endl;
+    }
+    */
     
     double dt = difftime(time(NULL), tStart);
     std::cout << "Done in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;
+    
     
     return 0;
 }

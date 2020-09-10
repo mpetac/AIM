@@ -39,9 +39,9 @@ double rho_int_c(double c, void *params) {
     
     double E = (p->psiRz - 0.5 * pow(p->v, 2)) / model->psi0;
     
-    //double Rc = model->Rcirc(E * model->psi0);
-    //double L = p->R * p—>v * c / (std::pow(Rc, 2) * sqrt(-2. * model->dpsi_dR2(std::pow(Rc, 2), 0, Rc)));
-    double L = p->R * p->v * c * inversion->eval_LcI(E);
+    double Rc = model->Rcirc(E * model->psi0);
+    double L = p->R * p->v * c / (std::pow(Rc, 2) * sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
+    //double L = p->R * p->v * c * inversion->eval_LcI(E);
     
     return inversion->eval_F(E, L);
 }
