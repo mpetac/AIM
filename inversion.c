@@ -901,7 +901,7 @@ double complex d2rho_dpsi2(double complex xi, double t, double E, double L) {
         else z2 = psi_inverse(xi, E, L, 1e3, 1e3);
         
         //printf("%g: %g+%gI -> %g+%gI\n", t, gsl_spline_eval(z2_re, t, z2_re_acc),  gsl_spline_eval(z2_im, t, z2_im_acc), creal(z2), cimag(z2));
-        printf("R2: %.8g+%.8gI, z2: %.8g+%.8gI\n", creal(R2), cimag(R2), creal(z2), cimag(z2));
+        //printf("R2: %.8g+%.8gI, z2: %.8g+%.8gI\n", creal(R2), cimag(R2), creal(z2), cimag(z2));
         
         double complex dpsi = dpsi_dz2(R2, z2);
         result = d2rho_dz22(R2, z2) * cpow(dpsi, -2) - drho_dz2(R2, z2) * d2psi_dz22(R2, z2) * cpow(dpsi, -3);
@@ -980,7 +980,7 @@ double PSDF_integrand(double t, void * params) {
     double E = (p->E), L = (p->L), Rc = (p->Rc), psiEnv = (p->psiEnv);
     double complex xi = 0.5 * psiEnv * (1. + cos(t)) + I * h * sin(t);
     double result = (0.5 * psiEnv * sin(t) * I + h * cos(t)) * cpow(xi - E, -0.5) * d2rho_dpsi2(xi, t, E, L);
-    printf("%g+%gI, %g+%gI, %g+%gI\n", creal((0.5 * psiEnv * sin(t) * I + h * cos(t))), cimag((0.5 * psiEnv * sin(t) * I + h * cos(t))), creal(cpow(xi - E, -0.5)), cimag(cpow(xi - E, -0.5)), creal(d2rho_dpsi2(xi, t, E, L)), cimag(d2rho_dpsi2(xi, t, E, L)));
+    //printf("%g+%gI, %g+%gI, %g+%gI\n", creal((0.5 * psiEnv * sin(t) * I + h * cos(t))), cimag((0.5 * psiEnv * sin(t) * I + h * cos(t))), creal(cpow(xi - E, -0.5)), cimag(cpow(xi - E, -0.5)), creal(d2rho_dpsi2(xi, t, E, L)), cimag(d2rho_dpsi2(xi, t, E, L)));
     return creal(result);
 }
 
@@ -2179,8 +2179,9 @@ void compute_PSDF(int v, int n, int m, double* p) {
     N = 100;
     for (int i = 0; i < N; i++) {
         double E = 1. - pow(10., -4. + 4. * i / (N - 1.));
-        double F = exp(gsl_spline2d_eval(psdf, E, 0, xAcc, yAcc)) - 1;
-        fprintf(fp, "%g\t%g\n", E, F);
+        double F0 = exp(gsl_spline2d_eval(psdf, E, 0, xAcc, yAcc)) - 1;
+        double F1 = exp(gsl_spline2d_eval(psdf, E, 1., xAcc, yAcc)) - 1;
+        fprintf(fp, "%g\t%g\t%g\n", E, F0, F1);
     }
     
     gsl_spline2d_free(psdf);
@@ -2610,10 +2611,17 @@ int main (int argc, char **argv) {
     gsl_set_error_handler(&errorHandlerFunc);
     clock_t start = clock() / (CLOCKS_PER_SEC / 1000);
     
-    double params[16] = {5e10, 3.6, 0.5, 0, 1, 1, 1e11, 1, -2, 13, 1, 1, 3, 1, 0, 16};
-    //compute_PSDF(1, 20, 4, params);
-    
+    double params[16] = {0., 3.6, 0.5, 0, 1., 1., 1e11, 1., -2., 13., 1., 1., 3., 1., 0, 16.};
+    compute_PSDF(1, 100, 20, params);
+    /*
     init_parameters(params);
+    
+    double complex R2 = 7.3 - 2.7*I, z2 = 100.3 + 5.7*I;
+    double complex dpsi = dpsi_dz2(R2, z2);
+    double complex r = d2rho_dz22(R2, z2) * cpow(dpsi, -2) - drho_dz2(R2, z2) * d2psi_dz22(R2, z2) * cpow(dpsi, -3);
+    printf("R2 = (%g, %gI), z2 = (%g, %gI): (%g, %gI)\n", creal(R2), cimag(R2), creal(z2), cimag(z2), creal(r), cimag(r));
+    
+    
     double E = 0.9 * psi(0, 0);
     double Rc = Rcirc(E);
     double psiEnv = psi(Rc * Rc, 0);
@@ -2621,7 +2629,7 @@ int main (int argc, char **argv) {
     h = 0.05 * psiEnv;
     struct psdf_params p = {E, L, Rc, psiEnv};
     printf("df(E=%g, Lz=%g) = %g\n", E, L, PSDF_integrand(M_PI - 1e-1, &p));
-    
+    */
     printf("Done in %g s\n", (clock() / (CLOCKS_PER_SEC / 1000) - start) / 1000.);
     
     return 0;

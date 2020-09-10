@@ -4,6 +4,7 @@
 #include <future>
 #include <vector>
 #include <complex>
+#include <algorithm>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_spline2d.h>
@@ -56,7 +57,7 @@ private:
     
 public:
     /// Initializer which performs the interpolation of the PSDF
-    Inversion(Model *model, int N_E, int N_Lz, int N_Lc = 930, double tolerance_F = 1e-3, bool verbose = 0);
+    Inversion(Model *model, int N_E, int N_Lz, int N_Lc = 930, double tolerance_F = 1e-2, bool verbose = 0);
     
     /// Destructor
     ~Inversion();

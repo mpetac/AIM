@@ -59,7 +59,7 @@ public:
     std::complex<double> v_phi(std::complex<double> R2);
     
     /// Compute the inverse of the total gravitational potential (i.e. z2 = psi^{-1}(xi, R2))
-    std::complex<double> psi_inverse(std::complex<double> xi, double E, double Lz, std::complex<double> z0 = (1., 0), double tolerance = 1e-6, int limit = 200);
+    std::complex<double> psi_inverse(std::complex<double> xi, double E, double Lz, std::complex<double> z0 = 1e3+1e3i, double tolerance = 1e-8, int limit = 200);
     
     /// Computes the circular radius corresponding to a given energy
     double Rcirc (double E, double tolerance = 1e-6, int limit = 1000);

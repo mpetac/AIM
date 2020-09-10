@@ -136,10 +136,27 @@ TEST(ParametricFuncsTestGroup, Rho_BUR) {
     
 };
 
+TEST(ParametricFuncsTestGroup, d2Rho_dPsi2) {
+    halo_2p halo = {1e7, 13};
+    disk_3p disk1 = {5e10, 3.6, 0.5};
+    disk_3p disk2 = {0., 2., 0.3};
+    bulge_2p bulge = {1e11, 1.};
+    
+    Halo_NFW DM(halo);
+    Baryons_H_2MN baryons(disk1, disk2, bulge);
+    Model model(&DM, &baryons);
+    
+    std::complex<double> R2(7.3, -2.7);
+    std::complex<double> z2(100.3, 5.7);
+    std::complex<double> d2rho_dpsi2 = model.rho_d2psi2(R2, z2, std::sqrt(R2 + z2));
+    DOUBLES_EQUAL(0.00218314, std::real(d2rho_dpsi2), 1e-5);
+    DOUBLES_EQUAL(1.31776e-5, std::imag(d2rho_dpsi2), 1e-5);
+};
+
 TEST_GROUP(ModelTestGroup) {
 };
 
-TEST(ModelTestGroup, Model) {
+TEST(ModelTestGroup, Rcirc) {
     halo_2p halo = {1e-2, 13};
     disk_3p disk1 = {1, 1, 0.1};
     disk_3p disk2 = {0.5, 2, 0.3};
@@ -153,16 +170,28 @@ TEST(ModelTestGroup, Model) {
     double Rc = 2.13;
     double E_Rc = std::real(m.psi(std::pow(Rc, 2), 0, Rc) + std::pow(Rc, 2) * m.psi_dR2(std::pow(Rc, 2), 0, Rc));
     DOUBLES_EQUAL(m.Rcirc(E_Rc), Rc, 1e-3);
+};
+
+TEST(ModelTestGroup, PsiInverse) {
+    halo_2p halo = {1e7, 13.};
+    disk_3p disk1 = {1e10, 3.6, 0.1};
+    disk_3p disk2 = {0., 2., 0.3};
+    bulge_2p bulge = {1e11, 1.};
     
+    Halo_NFW DM(halo);
+    Baryons_H_2MN baryons(disk1, disk2, bulge);
     
-    double E = 0.78 * std::real(m.psi(0, 0, 0));
+    Model m(&DM, &baryons);
+    
+    double E = 0.9 * std::real(m.psi(0, 0, 0));
     double Rc_E = m.Rcirc(E);
-    double Lz = 0.28 * std::real(m.psi_dR2(std::pow(Rc_E, 2), 0, Rc_E));
+    double Lz = 0.99;//0.0 * std::real(m.psi_dR2(std::pow(Rc_E, 2), 0, Rc_E));
     std::complex<double> R2(1.18, 0.3);
     std::complex<double> xi = std::pow(Lz, 2) / (2. * R2) + E;
     std::complex<double> z2 = m.psi_inverse(xi, E, Lz);
-    DOUBLES_EQUAL(std::real(xi), std::real(m.psi(R2, z2, std::sqrt(R2 + z2))), 1e-5);
-    DOUBLES_EQUAL(std::imag(xi), std::imag(m.psi(R2, z2, std::sqrt(R2 + z2))), 1e-5);
+    double rel_dif = std::abs(xi - m.psi(R2, z2, std::sqrt(R2 + z2))) / m.psi0;
+    std::cout << xi << " : " << m.psi(R2, z2, std::sqrt(R2 + z2)) << std::endl;
+    DOUBLES_EQUAL(0., rel_dif, 1e-5);
 };
 
 int main(int ac, char** av) {

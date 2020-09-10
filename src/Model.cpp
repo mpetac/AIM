@@ -168,8 +168,7 @@ std::complex<double> Model::psi_inverse(std::complex<double> xi, double E, doubl
     /*
     if (diff > tolerance) {
         std::cout << "Inversion failed! xi: " << xi << ", E: " << E << ", Lz: " << Lz << ", iter: " << i << ", delta: " << s->fval << ", z0: " << z0 << std::endl;
-    }
-    */
+    }*/
     
     std::complex<double> result(gsl_vector_get(s->x, 0), gsl_vector_get(s->x, 1));
     gsl_vector_free(x);

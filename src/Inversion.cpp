@@ -86,20 +86,28 @@ void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, doubl
             }
         }
     } else {
+        /**/
         std::vector<std::future<double>> vals_even(N_E * N_Lz);
         std::vector<std::future<double>> vals_odd(N_E * N_Lz);
         for (int i = 0; i < N_E; i++) {
             for (int j = 0; j < N_Lz; j++) {
-                double params[2] = {Epts[i], Lzpts[j]};
-                vals_even[i * N_Lz + j] = std::async(std::launch::deferred, &Inversion::F_even, this, params);
-                vals_odd[i * N_Lz + j] = std::async(std::launch::deferred, &Inversion::F_odd, this, params);
+                double *params = new double[2];
+                params[0] = Epts[i];
+                params[1] = Lzpts[j];
+                vals_even[i * N_Lz + j] = std::async(&Inversion::F_even, this, params);
+                vals_odd[i * N_Lz + j] = std::async(&Inversion::F_odd, this, params);
             }
         }
+        
         for (int i = 0; i < N_E; i++) {
             for (int j = 0; j < N_Lz; j++) {
-                double val_even = vals_even[i * N_Lz + j].get();
-                double val_odd = vals_odd[i * N_Lz + j].get();
-                if (Lzpts[j] == 0) std::cout << "PSDF computed: " << Epts[i] << ", " << Lzpts[j] << " -> " << val_even << ", " << val_odd << std::endl;
+                double params[2] = {Epts[i], Lzpts[j]};
+                //double val_even = Inversion::F_even(params);//vals_even[i * N_Lz + j].get();
+                //double val_odd = 0.;//vals_odd[i * N_Lz + j].get();
+                double val_even = std::max(vals_even[i * N_Lz + j].get(), 0.);
+                double val_odd = 0;//vals_odd[i * N_Lz + j].get();
+                if (std::abs(val_odd) > val_even) val_odd = val_even * (1. - 2. * int(std::signbit(val_odd)));
+                std::cout << "PSDF computed: " << Epts[i] << ", " << Lzpts[j] << " -> " << val_even << ", " << val_odd << std::endl;
                 Fpts[(N_Lz - 1 + j) * N_E + i] = std::log(1. + val_even + val_odd);
                 Fpts[(N_Lz - 1 - j) * N_E + i] = std::log(1. + val_even - val_odd);
             }
@@ -171,8 +179,9 @@ double F_odd_integrand(double t, void *params) {
     Model *model = (Model *) p->model;
     InversionInterp *z2interp = (InversionInterp *) p->z2interp;
     
-    std::complex<double> xi = 0.5 * p->psiEnv * (1. + std::cos(t) + 2.0i * p->h * std::sin(t));
-    std::complex<double> dxi = (0.5 * p->psiEnv * (1.0i * std::sin(t) + p->h * std::cos(t)));
+    std::complex<double> xi = 0.5 * p->psiEnv * (1. + std::cos(t) + 2.i * p->h * std::sin(t));
+    if (std::abs(xi) < model->psi0 * 1e-5) return 0;
+    std::complex<double> dxi = 0.5 * p->psiEnv * (1.i * std::sin(t) + 2. * p->h * std::cos(t));
     std::complex<double> jac = std::pow(xi - p->E, -0.5);
     std::complex<double> R2 = std::pow(p->Lz, 2) / (2. * (xi - p->E));
     std::complex<double> z2 = model->psi_inverse(xi, p->E, p->Lz, z2interp->z2_eval(t));
@@ -216,7 +225,10 @@ double Inversion::F_odd(double* params) {
  */
 
 double Inversion::eval_F(double E, double Lz) {
-    if (E < 0 || E > 1 || Lz < -1 || Lz > 1) std::cout << "PSDF eval out of range: " << E << ", " << Lz << std::endl;
+    if (E < 0 || E > 1 || Lz < -1 || Lz > 1) {
+        std::cout << "PSDF eval out of range: " << E << ", " << Lz << std::endl;
+        return 0;
+    }
     return std::exp(gsl_spline2d_eval(F, E, Lz, EAcc, LzAcc)) - 1.;
 }
 
@@ -245,7 +257,6 @@ void Inversion::GSL_error_func(const char* reason, const char* file, int line, i
 
 
 void Inversion::test() {
-    
     double E = 0.9 * Inversion::model->psi0;
     double Rc = Inversion::model->Rcirc(E);
     double Rc2 = std::pow(Rc, 2);

@@ -14,7 +14,7 @@ InversionInterp::InversionInterp(Model* model, double E, double Lz, double psiEn
     double theta[n], z2re[n], z2im[n];
     for (int i = 0; i < n; i++) {
         double t = M_PI * i / (n - 1.);
-        std::complex<double> xi = 0.5 * psiEnv * (1. + std::cos(t) + 2.0i * h * sin(t));
+        std::complex<double> xi = 0.5 * psiEnv * (1. + std::cos(t) + 2.i * h * std::sin(t));
         
         z2 = model->psi_inverse(xi, E, Lz, z2);
         theta[i] = t;
