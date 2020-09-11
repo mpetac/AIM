@@ -174,8 +174,8 @@ TEST(ModelTestGroup, Rcirc) {
 
 TEST(ModelTestGroup, PsiInverse) {
     halo_2p halo = {1e7, 13.};
-    disk_3p disk1 = {1e10, 3.6, 0.1};
-    disk_3p disk2 = {0., 2., 0.3};
+    disk_3p disk1 = {5e10, 3.6, 0.5};
+    disk_3p disk2 = {0, 1., 1.};
     bulge_2p bulge = {1e11, 1.};
     
     Halo_NFW DM(halo);
@@ -183,11 +183,17 @@ TEST(ModelTestGroup, PsiInverse) {
     
     Model m(&DM, &baryons);
     
-    double E = 0.9 * std::real(m.psi(0, 0, 0));
+    std::cout << "Psi0: " << m.psi0 << std::endl;
+    
+    double E = 0.999 * std::real(m.psi(0, 0, 0));
     double Rc_E = m.Rcirc(E);
-    double Lz = 0.99;//0.0 * std::real(m.psi_dR2(std::pow(Rc_E, 2), 0, Rc_E));
-    std::complex<double> R2(1.18, 0.3);
+    std::cout << "Rc: " << Rc_E << std::endl;
+    double Lz = 1. * std::pow(Rc_E, 2) * std::sqrt(-2 * std::real(m.psi_dR2(std::pow(Rc_E, 2), 0, Rc_E)));
+    std::cout << "E: " << E << ", Lz: " << Lz << std::endl;
+    std::complex<double> R2(1.18, 1.3);
     std::complex<double> xi = std::pow(Lz, 2) / (2. * R2) + E;
+    std::cout << "xi: " << xi << std::endl;
+    std::cout << "R2: " << std::pow(Lz, 2) / (2. * (xi - E)) << std::endl;
     std::complex<double> z2 = m.psi_inverse(xi, E, Lz);
     double rel_dif = std::abs(xi - m.psi(R2, z2, std::sqrt(R2 + z2))) / m.psi0;
     std::cout << xi << " : " << m.psi(R2, z2, std::sqrt(R2 + z2)) << std::endl;

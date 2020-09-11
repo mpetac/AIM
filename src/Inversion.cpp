@@ -35,7 +35,7 @@ Inversion::Inversion(Model *model, int N_E, int N_Lz, int N_Lc, double tolerance
     Inversion::F = gsl_spline2d_alloc(gsl_interp2d_bilinear, N_E, 2 * N_Lz - 1);
     gsl_spline2d_init(Inversion::F, Epts, Lzpts, Fpts, N_E, 2 * N_Lz - 1);
     
-    
+    /*
     double Lcpts[N_Lc];
     double LcI[N_Lc];
     
@@ -53,14 +53,15 @@ Inversion::Inversion(Model *model, int N_E, int N_Lz, int N_Lc, double tolerance
     Inversion::LcAcc = gsl_interp_accel_alloc();
     Inversion::LcInv = gsl_spline_alloc(gsl_interp_cspline, N_Lc);
     gsl_spline_init(Inversion::LcInv, Lcpts, LcI, N_Lc);
+    */
 }
 
 Inversion::~Inversion() {
     gsl_spline2d_free(F);
-    gsl_spline_free(LcInv);
+    //gsl_spline_free(LcInv);
     gsl_interp_accel_free(EAcc);
     gsl_interp_accel_free(LzAcc);
-    gsl_interp_accel_free(LcAcc);
+    //gsl_interp_accel_free(LcAcc);
 }
 
 /**
@@ -93,27 +94,24 @@ void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, doubl
             for (int j = 0; j < N_Lz; j++) {
                 double *params = new double[2];
                 params[0] = Epts[i];
-                params[1] = Lzpts[j];
-                vals_even[i * N_Lz + j] = std::async(&Inversion::F_even, this, params);
+                params[1] = Lzpts[j + N_Lz - 1];
+                vals_even[i * N_Lz + j] = std::async(&Inversion::F_even, this, params);//std::launch::deferred, 
                 vals_odd[i * N_Lz + j] = std::async(&Inversion::F_odd, this, params);
             }
         }
         
         for (int i = 0; i < N_E; i++) {
             for (int j = 0; j < N_Lz; j++) {
-                double params[2] = {Epts[i], Lzpts[j]};
-                //double val_even = Inversion::F_even(params);//vals_even[i * N_Lz + j].get();
-                //double val_odd = 0.;//vals_odd[i * N_Lz + j].get();
                 double val_even = std::max(vals_even[i * N_Lz + j].get(), 0.);
-                double val_odd = 0;//vals_odd[i * N_Lz + j].get();
+                double val_odd = vals_odd[i * N_Lz + j].get();
                 if (std::abs(val_odd) > val_even) val_odd = val_even * (1. - 2. * int(std::signbit(val_odd)));
-                std::cout << "PSDF computed: " << Epts[i] << ", " << Lzpts[j] << " -> " << val_even << ", " << val_odd << std::endl;
+                std::cout << "PSDF computed: " << Epts[i] << ", " << Lzpts[j + N_Lz - 1] << " -> " << val_even << ", " << val_odd << std::endl;
                 Fpts[(N_Lz - 1 + j) * N_E + i] = std::log(1. + val_even + val_odd);
                 Fpts[(N_Lz - 1 - j) * N_E + i] = std::log(1. + val_even - val_odd);
             }
         }
     }
-    std::cout << "Tabulation done" << std::endl;
+    std::cout << "Interpolation done" << std::endl;
 }
 
 /**
@@ -253,19 +251,5 @@ double Inversion::eval_LcI(double E) {
 void Inversion::GSL_error_func(const char* reason, const char* file, int line, int gsl_errno) {
     std::cout << " -> GSL error #" << gsl_errno << " in line " << line << " of " << file <<": " << gsl_strerror(gsl_errno) << std::endl;
     std::cout << " -> " << reason << std::endl;
-}
-
-
-void Inversion::test() {
-    double E = 0.9 * Inversion::model->psi0;
-    double Rc = Inversion::model->Rcirc(E);
-    double Rc2 = std::pow(Rc, 2);
-    double psiEnv = std::real(Inversion::model->psi(Rc2, 0, Rc));
-    double Lz = 0.1 * std::pow(Rc, 2) * std::sqrt(-2. * std::real(Inversion::model->psi_dR2(Rc2, 0, Rc)));
-    InversionInterp z2interp(Inversion::model, E, Lz, psiEnv, Inversion::h, Inversion::nInterp);
-    inversion_params p = {Inversion::model, &z2interp, E, Lz, Rc, psiEnv, Inversion::h};
-    
-    double integrand = F_even_integrand(M_PI - 1e-1, &p);
-    std::cout << "df(E=" << E << ", Lz=" << Lz << ") = " << integrand << std::endl;
 }
 

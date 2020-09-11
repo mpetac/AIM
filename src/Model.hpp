@@ -62,7 +62,7 @@ public:
     std::complex<double> psi_inverse(std::complex<double> xi, double E, double Lz, std::complex<double> z0 = 1e3+1e3i, double tolerance = 1e-8, int limit = 200);
     
     /// Computes the circular radius corresponding to a given energy
-    double Rcirc (double E, double tolerance = 1e-6, int limit = 1000);
+    double Rcirc (double E, double tolerance = 1e-8, int limit = 1000);
     
     /// Check whether the halo is rotating or not
     bool is_rotating();
