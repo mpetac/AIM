@@ -57,7 +57,7 @@ private:
     
 public:
     /// Initializer which performs the interpolation of the PSDF
-    Inversion(Model *model, int N_E, int N_Lz, int N_Lc = 930, double tolerance_F = 1e-2, bool verbose = 0);
+    Inversion(Model *model, int N_E, int N_Lz, int N_Lc = 930, double tolerance_F = 1e-3, bool verbose = 0);
     
     /// Destructor
     ~Inversion();
@@ -70,6 +70,4 @@ public:
     
     /// GSL error handler
     static void GSL_error_func(const char * reason, const char * file, int line, int gsl_errno);
-    
-    void test();
 };

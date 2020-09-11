@@ -15,9 +15,9 @@ int main(int argc, char **argv) {
     time_t tStart = time(NULL);
     
     halo_2p halo = {1e7, 13.};
-    disk_3p disk1 = {0., 3.6, 0.5};
+    disk_3p disk1 = {5e10, 3.6, 0.5};
     disk_3p disk2 = {0., 2., 0.3};
-    bulge_2p bulge = {0., 1.};
+    bulge_2p bulge = {1e11, 1.};
     
     Halo_NFW DM(halo);
     Baryons_H_2MN baryons(disk1, disk2, bulge);
@@ -26,18 +26,6 @@ int main(int argc, char **argv) {
     
     
     Inversion psdf(&model, 100, 20);
-    
-    //psdf.test();
-    
-    /*
-    int N = 100;
-    for (int i = 0; i < N; i++) {
-        double E = 1. - pow(10., -4. + 4. * i / (N - 1.));
-        double F = psdf.eval_F(E, 0);
-        std::cout << "F(" << E << ", 0) = " << F << std::endl;
-    }
-    */
-    
     
     Observables obs(&model, &psdf);
     

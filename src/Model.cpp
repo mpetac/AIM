@@ -123,6 +123,7 @@ double psi_inverse_diff(const gsl_vector* v, void* p) {
     std::complex<double> z2(gsl_vector_get(v, 0), gsl_vector_get(v, 1));
     std::complex<double> r = std::sqrt(params->R2 + z2);
     std::complex<double> psi_val = model->psi(params->R2, z2, r);
+    //printf("Psi(%g+%gI, %g+%gI): %g+%gI -> diff: %.32g\n", std::real(params->R2), std::imag(params->R2), std::real(z2), std::imag(z2), std::real(psi_val), std::imag(psi_val), std::abs((params->xi - psi_val) / params->xi));
     return std::abs((params->xi - psi_val) / psi_val);
 }
 
@@ -138,7 +139,7 @@ double psi_inverse_diff(const gsl_vector* v, void* p) {
 std::complex<double> Model::psi_inverse(std::complex<double> xi, double E, double Lz, std::complex<double> z0, double tolerance, int limit) {
     int i = 0;
     double diff = 1;
-    if (std::abs(z0) > 1e4) limit = 1000;
+    //if (std::abs(z0) > 1e4) limit = 1000;
     
     psi_inverse_params params = {this, xi, std::pow(Lz, 2) / (2. * (xi - E))};
     
@@ -165,15 +166,16 @@ std::complex<double> Model::psi_inverse(std::complex<double> xi, double E, doubl
         diff = s->fval;
     }
     
-    /*
-    if (diff > tolerance) {
-        std::cout << "Inversion failed! xi: " << xi << ", E: " << E << ", Lz: " << Lz << ", iter: " << i << ", delta: " << s->fval << ", z0: " << z0 << std::endl;
-    }*/
-    
     std::complex<double> result(gsl_vector_get(s->x, 0), gsl_vector_get(s->x, 1));
     gsl_vector_free(x);
     gsl_vector_free(step);
     gsl_multimin_fminimizer_free(s);
+    
+    /**/
+    if (diff > tolerance) {
+        //std::cout << "Inversion failed! xi: " << xi << ", E: " << E << ", Lz: " << Lz << ", iter: " << i << ", delta: " << s->fval << ", z0: " << z0 << " -> " << result << std::endl;
+        //printf("Inversion failed! (xi: %.15g+%.15gI, E: %.15g, L: %.15g, iter: %d, delta: %g, z0: %g+%gI -> %g+%gI)\n", std::real(xi), std::imag(xi), E, Lz, i, s->fval, std::real(z0), std::imag(z0), std::real(result), std::imag(result));
+    }
     
     return result;
 }
@@ -186,7 +188,7 @@ std::complex<double> Model::psi_inverse(std::complex<double> xi, double E, doubl
 
 double Model::Rcirc(double E, double tolerance, int limit) {
     int i = 0;
-    double Rc = 0, dR = 1;
+    double Rc = 0, dR = 1.;
     while(i < limit) {
         i++;
         double R = Rc + dR;

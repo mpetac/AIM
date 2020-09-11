@@ -29,7 +29,7 @@
 const double G = 4.3e-6;
 
 // Constants related to numerical integration & minimization
-const double tolPsi = 1e-6, tolInverse = 1e-6, tolPSDF = 1e-2, tolEta = 1e-2;
+const double tolPsi = 1e-6, tolInverse = 1e-8, tolPSDF = 1e-2, tolEta = 1e-2;
 
 // Constant that defines the thickness of the contour (its value is set later, depending on the particular relative energy and angular momentum)
 double h = 101.769;
@@ -794,7 +794,7 @@ double psi_inverse_func (const gsl_vector *v, void *params) {
     double complex *p = (double complex *)params;
     double complex z2 = gsl_vector_get(v, 0) + I * gsl_vector_get(v, 1);
     double complex psiVal = psi(p[1], z2);
-    //printf("Psi(R2, %g+%gI): %g+%gI -> diff: %.32g\n", creal(z2), cimag(z2), creal(psiVal), cimag(psiVal), cabs((p[0] - psiVal) / p[0]));
+    //printf("Psi(%g+%gI, %g+%gI): %g+%gI -> diff: %.32g\n", creal(p[1]), cimag(p[1]), creal(z2), cimag(z2), creal(psiVal), cimag(psiVal), cabs((p[0] - psiVal) / p[0]));
     return cabs((p[0] - psiVal) / p[0]);
 }
 
@@ -839,7 +839,7 @@ double complex psi_inverse(double complex xi, double E, double L, double zr, dou
     gsl_multimin_fminimizer_free(s);
     
     if (diff > tol) {
-        if(verbose) printf("Inversion failed! (xi: %g+%gI, E: %g, L: %g, iter: %d, delta: %g, z0: %g+%gI -> %g+%gI)\n", creal(xi), cimag(xi), E, L, iter, s->fval, zr, zi, creal(result), cimag(result));
+        //if(verbose) printf("Inversion failed! (xi: %.15g+%.15gI, E: %.15g, L: %.15g, iter: %d, delta: %g, z0: %g+%gI -> %g+%gI)\n", creal(xi), cimag(xi), E, L, iter, s->fval, zr, zi, creal(result), cimag(result));
         //gsl_vector *y;
         //y = gsl_vector_alloc(2);
         //gsl_vector_set(y, 0, creal(result));
@@ -899,6 +899,7 @@ double complex d2rho_dpsi2(double complex xi, double t, double E, double L) {
         double complex z2;
         if (tabulated) z2 = psi_inverse(xi, E, L, gsl_spline_eval(z2_re, t, z2_re_acc), gsl_spline_eval(z2_im, t, z2_im_acc));
         else z2 = psi_inverse(xi, E, L, 1e3, 1e3);
+        //else z2 = psi_inverse(xi, E, L, -8.5755e+37, -7.15295e+26);
         
         //printf("%g: %g+%gI -> %g+%gI\n", t, gsl_spline_eval(z2_re, t, z2_re_acc),  gsl_spline_eval(z2_im, t, z2_im_acc), creal(z2), cimag(z2));
         //printf("R2: %.8g+%.8gI, z2: %.8g+%.8gI\n", creal(R2), cimag(R2), creal(z2), cimag(z2));
@@ -999,10 +1000,9 @@ double PSDF_even(double E, double L) {
     L = L * pow(Rc, 2) * sqrt(-2. * dpsi_dR2(Rc * Rc, 0));
     h = 0.05 * psiEnv;
     
-    if (verbose) printf("Evaluating PSDF(%g, %g; %g)\n", E, L, psiDM0);
+    //if (verbose) printf("Evaluating PSDF(%g, %g; %g)\n", E, L, psiDM0);
     
     tabulate_z2(E, L, psiEnv, 200);
-    
     struct psdf_params params = {E, L, Rc, psiEnv};
     
     gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(nIntervals);
@@ -1242,6 +1242,8 @@ void sym_PSDF(int n, int m, double *x, double *y, double *z) {
             double val_o = 0;// vPhi * val_e * y[m - 1 + j];
             z[(m - 1 + j) * n + i] = log(1 + val_e + val_o);
             z[(m - 1 - j) * n + i] = log(1 + val_e - val_o);
+            
+            printf("PSDF computed: %g, %g -> %g, %g\n", x[i], y[m - 1 + j], val_e, val_o);
         }
     }
 }
@@ -1258,6 +1260,8 @@ void asym_PSDF(int n, int m, double *x, double *y, double *z) {
             if (val_o > val_e) val_o = val_e;
             z[(m - 1 + j) * n + i] = log(1 + val_e + val_o);
             z[(m - 1 - j) * n + i] = log(1 + val_e - val_o);
+            
+            printf("PSDF computed: %g, %g -> %g, %g\n", x[i], y[m - 1 + j], val_e, val_o);
         }
     }
 }
@@ -2611,7 +2615,7 @@ int main (int argc, char **argv) {
     gsl_set_error_handler(&errorHandlerFunc);
     clock_t start = clock() / (CLOCKS_PER_SEC / 1000);
     
-    double params[16] = {0., 3.6, 0.5, 0, 1., 1., 1e11, 1., -2., 13., 1., 1., 3., 1., 0, 16.};
+    double params[16] = {5e10, 3.6, 0.5, 0, 1., 1., 1e11, 1., -2., 13., 1., 1., 3., 1., 0, 16.};
     compute_PSDF(1, 100, 20, params);
     /*
     init_parameters(params);
@@ -2628,7 +2632,20 @@ int main (int argc, char **argv) {
     double L = 0.1 * pow(Rc, 2) * sqrt(-2. * dpsi_dR2(Rc * Rc, 0));
     h = 0.05 * psiEnv;
     struct psdf_params p = {E, L, Rc, psiEnv};
-    printf("df(E=%g, Lz=%g) = %g\n", E, L, PSDF_integrand(M_PI - 1e-1, &p));
+    printf("df(E=%g, Lz=%g) = %g\n", E, L, PSDF_integrand(M_PI - 1e-2, &p));
+    
+    
+    double E = 0.999 * creal(psi(0, 0));
+    double Rc = Rcirc(E);
+    printf("Rc: %g\n", Rc);
+    double L = 1. * pow(Rc, 2) * sqrt(-2. * dpsi_dR2(Rc * Rc, 0));
+    printf("E: %.16g, Lz: %.16g\n", E, L);
+    //double complex R2 = 1.18+1.3*I;
+    //double complex xi = pow(L, 2) / (2. * R2) + E;
+    double complex xi = 573185.0808622467 - 6.2906290463055e-05*I;
+    printf("xi: %.16g, %.16g)\n", creal(xi), cimag(xi));
+    double complex z2 = psi_inverse(xi, E, L, 1e3, 1e3);
+    printf("z2 = (%g, %g)\n", creal(z2), cimag(z2));
     */
     printf("Done in %g s\n", (clock() / (CLOCKS_PER_SEC / 1000) - start) / 1000.);
     
