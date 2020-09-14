@@ -12,7 +12,6 @@ class Parametric_funcs {
 private:
     /// Gravitational constant
     constexpr static double G = 4.3e-6;
-    constexpr static double PI = 3.141592653589793238463;
 
 public:
     
@@ -75,6 +74,15 @@ public:
     
     /// Computes the second derivative of Burkert density profile with respect to r2
     static std::complex<double> rho_BUR_d2r2(std::complex<double> r, const struct halo_2p& obj);
+    
+    /// Computes the alpha-beta-gamma density profile
+    static std::complex<double> rho_sABC(std::complex<double> m2, const struct halo_6p& obj);
+    
+    /// Computes the first derivative of alpha-beta-gamma density profile with respect to r2
+    static std::complex<double> rho_sABC_dz2(std::complex<double> m2, const struct halo_6p& obj);
+    
+    /// Computes the second derivative of alpha-beta-gamma density profile with respect to r2
+    static std::complex<double> rho_sABC_d2z2(std::complex<double> m2, const struct halo_6p& obj);
     
     /// Computes the rotational velocity assuming that the halo is rotating "on cylinders"
     static std::complex<double> v_phi(std::complex<double> R2, const struct halo_rot_2p& obj);

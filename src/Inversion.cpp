@@ -9,7 +9,7 @@
  * @param verobse Verbose output
  */
 
-Inversion::Inversion(Model *model, int N_E, int N_Lz, int N_Lc, double tolerance_F, bool verbose) {
+Inversion::Inversion(Model *model, int N_E, int N_Lz, double tolerance_F, bool verbose) {
     Inversion::model = model;
     Inversion::tolerance_F = tolerance_F;
     Inversion::verbose = verbose;
@@ -34,34 +34,12 @@ Inversion::Inversion(Model *model, int N_E, int N_Lz, int N_Lc, double tolerance
     Inversion::LzAcc = gsl_interp_accel_alloc();
     Inversion::F = gsl_spline2d_alloc(gsl_interp2d_bilinear, N_E, 2 * N_Lz - 1);
     gsl_spline2d_init(Inversion::F, Epts, Lzpts, Fpts, N_E, 2 * N_Lz - 1);
-    
-    /*
-    double Lcpts[N_Lc];
-    double LcI[N_Lc];
-    
-    double epsilon = 1.02;
-    for (int i = 0; i < N_Lc; i++) {
-        Lcpts[N_Lc - 1 - i] = 1. - std::pow(epsilon, i) / std::pow(epsilon, N_Lc);
-    }
-    
-    for (int i = 0; i < N_Lc; i++) {
-        double Rc = model->Rcirc(Lcpts[i] * Inversion::model->psi0);
-        double psi_dR2_Rc = std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc));
-        LcI[i] = 1. / (std::pow(Rc, 2) * std::sqrt(-2. * psi_dR2_Rc));
-    }
-    
-    Inversion::LcAcc = gsl_interp_accel_alloc();
-    Inversion::LcInv = gsl_spline_alloc(gsl_interp_cspline, N_Lc);
-    gsl_spline_init(Inversion::LcInv, Lcpts, LcI, N_Lc);
-    */
 }
 
 Inversion::~Inversion() {
     gsl_spline2d_free(F);
-    //gsl_spline_free(LcInv);
     gsl_interp_accel_free(EAcc);
     gsl_interp_accel_free(LzAcc);
-    //gsl_interp_accel_free(LcAcc);
 }
 
 /**
@@ -95,7 +73,7 @@ void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, doubl
                 double *params = new double[2];
                 params[0] = Epts[i];
                 params[1] = Lzpts[j + N_Lz - 1];
-                vals_even[i * N_Lz + j] = std::async(&Inversion::F_even, this, params);//std::launch::deferred, 
+                vals_even[i * N_Lz + j] = std::async(&Inversion::F_even, this, params);
                 vals_odd[i * N_Lz + j] = std::async(&Inversion::F_odd, this, params);
             }
         }
@@ -228,14 +206,6 @@ double Inversion::eval_F(double E, double Lz) {
         return 0;
     }
     return std::exp(gsl_spline2d_eval(F, E, Lz, EAcc, LzAcc)) - 1.;
-}
-
-/**
- * @param E Value of the relative energy
- */
-
-double Inversion::eval_LcI(double E) {
-    return gsl_spline_eval(LcInv, E, LcAcc);
 }
 
 

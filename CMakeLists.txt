@@ -14,6 +14,6 @@ add_executable(axi_psdf main.cpp ${halos} ${baryons} ${srcs})
 target_link_libraries(axi_psdf GSL::gsl GSL::gslcblas pthread)
 
 add_executable(tests tests.cpp ${halos} ${baryons} ${srcs})
-target_link_libraries(tests CppUTest GSL::gsl GSL::gslcblas pthread)
+target_link_libraries(tests GSL::gsl GSL::gslcblas pthread CppUTest)
 
 install(TARGETS axi_psdf RUNTIME DESTINATION bin)

@@ -38,31 +38,22 @@ struct halo_2p {
 };
 
 /**
- * Struct for three-parameter halo density profile.
+ * Struct for general halo density profile.
  * @param rho_s Scale density of the halo [M_sol / kpc^3]
  * @param r_s Scale radius of the halo [kpc]
- * @param gamma Central density slope of the halo
+ * @param alpha Density slope parameter 1
+ * @param beta Density slope parameter 2
+ * @param gamma Density slope parameter 3
+ * @param q2 Square of the flattening parameter
  */
 
-struct halo_3p {
+struct halo_6p {
     double rho_s;
     double r_s;
+    double alpha;
+    double beta;
     double gamma;
-};
-
-/**
- * Struct for four-parameter halo density profile.
- * @param rho_s Scale density of the halo [M_sol / kpc^3]
- * @param r_s Scale radius of the halo [kpc]
- * @param gamma Central density slope of the halo
- * @param q Flattening of the halo along the axis of symmetry
- */
-
-struct halo_4p {
-    double rho_s;
-    double r_s;
-    double gamma;
-    double q;
+    double q2;
 };
 
 /**

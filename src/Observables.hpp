@@ -24,6 +24,15 @@ private:
     /// Function for computing the DM density at a given point
     double rho_int(double R, double z, double tolerance);
     
+    /// Function for computing the DM's velocity magnitude distribution at a given point
+    double pv_mag_int(double R, double z, double tolerance);
+    
+    /// Function for computing the DM's meridional velocity distribution at a given point
+    double pv_merid_int(double v_merid, double R, double psiRz, double tolerance);
+    
+    /// Function for computing the DM's azimuthal velocity distribution at a given point
+    double pv_azim_int(double v_merid, double R, double psiRz, double tolerance);
+    
 public:
     /// Initializer
     Observables(Model *model, Inversion *inversion);

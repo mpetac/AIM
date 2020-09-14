@@ -1,6 +1,5 @@
 #pragma once
 
-#include <thread>
 #include <future>
 #include <vector>
 #include <complex>
@@ -21,12 +20,10 @@
 class Inversion {
     
 private:
-    /// Interpolation spline for the maximum angular momentum at given relative energy
-    gsl_spline *LcInv;
     /// Interpolation spline for the phase-space distribution function
     gsl_spline2d *F;
-    /// Accelerators for the evaluation of splines
-    gsl_interp_accel *EAcc, *LzAcc, *LcAcc;
+    /// Accelerators for the evaluation of spline
+    gsl_interp_accel *EAcc, *LzAcc;
     /// Number of intervals used in the numerical integration
     size_t nIntervals = 1e5;
     
@@ -57,16 +54,13 @@ private:
     
 public:
     /// Initializer which performs the interpolation of the PSDF
-    Inversion(Model *model, int N_E, int N_Lz, int N_Lc = 930, double tolerance_F = 1e-3, bool verbose = 0);
+    Inversion(Model *model, int N_E, int N_Lz, double tolerance_F = 1e-3, bool verbose = 0);
     
     /// Destructor
     ~Inversion();
     
     /// Returns the value of the PSDF
     double eval_F(double E, double Lz);
-    
-    /// Returns the inverse of maximum circular velocity
-    double eval_LcI(double E);
     
     /// GSL error handler
     static void GSL_error_func(const char * reason, const char * file, int line, int gsl_errno);

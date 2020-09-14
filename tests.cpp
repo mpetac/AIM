@@ -136,6 +136,30 @@ TEST(ParametricFuncsTestGroup, Rho_BUR) {
     
 };
 
+TEST(ParametricFuncsTestGroup, Rho_sABC) {
+    halo_6p halo = {1e-2, 16., 1.8, 3.1, 1.2, 0.81};
+    std::complex<double> R2(1.3, 2.7);
+    std::complex<double> z2(2.8, 0.4);
+    std::complex<double> m2 = R2 + z2 / halo.q2;
+    /*
+    halo_2p halo_nfw = {1e-2, 16.};
+    std::complex<double> r = std::sqrt(R2 + z2);
+    std::cout << Parametric_funcs::rho_NFW(r, halo_nfw) << std::endl;*/
+    
+    std::complex<double> val_rho = Parametric_funcs::rho_sABC(m2, halo);
+    DOUBLES_EQUAL(0.0884148, std::real(val_rho), 1e-5);
+    DOUBLES_EQUAL(-0.034478, std::imag(val_rho), 1e-5);
+    
+    std::complex<double> val_rho_dr2 = Parametric_funcs::rho_sABC_dz2(m2, halo);
+    DOUBLES_EQUAL(-0.00756271, std::real(val_rho_dr2), 1e-5);
+    DOUBLES_EQUAL(0.0103398, std::imag(val_rho_dr2), 1e-5);
+    
+    std::complex<double> val_rho_d2r2 = Parametric_funcs::rho_sABC_d2z2(m2, halo);
+    DOUBLES_EQUAL(0.000164061, std::real(val_rho_d2r2), 1e-5);
+    DOUBLES_EQUAL(-0.00438241, std::imag(val_rho_d2r2), 1e-5);
+    
+};
+
 TEST(ParametricFuncsTestGroup, d2Rho_dPsi2) {
     halo_2p halo = {1e7, 13};
     disk_3p disk1 = {5e10, 3.6, 0.5};
@@ -183,20 +207,14 @@ TEST(ModelTestGroup, PsiInverse) {
     
     Model m(&DM, &baryons);
     
-    std::cout << "Psi0: " << m.psi0 << std::endl;
-    
-    double E = 0.999 * std::real(m.psi(0, 0, 0));
+    double E = 0.99 * std::real(m.psi(0, 0, 0));
     double Rc_E = m.Rcirc(E);
-    std::cout << "Rc: " << Rc_E << std::endl;
     double Lz = 1. * std::pow(Rc_E, 2) * std::sqrt(-2 * std::real(m.psi_dR2(std::pow(Rc_E, 2), 0, Rc_E)));
-    std::cout << "E: " << E << ", Lz: " << Lz << std::endl;
     std::complex<double> R2(1.18, 1.3);
     std::complex<double> xi = std::pow(Lz, 2) / (2. * R2) + E;
-    std::cout << "xi: " << xi << std::endl;
-    std::cout << "R2: " << std::pow(Lz, 2) / (2. * (xi - E)) << std::endl;
     std::complex<double> z2 = m.psi_inverse(xi, E, Lz);
     double rel_dif = std::abs(xi - m.psi(R2, z2, std::sqrt(R2 + z2))) / m.psi0;
-    std::cout << xi << " : " << m.psi(R2, z2, std::sqrt(R2 + z2)) << std::endl;
+    //std::cout << xi << " : " << m.psi(R2, z2, std::sqrt(R2 + z2)) << std::endl;
     DOUBLES_EQUAL(0., rel_dif, 1e-5);
 };
 
