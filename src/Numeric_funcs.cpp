@@ -1,251 +1,286 @@
-#include "Parametric_funcs.hpp"
+#include "Numeric_funcs.hpp"
 
-/** 
- * @param R2 Value of the R-coordinate squared
- * @param z2 Value of the z-coordinate squared
- * @param obj Struct with the Miyamoto-Nagai parameters
- */
 
-std::complex<double> Parametric_funcs::psi_MN(std::complex<double> R2, std::complex<double> z2, const disk_3p& obj) {
-    return Parametric_funcs::G * obj.M / std::sqrt(R2 + std::pow(obj.a + std::sqrt(std::pow(obj.b, 2) + z2), 2));
+double psi_spheroid_0_int(double m2, void *params) {
+    struct potential_int_params *p = (potential_int_params *) params;
+    Halo *halo = (Halo *) p->halo;
+    return std::real(halo->rho(m2, 0., 0.));
 }
 
-/**
- * @param R2 Value of the R-coordinate squared
- * @param z2 Value of the z-coordinate squared
- * @param obj Struct with the Miyamoto-Nagai parameters
- */
-
-std::complex<double> Parametric_funcs::psi_MN_dR2(std::complex<double> R2, std::complex<double> z2, const disk_3p& obj) {
-    return - Parametric_funcs::G * obj.M / (2. * std::pow(R2 + std::pow(obj.a + std::sqrt(std::pow(obj.b, 2) + z2), 2), 1.5));
+double Numeric_funcs::psi_spheroid_0(Halo *halo, double q, double tolerance) {
+    std::complex<double> e = std::sqrt(std::complex<double>(1.,0.) - std::pow(q, 2));
+    std::complex<double> asin_e = std::asin(e);
+    struct potential_int_params p = {halo, 0., 0., e, asin_e, q, tolerance, Numeric_funcs::nIntervals};
+    
+    double result, abserr;
+    gsl_function F;
+    F.function = &psi_spheroid_0_int;
+    F.params = &p;
+    gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(Numeric_funcs::nIntervals);
+    gsl_integration_qagiu(&F, 0, 0, tolerance, Numeric_funcs::nIntervals, workspace, &result, &abserr);
+    gsl_integration_workspace_free(workspace);
+    
+    double e_factor = 1.;
+    if (e != 0.) e_factor = std::real(asin_e / e);
+    return 2. * M_PI * Numeric_funcs::G * q * e_factor * result;
 }
 
-/** 
- * @param R2 Value of the R-coordinate squared
- * @param z2 Value of the z-coordinate squared
- * @param obj Struct with the Miyamoto-Nagai parameters
- */
-
-std::complex<double> Parametric_funcs::psi_MN_dz2(std::complex<double> R2, std::complex<double> z2, const disk_3p& obj) {
-    std::complex<double> sqrt_b2z2 = std::sqrt(std::pow(obj.b, 2) + z2);
-    return - Parametric_funcs::G * obj.M * (obj.a + sqrt_b2z2) / (2. * sqrt_b2z2 * std::pow(R2 + std::pow(obj.a + sqrt_b2z2, 2), 1.5));
+double psi_spheroid_int_re(double t, void *params) {
+    struct potential_int_params *p = (potential_int_params *) params;
+    Halo *halo = (Halo *) p->halo;
+    
+    std::complex<double> U = p->R2 * t + p->z2 * std::pow(std::pow(p->q, 2) - std::complex<double>(1.,0.) + 1. / t, -1);
+    std::complex<double> V = p->R2 * std::pow(t, 2) + p->z2 * std::pow(std::pow(p->q, 2) - std::complex<double>(1.,0.) + 1. / t, -2);
+    return std::real(halo->rho(U, 0., 0.) * V * (p->asin_e - std::asin(p->e * std::sqrt(t))) / std::pow(t, 2));
 }
 
-/** 
- * @param R2 Value of the R-coordinate squared
- * @param z2 Value of the z-coordinate squared
- * @param obj Struct with the Miyamoto-Nagai parameters
- */
-
-std::complex<double> Parametric_funcs::psi_MN_d2z2(std::complex<double> R2, std::complex<double> z2, const disk_3p& obj) {
-    std::complex<double> sqrt_b2z2 = std::sqrt(std::pow(obj.b, 2) + z2);
-    std::complex<double> csqrt_b2z2 = std::pow(std::pow(obj.b, 2) + z2, 1.5);
-    return Parametric_funcs::G * obj.M * (std::pow(obj.a, 3) + 5. * std::pow(obj.a , 2) * sqrt_b2z2 + 3. * csqrt_b2z2 + obj.a * (7 * std::pow(obj.b, 2) + R2 + 7. * z2)) / (4. * csqrt_b2z2 * std::pow(R2 + std::pow(obj.a + sqrt_b2z2, 2), 2.5));
+double psi_spheroid_int_im(double t, void *params) {
+    struct potential_int_params *p = (potential_int_params *) params;
+    Halo *halo = (Halo *) p->halo;
+    
+    std::complex<double> U = p->R2 * t + p->z2 * std::pow(std::pow(p->q, 2) - std::complex<double>(1.,0.) + 1. / t, -1);
+    std::complex<double> V = p->R2 * std::pow(t, 2) + p->z2 * std::pow(std::pow(p->q, 2) - std::complex<double>(1.,0.) + 1. / t, -2);
+    return std::imag(halo->rho(U, 0., 0.) * V * (p->asin_e - std::asin(p->e * std::sqrt(t))) / std::pow(t, 2));
 }
 
-/** 
- * @param R2 Value of the R-coordinate squared
- * @param z2 Value of the z-coordinate squared
- * @param obj Struct with the Miyamoto-Nagai parameters
- */
-
-std::complex<double> Parametric_funcs::psi_MN_d2R2z2(std::complex<double> R2, std::complex<double> z2, const disk_3p& obj) {
-    std::complex<double> sqrt_b2z2 = std::sqrt(std::pow(obj.b, 2) + z2);
-    return 3. * Parametric_funcs::G * obj.M * (obj.a + sqrt_b2z2) / (4. * sqrt_b2z2 * std::pow(R2 + std::pow(obj.a + sqrt_b2z2, 2), 2.5));
+double psi_spheroid_int_q1_re(double t, void *params) {
+    struct potential_int_params *p = (potential_int_params *) params;
+    Halo *halo = (Halo *) p->halo;
+    
+    std::complex<double> U = (p->R2 + p->z2) * t;
+    std::complex<double> V = U * t;
+    return std::real(halo->rho(U, 0., 0.) * V * (1. - std::sqrt(t)) / std::pow(t, 2));
 }
 
-/** 
- * @param r Value of the radial distance
- * @param obj Struct with the Herenquist parameters
- */
-
-std::complex<double> Parametric_funcs::psi_H(std::complex<double> r, const bulge_2p& obj) {
-    return Parametric_funcs::G * obj.M / (r + obj.a);
+double psi_spheroid_int_q1_im(double t, void *params) {
+    struct potential_int_params *p = (potential_int_params *) params;
+    Halo *halo = (Halo *) p->halo;
+    
+    std::complex<double> U = (p->R2 + p->z2) * t;
+    std::complex<double> V = U * t;
+    return std::imag(halo->rho(U, 0., 0.) * V * (1. - std::sqrt(t)) / std::pow(t, 2));
 }
 
-/** 
- * @param r Value of the radial distance
- * @param obj Struct with the Herenquist parameters
- */
-
-std::complex<double> Parametric_funcs::psi_H_dr2(std::complex<double> r, const bulge_2p& obj) {
-    return - Parametric_funcs::G * obj.M / (2. * r * std::pow(r + obj.a, 2));
-}
-
-/** 
- * @param r Value of the radial distance
- * @param obj Struct with the Herenquist parameters
- */
-
-std::complex<double> Parametric_funcs::psi_H_d2r2(std::complex<double> r, const bulge_2p& obj) {
-    return Parametric_funcs::G * obj.M * (3. * r + obj.a) / (4. * std::pow(r, 3) * std::pow(r + obj.a, 3));
-}
-
-/** 
- * @param r Value of the radial distance
- * @param obj Struct with the halo parameters
- */
-
-std::complex<double> Parametric_funcs::psi_NFW(std::complex<double> r, const halo_2p& obj) {
-    if (r == 0.) return 4. * Parametric_funcs::PI * Parametric_funcs::G * obj.rho_s * std::pow(obj.r_s, 2);
-    else return 4. * Parametric_funcs::PI * Parametric_funcs::G * obj.rho_s * std::pow(obj.r_s, 3) * std::log(1. + r / obj.r_s) / r;
-}
-
-/** 
- * @param r Value of the radial distance
- * @param obj Struct with the halo parameters
- */
-
-std::complex<double> Parametric_funcs::psi_NFW_dr2(std::complex<double> r, const halo_2p& obj) {
-    return 2. * Parametric_funcs::PI * Parametric_funcs::G * obj.rho_s * std::pow(obj.r_s / r, 3) * (r / (r + obj.r_s) - std::log(1. + r / obj.r_s));
-}
-
-/** 
- * @param r Value of the radial distance
- * @param obj Struct with the halo parameters
- */
-
-std::complex<double> Parametric_funcs::psi_NFW_d2r2(std::complex<double> r, const halo_2p& obj) {
-    return Parametric_funcs::PI * Parametric_funcs::G * obj.rho_s * std::pow(obj.r_s, 3) * (3. * std::pow(r + obj.r_s, 2) * std::log(1. + r / obj.r_s) - 4. * std::pow(r, 2) - 3. * r * obj.r_s) / (std::pow(r, 5) * std::pow(r + obj.r_s, 2));
-}
-
-/** 
- * @param r Value of the radial distance
- * @param obj Struct with the halo parameters
- */
-
-std::complex<double> Parametric_funcs::psi_BUR(std::complex<double> r, const halo_2p& obj) {
-    if (r == 0.) return std::pow(Parametric_funcs::PI, 2) * Parametric_funcs::G * obj.rho_s * std::pow(obj.r_s, 2);
+std::complex<double> Numeric_funcs::psi_spheroid(Halo* halo, std::complex<double> R2, std::complex<double> z2, double q, double tolerance) {
+    std::complex<double> e = 1.;
+    if (q != 1.) e = std::sqrt(std::complex<double>(1.,0.) - std::pow(q, 2));
+    std::complex<double> asin_e = std::asin(e);
+    struct potential_int_params p = {halo, R2, z2, e, asin_e, q, tolerance, Numeric_funcs::nIntervals};
+    
+    double result_re, result_im, abserr_re, abserr_im;
+    gsl_function F;
+    if (q == 1.) F.function = &psi_spheroid_int_q1_re;
+    else F.function = &psi_spheroid_int_re;
+    F.params = &p;
+    gsl_integration_workspace *workspace_re = gsl_integration_workspace_alloc(Numeric_funcs::nIntervals);
+    gsl_integration_qag(&F, 0., 1., 0., tolerance, Numeric_funcs::nIntervals, 6, workspace_re, &result_re, &abserr_re);
+    gsl_integration_workspace_free(workspace_re);
+    
+    if (std::imag(R2) == 0 && std::imag(z2) == 0) result_im = 0;
     else {
-        std::complex<double> x = r / obj.r_s;
-        return Parametric_funcs::PI * Parametric_funcs::G * obj.rho_s * std::pow(obj.r_s, 2) / x * (2. * (1. + x) * (std::atan(1. / x) + std::log(1. + x)) + (1. - x) * std::log(1. + std::pow(x, 2)) - 1. * Parametric_funcs::PI);
-        return 0;
+        if (q == 1.) F.function = &psi_spheroid_int_q1_im;
+        else F.function = &psi_spheroid_int_im;
+        F.params = &p;
+        gsl_integration_workspace *workspace_im = gsl_integration_workspace_alloc(Numeric_funcs::nIntervals);
+        gsl_integration_qag(&F, 0., 1., 0., tolerance, Numeric_funcs::nIntervals, 6, workspace_im, &result_im, &abserr_im);
+        gsl_integration_workspace_free(workspace_im);
     }
+    return 2. * M_PI * Numeric_funcs::G * q / e * std::complex<double>(result_re, result_im);
 }
 
-/** 
- * @param r Value of the radial distance
- * @param obj Struct with the halo parameters
- */
 
-std::complex<double> Parametric_funcs::psi_BUR_dr2(std::complex<double> r, const halo_2p& obj) {
-    std::complex<double> x = r / obj.r_s;
-    return 0.5 * Parametric_funcs::PI * Parametric_funcs::G * obj.rho_s * (1. * Parametric_funcs::PI - 2. * std::atan(1. / x) - std::log(1. + std::pow(x, 2)) - 2. * std::log(1. + x)) * std::pow(x, -3);
-    return 0;
+double psi_spheroid_dR2_int_re(double u, void *params) {
+    struct potential_int_params *p = (potential_int_params *) params;
+    Halo *halo = (Halo *) p->halo;
+    
+    std::complex<double> U = p->R2 / (1. + u) + p->z2 / (std::pow(p->q, 2) + u);
+    return std::real(halo->rho(U, 0., 0.) / (std::pow(1. + u, 2) * std::sqrt(std::pow(p->q, 2) + u)));
 }
 
-/** 
- * @param r Value of the radial distance
- * @param obj Struct with the halo parameters
- */
-
-std::complex<double> Parametric_funcs::psi_BUR_d2r2(std::complex<double> r, const halo_2p& obj) {
-    std::complex<double> x = r / obj.r_s;
-    return 0.25 * Parametric_funcs::PI * Parametric_funcs::G * obj.rho_s * std::pow(obj.r_s, -2) * std::pow(x, -5) / ((1. + x) * (1. + std::pow(x, 2))) * (3. * (1. + x) * (1. + std::pow(x, 2)) * (2. * std::atan(1. / x) + std::log(1. + std::pow(x, 2)) + 2. * std::log(1. + x)) - 3. * Parametric_funcs::PI * (std::pow(x, 3) + std::pow(x, 2) + x + 1.) - 4. * std::pow(x, 3));
+double psi_spheroid_dR2_int_im(double u, void *params) {
+    struct potential_int_params *p = (potential_int_params *) params;
+    Halo *halo = (Halo *) p->halo;
+    
+    std::complex<double> U = p->R2 / (1. + u) + p->z2 / (std::pow(p->q, 2) + u);
+    return std::imag(halo->rho(U, 0., 0.) / (std::pow(1. + u, 2) * std::sqrt(std::pow(p->q, 2) + u)));
 }
 
-/** 
- * @param r Value of the radial distance
- * @param obj Struct with the halo parameters
- */
-
-std::complex<double> Parametric_funcs::rho_NFW(std::complex<double> r, const halo_2p& obj) {
-    std::complex<double> x = r / obj.r_s;
-    return obj.rho_s / (x * std::pow(1. + x, 2));
+std::complex<double> Numeric_funcs::psi_spheroid_dR2(Halo* halo, std::complex<double> R2, std::complex<double> z2, double q, double tolerance) {
+    struct potential_int_params p = {halo, R2, z2, 0., 0., q, tolerance, Numeric_funcs::nIntervals};
+    
+    double result_re, result_im, abserr_re, abserr_im;
+    gsl_function F;
+    F.function = &psi_spheroid_dR2_int_re;
+    F.params = &p;
+    gsl_integration_workspace *workspace_re = gsl_integration_workspace_alloc(Numeric_funcs::nIntervals);
+    gsl_integration_qagiu(&F, 0., 0., tolerance, Numeric_funcs::nIntervals, workspace_re, &result_re, &abserr_re);
+    gsl_integration_workspace_free(workspace_re);
+    
+    if (std::imag(R2) == 0 && std::imag(z2) == 0) result_im = 0;
+    else {
+        F.function = &psi_spheroid_dR2_int_im;
+        F.params = &p;
+        gsl_integration_workspace *workspace_im = gsl_integration_workspace_alloc(Numeric_funcs::nIntervals);
+        gsl_integration_qagiu(&F, 0., 0., tolerance, Numeric_funcs::nIntervals, workspace_im, &result_im, &abserr_im);
+        gsl_integration_workspace_free(workspace_im);
+    }
+    return - M_PI * Numeric_funcs::G * q * std::complex<double>(result_re, result_im);
 }
 
-/** 
- * @param r Value of the radial distance
- * @param obj Struct with the halo parameters
- */
-
-std::complex<double> Parametric_funcs::rho_NFW_dr2(std::complex<double> r, const halo_2p& obj) {
-    std::complex<double> x = r / obj.r_s;
-    return - Parametric_funcs::rho_NFW(r, obj) * std::pow(obj.r_s, -2) * (1. + 3. * x) / (2. * std::pow(x, 2) * (1. + x));
+double psi_spheroid_dz2_int_re(double u, void *params) {
+    struct potential_int_params *p = (potential_int_params *) params;
+    Halo *halo = (Halo *) p->halo;
+    
+    std::complex<double> U = p->R2 / (1. + u) + p->z2 / (std::pow(p->q, 2) + u);
+    return std::real(halo->rho(U, 0., 0.) / ((1. + u) * std::pow(std::pow(p->q, 2) + u, 1.5)));
 }
 
-/** 
- * @param r Value of the radial distance
- * @param obj Struct with the halo parameters
- */
-
-std::complex<double> Parametric_funcs::rho_NFW_d2r2(std::complex<double> r, const halo_2p& obj) {
-    std::complex<double> x = r / obj.r_s;
-    return 0.25 * Parametric_funcs::rho_NFW(r, obj) * std::pow(r, -4) * std::pow(1. + x, -2) * 3. * (1. + 4. * x + 5. * std::pow(x, 2));
+double psi_spheroid_dz2_int_im(double u, void *params) {
+    struct potential_int_params *p = (potential_int_params *) params;
+    Halo *halo = (Halo *) p->halo;
+    
+    std::complex<double> U = p->R2 / (1. + u) + p->z2 / (std::pow(p->q, 2) + u);
+    return std::imag(halo->rho(U, 0., 0.) / ((1. + u) * std::pow(std::pow(p->q, 2) + u, 1.5)));
 }
 
-/** 
- * @param r Value of the radial distance
- * @param obj Struct with the halo parameters
- */
-
-std::complex<double> Parametric_funcs::rho_BUR(std::complex<double> r, const halo_2p& obj) {
-    std::complex<double> x = r / obj.r_s;
-    return obj.rho_s / ((1. + x) * (1. + std::pow(x, 2)));
+std::complex<double> Numeric_funcs::psi_spheroid_dz2(Halo* halo, std::complex<double> R2, std::complex<double> z2, double q, double tolerance) {
+    struct potential_int_params p = {halo, R2, z2, 0., 0., q, tolerance, Numeric_funcs::nIntervals};
+    
+    double result_re, result_im, abserr_re, abserr_im;
+    gsl_function F;
+    F.function = &psi_spheroid_dz2_int_re;
+    F.params = &p;
+    gsl_integration_workspace *workspace_re = gsl_integration_workspace_alloc(Numeric_funcs::nIntervals);
+    gsl_integration_qagiu(&F, 0., 0., tolerance, Numeric_funcs::nIntervals, workspace_re, &result_re, &abserr_re);
+    gsl_integration_workspace_free(workspace_re);
+    
+    if (std::imag(R2) == 0 && std::imag(z2) == 0) result_im = 0;
+    else {
+        F.function = &psi_spheroid_dz2_int_im;
+        F.params = &p;
+        gsl_integration_workspace *workspace_im = gsl_integration_workspace_alloc(Numeric_funcs::nIntervals);
+        gsl_integration_qagiu(&F, 0., 0., tolerance, Numeric_funcs::nIntervals, workspace_im, &result_im, &abserr_im);
+        gsl_integration_workspace_free(workspace_im);
+    }
+    return - M_PI * Numeric_funcs::G * q * std::complex<double>(result_re, result_im);
 }
 
-/** 
- * @param r Value of the radial distance
- * @param obj Struct with the halo parameters
- */
-
-std::complex<double> Parametric_funcs::rho_BUR_dr2(std::complex<double> r, const halo_2p& obj) {
-    std::complex<double> x = r / obj.r_s;
-    return -0.5 * obj.rho_s * std::pow(obj.r_s, -2) * (1. + 2. * x + 3. * std::pow(x, 2)) / (x * std::pow(1. + x + std::pow(x, 2) + std::pow(x, 3), 2));
+double psi_spheroid_d2z2_int_re(double u, void *params) {
+    struct potential_int_params *p = (potential_int_params *) params;
+    Halo *halo = (Halo *) p->halo;
+    
+    std::complex<double> U = p->R2 / (1. + u) + p->z2 / (std::pow(p->q, 2) + u);
+    return std::real(halo->rho_dz2(U, 0., 0.) / ((1. + u) * std::pow(std::pow(p->q, 2) + u, 2.5)));
 }
 
-/** 
- * @param r Value of the radial distance
- * @param obj Struct with the halo parameters
- */
+double psi_spheroid_d2z2_int_im(double u, void *params) {
+    struct potential_int_params *p = (potential_int_params *) params;
+    Halo *halo = (Halo *) p->halo;
+    
+    std::complex<double> U = p->R2 / (1. + u) + p->z2 / (std::pow(p->q, 2) + u);
+    return std::imag(halo->rho_dz2(U, 0., 0.) / ((1. + u) * std::pow(std::pow(p->q, 2) + u, 2.5)));
+}
 
-std::complex<double> Parametric_funcs::rho_BUR_d2r2(std::complex<double> r, const halo_2p& obj) {
-    std::complex<double> x = r / obj.r_s;
-    return 0.25 * obj.rho_s * std::pow(obj.r_s, -4) * (1. + 3. * x * (1. + x * (2. + x * (6. + x * (7. + 5. * x))))) * std::pow(x * (1. + x + std::pow(x, 2) + std::pow(x, 3)), -3);
+std::complex<double> Numeric_funcs::psi_spheroid_d2z2(Halo* halo, std::complex<double> R2, std::complex<double> z2, double q, double tolerance) {
+    struct potential_int_params p = {halo, R2, z2, 0., 0., q, tolerance, Numeric_funcs::nIntervals};
+    
+    double result_re, result_im, abserr_re, abserr_im;
+    gsl_function F;
+    F.function = &psi_spheroid_d2z2_int_re;
+    F.params = &p;
+    gsl_integration_workspace *workspace_re = gsl_integration_workspace_alloc(Numeric_funcs::nIntervals);
+    gsl_integration_qagiu(&F, 0., 0., tolerance, Numeric_funcs::nIntervals, workspace_re, &result_re, &abserr_re);
+    gsl_integration_workspace_free(workspace_re);
+    
+    if (std::imag(R2) == 0 && std::imag(z2) == 0) result_im = 0;
+    else {
+        F.function = &psi_spheroid_d2z2_int_im;
+        F.params = &p;
+        gsl_integration_workspace *workspace_im = gsl_integration_workspace_alloc(Numeric_funcs::nIntervals);
+        gsl_integration_qagiu(&F, 0., 0., tolerance, Numeric_funcs::nIntervals, workspace_im, &result_im, &abserr_im);
+        gsl_integration_workspace_free(workspace_im);
+    }
+    return - M_PI * Numeric_funcs::G * std::pow(q, 3) * std::complex<double>(result_re, result_im);
+}
+
+double psi_spheroid_d2R2z2_int_re(double u, void *params) {
+    struct potential_int_params *p = (potential_int_params *) params;
+    Halo *halo = (Halo *) p->halo;
+    
+    std::complex<double> U = p->R2 / (1. + u) + p->z2 / (std::pow(p->q, 2) + u);
+    return std::real(halo->rho_dz2(U, 0., 0.) / (std::pow(1. + u, 2) * std::pow(std::pow(p->q, 2) + u, 1.5)));
+}
+
+double psi_spheroid_d2R2z2_int_im(double u, void *params) {
+    struct potential_int_params *p = (potential_int_params *) params;
+    Halo *halo = (Halo *) p->halo;
+    
+    std::complex<double> U = p->R2 / (1. + u) + p->z2 / (std::pow(p->q, 2) + u);
+    return std::imag(halo->rho_dz2(U, 0., 0.) / (std::pow(1. + u, 2) * std::pow(std::pow(p->q, 2) + u, 1.5)));
+}
+
+std::complex<double> Numeric_funcs::psi_spheroid_d2R2z2(Halo* halo, std::complex<double> R2, std::complex<double> z2, double q, double tolerance) {
+    struct potential_int_params p = {halo, R2, z2, 0., 0., q, tolerance, Numeric_funcs::nIntervals};
+    
+    double result_re, result_im, abserr_re, abserr_im;
+    gsl_function F;
+    F.function = &psi_spheroid_d2z2_int_re;
+    F.params = &p;
+    gsl_integration_workspace *workspace_re = gsl_integration_workspace_alloc(Numeric_funcs::nIntervals);
+    gsl_integration_qagiu(&F, 0., 0., tolerance, Numeric_funcs::nIntervals, workspace_re, &result_re, &abserr_re);
+    gsl_integration_workspace_free(workspace_re);
+    
+    if (std::imag(R2) == 0 && std::imag(z2) == 0) result_im = 0;
+    else {
+        F.function = &psi_spheroid_d2R2z2_int_im;
+        F.params = &p;
+        gsl_integration_workspace *workspace_im = gsl_integration_workspace_alloc(Numeric_funcs::nIntervals);
+        gsl_integration_qagiu(&F, 0., 0., tolerance, Numeric_funcs::nIntervals, workspace_im, &result_im, &abserr_im);
+        gsl_integration_workspace_free(workspace_im);
+    }
+    return - M_PI * Numeric_funcs::G * std::pow(q, 3) * std::complex<double>(result_re, result_im);
+}
+
+
+std::complex<double> Numeric_funcs::beta_cf(std::complex<double> x, double a, double b, int N, int iterations) {
+    if (N > iterations) return 0;
+    std::complex<double> dn;
+    int m = N / 2;
+    if (N % 2 == 0) dn = m * (b - m) * x / ((a + 2. * m - 1.) * (a + 2. * m));
+    else dn = - (a + m) * (a + b + m) * x / ((a + 2. * m) * (a + 2. * m + 1.));
+    return dn / (1. + Numeric_funcs::beta_cf(x, a, b, N + 1, iterations));
+}
+
+std::complex<double> Numeric_funcs::psi_gNFW(halo_6p *params, std::complex<double> r, int iterations) {
+    if (r == 0.) return 4. * M_PI * Numeric_funcs::G * params->rho_s * std::pow(params->r_s, 2) / (params->gamma - 2);
+    double a = 3. - params->gamma, b = params->gamma - 1;
+    std::complex<double> x = r / params->r_s;
+    std::complex<double> beta_val = std::pow(-x, a) * std::pow(1. + x, b) / a / (1. + beta_cf(-x, a, b, 1, iterations));
+    return -4. * M_PI * Numeric_funcs::G * params->rho_s * std::pow(params->r_s, 2) * (x + std::pow(std::complex<double>(-1.,0.), params->gamma) * beta_val) / (x * (params->gamma - 2));
+}
+
+std::complex<double> Numeric_funcs::psi_gNFW_dr2(halo_6p *params, std::complex<double> r, int iterations) {
+    if (r == 0.) return 0.;
+    double a = 3. - params->gamma, b = params->gamma - 2;
+    std::complex<double> x = r / params->r_s;
+    std::complex<double> beta_val = std::pow(-x, a) * std::pow(1. + x, b) / a / (1. + beta_cf(-x, a, b, 1, iterations));
+    return -2. * M_PI * Numeric_funcs::G * params->rho_s * std::pow(params->r_s, 3) * std::pow(std::complex<double>(-1.,0.), params->gamma + 1.) * beta_val * std::pow(r, -3);
+}
+
+std::complex<double> Numeric_funcs::psi_gNFW_d2r2(Halo *halo, std::complex<double> r) {
+    if (r == 0.) return 0.;
+    std::complex<double> r2 = std::pow(r, 2);
+    return -(4. * M_PI * Numeric_funcs::G * halo->rho(r2, 0, r) + 6. * halo->psi_dR2(r2, 0, r)) / (4. * r2);
 }
 
 /**
- * @param R2 Value of the R-coordinate squared
- * @param z2 Value of the z-coordinate squared
- * @param obj Struct with the halo parameters
+ * @param reason Reason for raising the error
+ * @param file Name of the file in which the error occured
+ * @param line Line in which the error occured
+ * @param gsl_errno GSL error code
  */
 
-std::complex<double> Parametric_funcs::rho_sABC(std::complex<double> R2, std::complex<double> z2, const struct halo_6p& obj) {
-    std::complex<double> x = std::sqrt(R2 + z2 / obj.q2) / obj.r_s;
-    return obj.rho_s / (std::pow(x, obj.gamma) * std::pow(1. + std::pow(x, obj.alpha), (obj.beta - obj.gamma) / obj.alpha));
-}
-
-/**
- * @param R2 Value of the R-coordinate squared
- * @param z2 Value of the z-coordinate squared
- * @param obj Struct with the halo parameters
- */
-
-std::complex<double> Parametric_funcs::rho_sABC_dz2(std::complex<double> R2, std::complex<double> z2, const struct halo_6p& obj) {
-    std::complex<double> x = std::sqrt(R2 + z2 / obj.q2) / obj.r_s;
-    return - Parametric_funcs::rho_sABC(R2, z2, obj) * (std::pow(x, obj.alpha) * obj.beta + obj.gamma) / (2. * obj.q2 * std::pow(x, 2) * (1. + std::pow(x, obj.alpha)) * std::pow(obj.r_s, 2));
-}
-
-/**
- * @param R2 Value of the R-coordinate squared
- * @param z2 Value of the z-coordinate squared
- * @param obj Struct with the halo parameters
- */
-
-std::complex<double> Parametric_funcs::rho_sABC_d2z2(std::complex<double> R2, std::complex<double> z2, const struct halo_6p& obj) {
-    std::complex<double> x = std::sqrt(R2 + z2 / obj.q2) / obj.r_s;
-    std::complex<double> xa = std::pow(x, obj.alpha);
-    return 0.25 * Parametric_funcs::rho_sABC(R2, z2, obj) * std::pow(obj.r_s * x, -4) * std::pow(obj.q2 * (1. + xa), -2) * (obj.gamma * (2. + obj.gamma) + ((2. + obj.alpha) * obj.gamma + obj.beta * (2. - obj.alpha + 2. * obj.gamma)) * xa + obj.beta * (2. + obj.beta) * std::pow(xa, 2.));
-}
-
-
-/** 
- * @param R2 Value of the R-coordinate squared
- * @param obj Struct with the halo parameters
- */
-
-std::complex<double> Parametric_funcs::v_phi(std::complex<double> R2, const struct halo_rot_2p& obj) {
-    std::complex<double> R = std::sqrt(R2);
-    return obj.omega * R / (1. + std::pow(R / obj.r_a, 2));
+void Numeric_funcs::GSL_error_func(const char* reason, const char* file, int line, int gsl_errno) {
+    std::cout << " -> GSL error #" << gsl_errno << " in line " << line << " of " << file <<": " << gsl_strerror(gsl_errno) << std::endl;
 }
 

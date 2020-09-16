@@ -47,10 +47,15 @@ private:
     
     /// Computes the tabulated values of the PSDF
     void tabulate_F(int N_E, int N_Lz, double *Epts, double *Lzpts, double *Fpts);
+    
     /// Computes the Lz-even part of the PSDF
     double F_even(double *params);
+    
     /// Computes the Lz-odd part of the PSDF
     double F_odd(double *params);
+    
+    /// GSL error handler
+    static void GSL_error_func(const char * reason, const char * file, int line, int gsl_errno);
     
 public:
     /// Initializer which performs the interpolation of the PSDF
@@ -62,6 +67,4 @@ public:
     /// Returns the value of the PSDF
     double eval_F(double E, double Lz);
     
-    /// GSL error handler
-    static void GSL_error_func(const char * reason, const char * file, int line, int gsl_errno);
 };

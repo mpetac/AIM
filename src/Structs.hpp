@@ -53,7 +53,7 @@ struct halo_6p {
     double alpha;
     double beta;
     double gamma;
-    double q2;
+    double q;
 };
 
 /**
@@ -99,4 +99,15 @@ struct velocity_int_params {
     double R;
     double psiRz;
     double v;
+};
+
+struct potential_int_params {
+    void *halo;
+    std::complex<double> R2;
+    std::complex<double> z2;
+    std::complex<double> e;
+    std::complex<double> asin_e;
+    double q;
+    double tolerance;
+    size_t nIntervals;
 };

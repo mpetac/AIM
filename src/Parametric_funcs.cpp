@@ -223,7 +223,7 @@ std::complex<double> Parametric_funcs::rho_sABC(std::complex<double> m2, const s
 
 std::complex<double> Parametric_funcs::rho_sABC_dz2(std::complex<double> m2, const struct halo_6p& obj) {
     std::complex<double> x = std::sqrt(m2) / obj.r_s;
-    return - Parametric_funcs::rho_sABC(m2, obj) * (std::pow(x, obj.alpha) * obj.beta + obj.gamma) / (2. * obj.q2 * std::pow(x, 2) * (1. + std::pow(x, obj.alpha)) * std::pow(obj.r_s, 2));
+    return - Parametric_funcs::rho_sABC(m2, obj) * (std::pow(x, obj.alpha) * obj.beta + obj.gamma) / (2. * std::pow(obj.q, 2) * std::pow(x, 2) * (1. + std::pow(x, obj.alpha)) * std::pow(obj.r_s, 2));
 }
 
 /**
@@ -235,7 +235,7 @@ std::complex<double> Parametric_funcs::rho_sABC_dz2(std::complex<double> m2, con
 std::complex<double> Parametric_funcs::rho_sABC_d2z2(std::complex<double> m2, const struct halo_6p& obj) {
     std::complex<double> x = std::sqrt(m2) / obj.r_s;
     std::complex<double> xa = std::pow(x, obj.alpha);
-    return 0.25 * Parametric_funcs::rho_sABC(m2, obj) * std::pow(obj.r_s * x, -4) * std::pow(obj.q2 * (1. + xa), -2) * (obj.gamma * (2. + obj.gamma) + ((2. + obj.alpha) * obj.gamma + obj.beta * (2. - obj.alpha + 2. * obj.gamma)) * xa + obj.beta * (2. + obj.beta) * std::pow(xa, 2.));
+    return 0.25 * Parametric_funcs::rho_sABC(m2, obj) * std::pow(obj.r_s * x, -4) * std::pow(std::pow(obj.q, 2) * (1. + xa), -2) * (obj.gamma * (2. + obj.gamma) + ((2. + obj.alpha) * obj.gamma + obj.beta * (2. - obj.alpha + 2. * obj.gamma)) * xa + obj.beta * (2. + obj.beta) * std::pow(xa, 2.));
 }
 
 

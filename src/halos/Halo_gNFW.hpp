@@ -7,28 +7,23 @@
 #include "../Structs.hpp"
 
 /**
- * Class implementing the spheroidal alpha-beta-gamma halo model. The halo can be made to rotate "on cylinders" if the appropriate rotational parameters are provided.
+ * Class implementing the generalized NFW halo (i.e. NFW with free inner slope parameter). The halo can be made to rotate "on cylinders" if the appropriate rotational parameters are provided.
  */
 
-class Halo_sABC: public Halo {
+class Halo_gNFW: public Halo {
 
 private:
     /// Struct with halo parameters
     halo_6p halo;
     /// Struct with halo parameters
     halo_rot_2p halo_rot;
-    /// Value of the potential at the center of halo
-    double psi0;
-    /// Function for computing the value of the potential at the center of the halo
-    double psi_0();
-
 public:
-    /// Initializes halo with spheroidal alpha-beta-gamma density profile
+    /// Initializes halo with NFW density profile
     /**
      * @param BUR Struct with DM density parameters
      * @param BUR_rot Struct with parameters describing the halo rotation
      */
-    Halo_sABC(const halo_6p &sABC, const halo_rot_2p &sABC_rot = {0, 0});
+    Halo_gNFW(const halo_6p &gNFW, const halo_rot_2p &gNFW_rot = {0, 0});
     
     /// Computes the halo's gravitational potential
     std::complex<double> psi(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) override;

@@ -241,6 +241,5 @@ void Observables::pv_azim(int N, double R, double z, double* result, double tole
 
 void Observables::GSL_error_func(const char* reason, const char* file, int line, int gsl_errno) {
     std::cout << " -> GSL error #" << gsl_errno << " in line " << line << " of " << file <<": " << gsl_strerror(gsl_errno) << std::endl;
-    std::cout << " -> " << reason << std::endl;
 }
 
