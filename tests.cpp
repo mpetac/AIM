@@ -226,21 +226,31 @@ TEST(NumericFuncsTestGroup, PsiSpheroid) {
 }
 
 TEST(NumericFuncsTestGroup, PsigNFW) {
-    halo_6p p_sabc = {1e7, 13., 1., 3., 1.01, 1.};
+    halo_2p p_nfw = {1e7, 13.};
+    Halo_NFW nfw(p_nfw);
+    
+    halo_6p p_sabc = {1e7, 13., 1., 3., 1.1, 1.};
     Halo_sABC sabc(p_sabc);
     
-    halo_6p p_gnfw = {1e7, 13., 1., 3., 1.01, 1.};
+    halo_6p p_gnfw = {1e7, 13., 1., 3., 1.1, 1.};
     Halo_gNFW gnfw(p_gnfw);
+    
+    //std::cout << nfw.psi(0, 0, 0) << ", " << sabc.psi(0, 0, 0) << ", " << gnfw.psi(0, 0, 0) << std::endl;
+    //std::cout << sabc.psi(0, 0, 0) << ", " << gnfw.psi(0, 0, 0) << std::endl;
+    
     
     std::complex<double> R2(17.3, -2.7);
     std::complex<double> z2(1.3, 10.7);
     std::complex<double> r = std::sqrt(R2 + z2);
     
-    std::complex<double> psi_ana = sabc.psi(R2, z2, r);
-    std::complex<double> psi_num = gnfw.psi(R2, z2, r);
-    std::cout << psi_ana << ", " << psi_num << std::endl;
-    DOUBLES_EQUAL(1., std::real(psi_num / psi_ana), 1e-3);
-    DOUBLES_EQUAL(0., std::imag(psi_num / psi_ana), 1e-3);
+    std::complex<double> psi_nfw = nfw.psi(R2, z2, r);
+    std::complex<double> psi_sabc = sabc.psi(R2, z2, r);
+    std::complex<double> psi_gnfw = gnfw.psi(R2, z2, r);
+    std::cout << psi_nfw << ", " << psi_sabc << ", " << psi_gnfw << std::endl;
+    //DOUBLES_EQUAL(1., std::real(psi_gnfw / psi_sabc), 1e-3);
+    //DOUBLES_EQUAL(0., std::imag(psi_gnfw / psi_sabc), 1e-3);
+    
+    /*
     
     std::complex<double> psi_ana_dz2 = sabc.psi_dz2(R2, z2, r);
     std::complex<double> psi_num_dz2 = gnfw.psi_dz2(R2, z2, r);
@@ -253,6 +263,7 @@ TEST(NumericFuncsTestGroup, PsigNFW) {
     std::cout << psi_ana_d2z2 << ", " << psi_num_d2z2 << std::endl;
     DOUBLES_EQUAL(1., std::real(psi_num_d2z2 / psi_ana_d2z2), 1e-3);
     DOUBLES_EQUAL(0., std::imag(psi_num_d2z2 / psi_ana_d2z2), 1e-3);
+    */
 };
 
 TEST_GROUP(ModelTestGroup) {

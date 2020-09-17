@@ -252,7 +252,7 @@ std::complex<double> Numeric_funcs::beta_cf(std::complex<double> x, double a, do
 }
 
 std::complex<double> Numeric_funcs::psi_gNFW(halo_6p *params, std::complex<double> r, int iterations) {
-    if (r == 0.) return 4. * M_PI * Numeric_funcs::G * params->rho_s * std::pow(params->r_s, 2) / (params->gamma - 2);
+    if (r == 0.) return 4. * M_PI * Numeric_funcs::G * params->rho_s * std::pow(params->r_s, 2) / (2. - params->gamma);
     double a = 3. - params->gamma, b = params->gamma - 1;
     std::complex<double> x = r / params->r_s;
     std::complex<double> beta_val = std::pow(-x, a) * std::pow(1. + x, b) / a / (1. + beta_cf(-x, a, b, 1, iterations));

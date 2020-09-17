@@ -18,7 +18,8 @@ int main(int argc, char **argv) {
     time_t tStart = time(NULL);
     
     halo_6p p_abc = {1e7, 13., 1., 3., 1.2, 1.};
-    Halo_gNFW halo_gNFW(p_abc);
+    //Halo_gNFW halo(p_abc);
+    Halo_sABC halo(p_abc);
     
     disk_3p disk1 = {5e10, 3.6, 0.5};
     disk_3p disk2 = {0., 2., 0.3};
@@ -26,14 +27,14 @@ int main(int argc, char **argv) {
     Baryons_H_2MN baryons(disk1, disk2, bulge);
     
     
-    Model model(&halo_gNFW, &baryons);
+    Model model(&halo, &baryons);
     
     Inversion psdf(&model, 100, 20);
     
     Observables obs(&model, &psdf);
     
     bool verbose = 0;
-    int nPts = 5;
+    int nPts = 100;
     double Rpts[nPts], zpts[nPts], result[nPts];
     double logRmin = -0.30103, logRmax = 3.;
     for (int i = 0; i < nPts; i++) {
