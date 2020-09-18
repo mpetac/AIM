@@ -195,6 +195,8 @@ double Model::Rcirc(double E, double tolerance, int limit) {
         double R2 = std::pow(R, 2);
         double E_R = std::real(Model::psi(R2, 0, R) + R2 * Model::psi_dR2(R2, 0, R));
         
+        //printf("%3.d E = %g: R = %g, E_R = %g (Rc = %g, dR = %g)\n", i, E, R, E_R, Rc, dR);
+        
         if (E > E_R) dR /= 2.;
         else {
             Rc = R;

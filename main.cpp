@@ -17,13 +17,16 @@ int main(int argc, char **argv) {
     
     time_t tStart = time(NULL);
     
-    halo_6p p_abc = {1e7, 13., 1., 3., 1.2, 1.};
-    //Halo_gNFW halo(p_abc);
-    Halo_sABC halo(p_abc);
+    halo_2p p_nfw = {1e7, 13.};
+    Halo_NFW halo(p_nfw);
     
-    disk_3p disk1 = {5e10, 3.6, 0.5};
+//     halo_6p p_abc = {1e7, 13., 1., 3., 1.5, 1.};
+//     Halo_gNFW halo(p_abc);
+//     Halo_sABC halo(p_abc);
+    
+    disk_3p disk1 = {0, 3.6, 0.5};
     disk_3p disk2 = {0., 2., 0.3};
-    bulge_2p bulge = {1e11, 1.};
+    bulge_2p bulge = {0, 1.};
     Baryons_H_2MN baryons(disk1, disk2, bulge);
     
     
