@@ -271,9 +271,9 @@ TEST_GROUP(ModelTestGroup) {
 
 TEST(ModelTestGroup, Rcirc) {
     halo_2p halo = {1e-2, 13};
-    disk_3p disk1 = {1, 1, 0.1};
-    disk_3p disk2 = {0.5, 2, 0.3};
-    bulge_2p bulge = {1, 0.5};
+    disk_3p disk1 = {1., 1., 0.1};
+    disk_3p disk2 = {0.5, 2., 0.3};
+    bulge_2p bulge = {1., 0.5};
     
     Halo_NFW DM(halo);
     Baryons_H_2MN baryons(disk1, disk2, bulge);

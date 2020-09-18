@@ -74,8 +74,8 @@ void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, doubl
                 params[0] = Epts[i];
                 params[1] = Lzpts[j + N_Lz - 1];
                 // for single threaded execution add "std::launch::deferred" as first argument
-                vals_even[i * N_Lz + j] = std::async(std::launch::deferred, &Inversion::F_even, this, params);
-                vals_odd[i * N_Lz + j] = std::async(std::launch::deferred, &Inversion::F_odd, this, params);
+                vals_even[i * N_Lz + j] = std::async(&Inversion::F_even, this, params);
+                vals_odd[i * N_Lz + j] = std::async(&Inversion::F_odd, this, params);
             }
         }
         

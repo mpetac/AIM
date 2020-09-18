@@ -24,9 +24,9 @@ int main(int argc, char **argv) {
 //     Halo_gNFW halo(p_abc);
 //     Halo_sABC halo(p_abc);
     
-    disk_3p disk1 = {0, 3.6, 0.5};
+    disk_3p disk1 = {5e10, 3.6, 0.5};
     disk_3p disk2 = {0., 2., 0.3};
-    bulge_2p bulge = {0, 1.};
+    bulge_2p bulge = {1e11, 1.};
     Baryons_H_2MN baryons(disk1, disk2, bulge);
     
     
