@@ -24,6 +24,17 @@ private:
     /// Function for computing the DM density at a given point
     double rho_int(double R, double z, double tolerance);
     
+    /// Function for computing the DM's velocity magnitude distribution at a given point
+    double pv_mag_int(double R, double z, double tolerance);
+    
+    /// Function for computing the DM's meridional velocity distribution at a given point
+    double pv_merid_int(double v_merid, double R, double psiRz, double tolerance);
+    
+    /// Function for computing the DM's azimuthal velocity distribution at a given point
+    double pv_azim_int(double v_merid, double R, double psiRz, double tolerance);
+    /// GSL error handler
+    static void GSL_error_func(const char * reason, const char * file, int line, int gsl_errno);
+    
 public:
     /// Initializer
     Observables(Model *model, Inversion *inversion);
@@ -40,7 +51,5 @@ public:
     /// Computes the probability density distribution of the DM velocity along the azimuthal direction
     void pv_azim(int N, double R, double z, double *result, double tolerance=1e-3);
     
-    /// GSL error handler
-    static void GSL_error_func(const char * reason, const char * file, int line, int gsl_errno);
 
 };

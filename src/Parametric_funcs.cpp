@@ -87,8 +87,8 @@ std::complex<double> Parametric_funcs::psi_H_d2r2(std::complex<double> r, const 
  */
 
 std::complex<double> Parametric_funcs::psi_NFW(std::complex<double> r, const halo_2p& obj) {
-    if (r == 0.) return 4. * Parametric_funcs::PI * Parametric_funcs::G * obj.rho_s * std::pow(obj.r_s, 2);
-    else return 4. * Parametric_funcs::PI * Parametric_funcs::G * obj.rho_s * std::pow(obj.r_s, 3) * std::log(1. + r / obj.r_s) / r;
+    if (r == 0.) return 4. * M_PI * Parametric_funcs::G * obj.rho_s * std::pow(obj.r_s, 2);
+    else return 4. * M_PI * Parametric_funcs::G * obj.rho_s * std::pow(obj.r_s, 3) * std::log(1. + r / obj.r_s) / r;
 }
 
 /** 
@@ -97,7 +97,7 @@ std::complex<double> Parametric_funcs::psi_NFW(std::complex<double> r, const hal
  */
 
 std::complex<double> Parametric_funcs::psi_NFW_dr2(std::complex<double> r, const halo_2p& obj) {
-    return 2. * Parametric_funcs::PI * Parametric_funcs::G * obj.rho_s * std::pow(obj.r_s / r, 3) * (r / (r + obj.r_s) - std::log(1. + r / obj.r_s));
+    return 2. * M_PI * Parametric_funcs::G * obj.rho_s * std::pow(obj.r_s / r, 3) * (r / (r + obj.r_s) - std::log(1. + r / obj.r_s));
 }
 
 /** 
@@ -106,7 +106,7 @@ std::complex<double> Parametric_funcs::psi_NFW_dr2(std::complex<double> r, const
  */
 
 std::complex<double> Parametric_funcs::psi_NFW_d2r2(std::complex<double> r, const halo_2p& obj) {
-    return Parametric_funcs::PI * Parametric_funcs::G * obj.rho_s * std::pow(obj.r_s, 3) * (3. * std::pow(r + obj.r_s, 2) * std::log(1. + r / obj.r_s) - 4. * std::pow(r, 2) - 3. * r * obj.r_s) / (std::pow(r, 5) * std::pow(r + obj.r_s, 2));
+    return M_PI * Parametric_funcs::G * obj.rho_s * std::pow(obj.r_s, 3) * (3. * std::pow(r + obj.r_s, 2) * std::log(1. + r / obj.r_s) - 4. * std::pow(r, 2) - 3. * r * obj.r_s) / (std::pow(r, 5) * std::pow(r + obj.r_s, 2));
 }
 
 /** 
@@ -115,10 +115,10 @@ std::complex<double> Parametric_funcs::psi_NFW_d2r2(std::complex<double> r, cons
  */
 
 std::complex<double> Parametric_funcs::psi_BUR(std::complex<double> r, const halo_2p& obj) {
-    if (r == 0.) return std::pow(Parametric_funcs::PI, 2) * Parametric_funcs::G * obj.rho_s * std::pow(obj.r_s, 2);
+    if (r == 0.) return std::pow(M_PI, 2) * Parametric_funcs::G * obj.rho_s * std::pow(obj.r_s, 2);
     else {
         std::complex<double> x = r / obj.r_s;
-        return Parametric_funcs::PI * Parametric_funcs::G * obj.rho_s * std::pow(obj.r_s, 2) / x * (2. * (1. + x) * (std::atan(1. / x) + std::log(1. + x)) + (1. - x) * std::log(1. + std::pow(x, 2)) - 1. * Parametric_funcs::PI);
+        return M_PI * Parametric_funcs::G * obj.rho_s * std::pow(obj.r_s, 2) / x * (2. * (1. + x) * (std::atan(1. / x) + std::log(1. + x)) + (1. - x) * std::log(1. + std::pow(x, 2)) - 1. * M_PI);
         return 0;
     }
 }
@@ -130,7 +130,7 @@ std::complex<double> Parametric_funcs::psi_BUR(std::complex<double> r, const hal
 
 std::complex<double> Parametric_funcs::psi_BUR_dr2(std::complex<double> r, const halo_2p& obj) {
     std::complex<double> x = r / obj.r_s;
-    return 0.5 * Parametric_funcs::PI * Parametric_funcs::G * obj.rho_s * (1. * Parametric_funcs::PI - 2. * std::atan(1. / x) - std::log(1. + std::pow(x, 2)) - 2. * std::log(1. + x)) * std::pow(x, -3);
+    return 0.5 * M_PI * Parametric_funcs::G * obj.rho_s * (1. * M_PI - 2. * std::atan(1. / x) - std::log(1. + std::pow(x, 2)) - 2. * std::log(1. + x)) * std::pow(x, -3);
     return 0;
 }
 
@@ -141,7 +141,7 @@ std::complex<double> Parametric_funcs::psi_BUR_dr2(std::complex<double> r, const
 
 std::complex<double> Parametric_funcs::psi_BUR_d2r2(std::complex<double> r, const halo_2p& obj) {
     std::complex<double> x = r / obj.r_s;
-    return 0.25 * Parametric_funcs::PI * Parametric_funcs::G * obj.rho_s * std::pow(obj.r_s, -2) * std::pow(x, -5) / ((1. + x) * (1. + std::pow(x, 2))) * (3. * (1. + x) * (1. + std::pow(x, 2)) * (2. * std::atan(1. / x) + std::log(1. + std::pow(x, 2)) + 2. * std::log(1. + x)) - 3. * Parametric_funcs::PI * (std::pow(x, 3) + std::pow(x, 2) + x + 1.) - 4. * std::pow(x, 3));
+    return 0.25 * M_PI * Parametric_funcs::G * obj.rho_s * std::pow(obj.r_s, -2) * std::pow(x, -5) / ((1. + x) * (1. + std::pow(x, 2))) * (3. * (1. + x) * (1. + std::pow(x, 2)) * (2. * std::atan(1. / x) + std::log(1. + std::pow(x, 2)) + 2. * std::log(1. + x)) - 3. * M_PI * (std::pow(x, 3) + std::pow(x, 2) + x + 1.) - 4. * std::pow(x, 3));
 }
 
 /** 
@@ -203,6 +203,41 @@ std::complex<double> Parametric_funcs::rho_BUR_d2r2(std::complex<double> r, cons
     std::complex<double> x = r / obj.r_s;
     return 0.25 * obj.rho_s * std::pow(obj.r_s, -4) * (1. + 3. * x * (1. + x * (2. + x * (6. + x * (7. + 5. * x))))) * std::pow(x * (1. + x + std::pow(x, 2) + std::pow(x, 3)), -3);
 }
+
+/**
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ * @param obj Struct with the halo parameters
+ */
+
+std::complex<double> Parametric_funcs::rho_sABC(std::complex<double> m2, const struct halo_6p& obj) {
+    std::complex<double> x = std::sqrt(m2) / obj.r_s;
+    return obj.rho_s / (std::pow(x, obj.gamma) * std::pow(1. + std::pow(x, obj.alpha), (obj.beta - obj.gamma) / obj.alpha));
+}
+
+/**
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ * @param obj Struct with the halo parameters
+ */
+
+std::complex<double> Parametric_funcs::rho_sABC_dz2(std::complex<double> m2, const struct halo_6p& obj) {
+    std::complex<double> x = std::sqrt(m2) / obj.r_s;
+    return - Parametric_funcs::rho_sABC(m2, obj) * (std::pow(x, obj.alpha) * obj.beta + obj.gamma) / (2. * std::pow(obj.q, 2) * std::pow(x, 2) * (1. + std::pow(x, obj.alpha)) * std::pow(obj.r_s, 2));
+}
+
+/**
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ * @param obj Struct with the halo parameters
+ */
+
+std::complex<double> Parametric_funcs::rho_sABC_d2z2(std::complex<double> m2, const struct halo_6p& obj) {
+    std::complex<double> x = std::sqrt(m2) / obj.r_s;
+    std::complex<double> xa = std::pow(x, obj.alpha);
+    return 0.25 * Parametric_funcs::rho_sABC(m2, obj) * std::pow(obj.r_s * x, -4) * std::pow(std::pow(obj.q, 2) * (1. + xa), -2) * (obj.gamma * (2. + obj.gamma) + ((2. + obj.alpha) * obj.gamma + obj.beta * (2. - obj.alpha + 2. * obj.gamma)) * xa + obj.beta * (2. + obj.beta) * std::pow(xa, 2.));
+}
+
 
 /** 
  * @param R2 Value of the R-coordinate squared
