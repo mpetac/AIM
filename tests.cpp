@@ -226,9 +226,6 @@ TEST(NumericFuncsTestGroup, PsiSpheroid) {
 }
 
 TEST(NumericFuncsTestGroup, PsigNFW) {
-    halo_2p p_nfw = {1e7, 13.};
-    Halo_NFW nfw(p_nfw);
-    
     halo_6p p_sabc = {1e7, 13., 1., 3., 1.5, 1.};
     Halo_sABC sabc(p_sabc);
     
@@ -238,19 +235,15 @@ TEST(NumericFuncsTestGroup, PsigNFW) {
     //std::cout << nfw.psi(0, 0, 0) << ", " << sabc.psi(0, 0, 0) << ", " << gnfw.psi(0, 0, 0) << std::endl;
     //std::cout << sabc.psi(0, 0, 0) << ", " << gnfw.psi(0, 0, 0) << std::endl;
     
-    
-    std::complex<double> R2(100., -1.);
+    std::complex<double> R2(100., 1.);
     std::complex<double> z2(0, 0);
     std::complex<double> r = std::sqrt(R2 + z2);
     
-    std::complex<double> psi_nfw = nfw.psi(R2, z2, r);
     std::complex<double> psi_sabc = sabc.psi(R2, z2, r);
     std::complex<double> psi_gnfw = gnfw.psi(R2, z2, r);
-    //std::cout << psi_nfw << ", " << psi_sabc << ", " << psi_gnfw << std::endl;
-    //DOUBLES_EQUAL(1., std::real(psi_gnfw / psi_sabc), 1e-3);
-    //DOUBLES_EQUAL(0., std::imag(psi_gnfw / psi_sabc), 1e-3);
-    
-    /*
+    std::cout << psi_sabc << ", " << psi_gnfw << std::endl;
+    DOUBLES_EQUAL(1., std::real(psi_gnfw / psi_sabc), 1e-3);
+    DOUBLES_EQUAL(0., std::imag(psi_gnfw / psi_sabc), 1e-3);
     
     std::complex<double> psi_ana_dz2 = sabc.psi_dz2(R2, z2, r);
     std::complex<double> psi_num_dz2 = gnfw.psi_dz2(R2, z2, r);
@@ -263,19 +256,18 @@ TEST(NumericFuncsTestGroup, PsigNFW) {
     std::cout << psi_ana_d2z2 << ", " << psi_num_d2z2 << std::endl;
     DOUBLES_EQUAL(1., std::real(psi_num_d2z2 / psi_ana_d2z2), 1e-3);
     DOUBLES_EQUAL(0., std::imag(psi_num_d2z2 / psi_ana_d2z2), 1e-3);
-    */
 };
 
 TEST_GROUP(ModelTestGroup) {
 };
 
 TEST(ModelTestGroup, Rcirc) {
-    halo_2p halo = {1e-2, 13};
-    disk_3p disk1 = {1., 1., 0.1};
-    disk_3p disk2 = {0.5, 2., 0.3};
-    bulge_2p bulge = {1., 0.5};
-    
+    halo_2p halo = {1e7, 13};
     Halo_NFW DM(halo);
+    
+    disk_3p disk1 = {0., 1., 0.1};
+    disk_3p disk2 = {0., 2., 0.3};
+    bulge_2p bulge = {0., 0.5};
     Baryons_H_2MN baryons(disk1, disk2, bulge);
     
     Model m(&DM, &baryons);

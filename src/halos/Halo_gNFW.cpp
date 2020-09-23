@@ -14,8 +14,15 @@ Halo_gNFW::Halo_gNFW(const halo_6p& gNFW, const halo_rot_2p& gNFW_rot) {
     Halo_gNFW::halo_rot = gNFW_rot;
 }
 
+/** 
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ * @param r Value of the radial distance
+ */
 
 std::complex<double> Halo_gNFW::psi(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
+    double arg = std::arg(r);
+    if (arg == 0) r = std::polar(std::abs(r), -1e-8);
     return Numeric_funcs::psi_gNFW(&(Halo_gNFW::halo), r);
 }
 
@@ -26,6 +33,9 @@ std::complex<double> Halo_gNFW::psi(std::complex<double> R2, std::complex<double
  */
 
 std::complex<double> Halo_gNFW::psi_dR2(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
+    double arg = std::arg(r);
+    if (arg == 0) r = std::polar(std::abs(r), -1e-8);
+//     if (arg > 0) r = std::polar(std::abs(r), arg + M_PI);
     return Numeric_funcs::psi_gNFW_dr2(&(Halo_gNFW::halo), r);
 }
 
@@ -36,6 +46,9 @@ std::complex<double> Halo_gNFW::psi_dR2(std::complex<double> R2, std::complex<do
  */
 
 std::complex<double> Halo_gNFW::psi_dz2(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
+    double arg = std::arg(r);
+    if (arg == 0) r = std::polar(std::abs(r), -1e-8);
+//     if (arg > 0) r = std::polar(std::abs(r), arg + M_PI);
     return Numeric_funcs::psi_gNFW_dr2(&(Halo_gNFW::halo), r);
 }
 
@@ -46,6 +59,9 @@ std::complex<double> Halo_gNFW::psi_dz2(std::complex<double> R2, std::complex<do
  */
 
 std::complex<double> Halo_gNFW::psi_d2R2z2(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
+    double arg = std::arg(r);
+    if (arg == 0) r = std::polar(std::abs(r), -1e-8);
+//     if (arg > 0) r = std::polar(std::abs(r), arg + M_PI);
     return Numeric_funcs::psi_gNFW_d2r2(this, r);
 }
 
@@ -56,6 +72,9 @@ std::complex<double> Halo_gNFW::psi_d2R2z2(std::complex<double> R2, std::complex
  */
 
 std::complex<double> Halo_gNFW::psi_d2z2(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
+    double arg = std::arg(r);
+    if (arg == 0) r = std::polar(std::abs(r), -1e-8);
+//     if (arg > 0) r = std::polar(std::abs(r), arg + M_PI);
     return Numeric_funcs::psi_gNFW_d2r2(this, r);
 }
 

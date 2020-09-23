@@ -13,15 +13,18 @@ Inversion::Inversion(Model *model, int N_E, int N_Lz, double tolerance_F, bool v
     Inversion::model = model;
     Inversion::tolerance_F = tolerance_F;
     Inversion::verbose = verbose;
-    
     gsl_set_error_handler(&Inversion::GSL_error_func);
+    
+    time_t tStart = time(NULL);
     
     double Epts[N_E];
     double Lzpts[2 * N_Lz - 1];
     double Fpts[N_E * (2 * N_Lz - 1)];
     
+    double base = 2.;
+    double logEmin = std::log10(2.) / std::log10(base), logEmax = std::log10(1. + 1e-4) / std::log10(base);
     for (int i = 0; i < N_E; i++) {
-        Epts[i] = std::pow(2. - 1e-4, 1. * i / (N_E - 1)) - 1;
+        Epts[i] = 2. - std::pow(base, logEmin + (logEmax - logEmin) * i / (N_E - 1));
     }
     
     for (int i = 0; i < 2 * N_Lz - 1; i++) {
@@ -34,6 +37,9 @@ Inversion::Inversion(Model *model, int N_E, int N_Lz, double tolerance_F, bool v
     Inversion::LzAcc = gsl_interp_accel_alloc();
     Inversion::F = gsl_spline2d_alloc(gsl_interp2d_bilinear, N_E, 2 * N_Lz - 1);
     gsl_spline2d_init(Inversion::F, Epts, Lzpts, Fpts, N_E, 2 * N_Lz - 1);
+    
+    double dt = difftime(time(NULL), tStart);
+    std::cout << "Inversion computed in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;
 }
 
 Inversion::~Inversion() {
@@ -52,13 +58,17 @@ Inversion::~Inversion() {
 
 void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, double* Fpts) {
     if(Inversion::model->psi(1., 0, 1.) == Inversion::model->psi(0, 1., 1.)) {
+        std::cout << "Computing spherically symmetric inversion" << std::endl;
         std::vector<std::future<double>> vals(N_E);
         for (int i = 0; i < N_E; i++) {
-            double params[2] = {Epts[i], 0};
+            double *params = new double[2];
+            params[0] = Epts[i];
+            params[1] = 0;
             vals[i] = std::async(&Inversion::F_even, this, params);
         }
         for (int i = 0; i < N_E; i++) {
             double val = std::log(1. + vals[i].get());
+            std::cout << "PSDF computed: " << Epts[i] << " -> " << val << std::endl;
             for (int j = 0; j < N_Lz; j++) {
                 Fpts[(N_Lz - 1 + j) * N_E + i] = val;
                 Fpts[(N_Lz - 1 - j) * N_E + i] = val;
@@ -66,6 +76,7 @@ void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, doubl
         }
     } else {
         /**/
+        std::cout << "Computing axisymmetric inversion" << std::endl;
         std::vector<std::future<double>> vals_even(N_E * N_Lz);
         std::vector<std::future<double>> vals_odd(N_E * N_Lz);
         for (int i = 0; i < N_E; i++) {
@@ -83,14 +94,13 @@ void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, doubl
             for (int j = 0; j < N_Lz; j++) {
                 double val_even = std::max(vals_even[i * N_Lz + j].get(), 0.);
                 double val_odd = vals_odd[i * N_Lz + j].get();
-                if (std::abs(val_odd) > val_even) val_odd = val_even * (1. - 2. * int(std::signbit(val_odd)));
                 std::cout << "PSDF computed: " << Epts[i] << ", " << Lzpts[j + N_Lz - 1] << " -> " << val_even << ", " << val_odd << std::endl;
+                if (std::abs(val_odd) > val_even) val_odd = val_even * (1. - 2. * int(std::signbit(val_odd)));
                 Fpts[(N_Lz - 1 + j) * N_E + i] = std::log(1. + val_even + val_odd);
                 Fpts[(N_Lz - 1 - j) * N_E + i] = std::log(1. + val_even - val_odd);
             }
         }
     }
-    std::cout << "Interpolation done" << std::endl;
 }
 
 /**
