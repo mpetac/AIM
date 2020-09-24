@@ -68,7 +68,11 @@ void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, doubl
         }
         for (int i = 0; i < N_E; i++) {
             double val = std::log(1. + vals[i].get());
-            std::cout << "PSDF computed: " << Epts[i] << " -> " << val << std::endl;
+            if (val < 0) {
+                std::cout << "PSDF-even negative: " << Epts[i] << " -> " << val << std::endl;
+                val = 0;
+            }
+            //std::cout << "PSDF computed: " << Epts[i] << " -> " << val << std::endl;
             for (int j = 0; j < N_Lz; j++) {
                 Fpts[(N_Lz - 1 + j) * N_E + i] = val;
                 Fpts[(N_Lz - 1 - j) * N_E + i] = val;
@@ -92,10 +96,17 @@ void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, doubl
         
         for (int i = 0; i < N_E; i++) {
             for (int j = 0; j < N_Lz; j++) {
-                double val_even = std::max(vals_even[i * N_Lz + j].get(), 0.);
+                double val_even = vals_even[i * N_Lz + j].get();
                 double val_odd = vals_odd[i * N_Lz + j].get();
-                std::cout << "PSDF computed: " << Epts[i] << ", " << Lzpts[j + N_Lz - 1] << " -> " << val_even << ", " << val_odd << std::endl;
-                if (std::abs(val_odd) > val_even) val_odd = val_even * (1. - 2. * int(std::signbit(val_odd)));
+                if (val_even < 0) {
+                    std::cout << "PSDF-even negative: " << Epts[i] << ", " << Lzpts[j + N_Lz - 1] << " -> " << val_even << ", " << val_odd << std::endl;
+                    val_even = 0;
+                }
+                if (std::abs(val_odd) > val_even) {
+                    std::cout << "PSDF-odd too large: " << Epts[i] << ", " << Lzpts[j + N_Lz - 1] << " -> " << val_even << ", " << val_odd << std::endl;
+                    val_odd = val_even * (1. - 2. * int(std::signbit(val_odd)));
+                }
+//                 std::cout << "PSDF computed: " << Epts[i] << ", " << Lzpts[j + N_Lz - 1] << " -> " << val_even << ", " << val_odd << std::endl;
                 Fpts[(N_Lz - 1 + j) * N_E + i] = std::log(1. + val_even + val_odd);
                 Fpts[(N_Lz - 1 - j) * N_E + i] = std::log(1. + val_even - val_odd);
             }

@@ -18,15 +18,19 @@ int main(int argc, char **argv) {
     time_t tStart = time(NULL);
     
 //     halo_2p p_nfw = {1e7, 13.};
-//     Halo_NFW halo(p_nfw);
+    halo_2p p_nfw = {4.02e5, 49.2};
+    Halo_NFW halo(p_nfw);
     
-    halo_6p p_abc = {4.02e5, 49.2, 1., 3., 1.65, 1.};
-    Halo_gNFW halo(p_abc);
+//     halo_6p p_abc = {4.02e5, 49.2, 1., 3., 1.01, 1.};
+//     Halo_gNFW halo(p_abc);
 //     Halo_sABC halo(p_abc);
     
-    disk_3p disk1 = {1.39e10, 20., 10.};
-    disk_3p disk2 = {4.12e10, 9.52, 0.};
-    bulge_2p bulge = {1.59e10, 0.484};
+//     disk_3p disk1 = {1.39e10, 20., 10.};
+//     disk_3p disk2 = {4.12e10, 9.52, 0.};
+//     bulge_2p bulge = {1.59e10, 0.484};
+    disk_3p disk1 = {5e10, 3.6, 0.5};
+    disk_3p disk2 = {0., 9.52, 0.};
+    bulge_2p bulge = {1e11, 1.};
     Baryons_H_2MN baryons(disk1, disk2, bulge);
     
     Model model(&halo, &baryons);
@@ -43,14 +47,14 @@ int main(int argc, char **argv) {
     }
     */
     
-    Inversion psdf(&model, 100, 20);
+    Inversion psdf(&model, 1000, 10);
     
     Observables obs(&model, &psdf);
     
     bool verbose = 0;
     int nPts = 20;
     double Rpts[nPts], zpts[nPts], result[nPts];
-    double logRmin = -1, logRmax = 2.;
+    double logRmin = -1, logRmax = 3.;
     for (int i = 0; i < nPts; i++) {
         Rpts[i] = std::pow(10., logRmin + (logRmax - logRmin) * i / (nPts - 1));
         zpts[i] = 0;
