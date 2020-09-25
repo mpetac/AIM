@@ -1,3 +1,4 @@
+ 
 #include <complex>
 #include <iostream>
 #include <fstream>
@@ -17,40 +18,29 @@ int main(int argc, char **argv) {
     
     time_t tStart = time(NULL);
     
-//     halo_2p p_nfw = {1e7, 13.};
-    halo_2p p_nfw = {4.02e5, 49.2};
+    // Define struct with DM halo parameters. Here we asume spherical DM density profile with density 1e7 M_sol / kpc^3 and scale density of 13 kpc.
+    halo_2p p_nfw = {1e7, 13.};
+    // Initialize the DM halo object.
     Halo_NFW halo(p_nfw);
     
-//     halo_6p p_abc = {4.02e5, 49.2, 1., 3., 1.01, 1.};
-//     Halo_gNFW halo(p_abc);
-//     Halo_sABC halo(p_abc);
-    
-//     disk_3p disk1 = {1.39e10, 20., 10.};
-//     disk_3p disk2 = {4.12e10, 9.52, 0.};
-//     bulge_2p bulge = {1.59e10, 0.484};
+    // Define structs related to the baryonic distribution. In this example we assume a model consisting of tow Myiamoto-Nagai disks and a spherical Hernquist bulge.
     disk_3p disk1 = {5e10, 3.6, 0.5};
-    disk_3p disk2 = {0., 9.52, 0.};
+    disk_3p disk2 = {0., 1., 1.};
     bulge_2p bulge = {1e11, 1.};
+    // Initialize the baryonic model
     Baryons_H_2MN baryons(disk1, disk2, bulge);
     
+    // Initialize the galactic model using the previously defined halo and baryons
     Model model(&halo, &baryons);
-    /*
-    for (int i = 0; i < 11; i++) {
-        //std::complex<double> R = std::pow(10., -1. + 4. * i / 10.);
-        double R = std::pow(10., -1. + 4. * i / 10.);
-        double E_R = std::real(model.psi(R * R, 0, R) + R * R * model.psi_dR2(R * R, 0, R));
-        double Rc = model.Rcirc(E_R);
-        std::cout << R << " -> " << E_R << " -> " << Rc << std::endl;
-//         std::complex<double> psi = model.psi(R*R, 0, R);
-//         std::complex<double> psi_dR2 = model.psi_dR2(R*R, 0, R);
-//         std::cout << R << " -> " << psi << ", " << psi_dR2 << std::endl;
-    }
-    */
     
+    // Interpolate the PSDF obtained for the specified galactic model with given number of relative energy and angular momentum points
     Inversion psdf(&model, 1000, 10);
     
+    // Initialize the class for computing various observable quantities from the PSDF (namely DM density and various projections of the velocity distribution)
     Observables obs(&model, &psdf);
     
+    
+    // Tabulate the DM density distribution and write it to a file
     bool verbose = 0;
     int nPts = 20;
     double Rpts[nPts], zpts[nPts], result[nPts];
@@ -69,10 +59,11 @@ int main(int argc, char **argv) {
     }
     out_density.close();
     
-    /*
+    
     int nVel = 100;
     double pv_mag[2 * nVel], pv_merid[2 * nVel], pv_azim[2 * nVel];
     
+    // Tabulate the magnitude of DM velocity distribution and write it to a file
     obs.pv_mag(nVel, 8.122, 0, pv_mag);
     std::ofstream out_pv_mag("out/pv_mag.dat");
     for (int i = 0; i < nVel; i++) {
@@ -81,6 +72,7 @@ int main(int argc, char **argv) {
     }
     out_pv_mag.close();
     
+    // Tabulate the DM velocity distribution in meridional plane and write it to a file
     obs.pv_merid(nVel, 8.122, 0, pv_merid);
     std::ofstream out_pv_merid("out/pv_merid.dat");
     for (int i = 0; i < nVel; i++) {
@@ -89,6 +81,7 @@ int main(int argc, char **argv) {
     }
     out_pv_merid.close();
     
+    // Tabulate the DM velocity distribution in azimuthal direction and write it to a file
     obs.pv_azim(nVel, 8.122, 0, pv_azim);
     std::ofstream out_pv_azim("out/pv_azim.dat");
     for (int i = 0; i < nVel; i++) {
@@ -96,7 +89,6 @@ int main(int argc, char **argv) {
         if (verbose) std::cout << "pv_azim(" << pv_azim[2 * i] << "): " << pv_azim[2 * i + 1] << std::endl;
     }
     out_pv_azim.close();
-    */
     
     double dt = difftime(time(NULL), tStart);
     std::cout << "Done in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;
