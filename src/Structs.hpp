@@ -99,6 +99,7 @@ struct velocity_int_params {
     double R;
     double psiRz;
     double v;
+    double vf;
 };
 
 struct potential_int_params {

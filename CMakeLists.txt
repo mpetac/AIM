@@ -12,6 +12,7 @@ file(GLOB halos "src/halos/*.cpp")
 file(GLOB baryons "src/baryons/*.cpp")
 
 find_package(GSL REQUIRED)
+
 add_executable(axi_psdf main.cpp ${halos} ${baryons} ${srcs})
 target_link_libraries(axi_psdf GSL::gsl GSL::gslcblas pthread)
 

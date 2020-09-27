@@ -13,6 +13,17 @@
 #include "src/halos/Halo_sABC.hpp"
 #include "src/baryons/Baryons_H_2MN.hpp"
 
+void print_file(char *name, double *results, int N, int M) {
+    std::ofstream out_density(name);
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            out_density << results[i * M + j] << "\t";
+        }
+        out_density << std::endl;
+    }
+    out_density.close();
+}
+
 int main(int argc, char **argv) {
     std::cout << "Hello, world!" << std::endl;
     
@@ -48,7 +59,6 @@ int main(int argc, char **argv) {
     for (int i = 0; i < nPts; i++) {
         Rpts[i] = std::pow(10., logRmin + (logRmax - logRmin) * i / (nPts - 1));
         zpts[i] = 0;
-        result[i] = 0;
     }
     obs.rho(nPts, Rpts, zpts, result);
     std::ofstream out_density("out/density.dat");
@@ -61,7 +71,7 @@ int main(int argc, char **argv) {
     
     
     int nVel = 100;
-    double pv_mag[2 * nVel], pv_merid[2 * nVel], pv_azim[2 * nVel];
+    double pv_mag[2 * nVel], pv_merid[2 * nVel], pv_azim[2 * nVel], pv_rad[2 * nVel];
     
     // Tabulate the magnitude of DM velocity distribution and write it to a file
     obs.pv_mag(nVel, 8.122, 0, pv_mag);
@@ -89,6 +99,15 @@ int main(int argc, char **argv) {
         if (verbose) std::cout << "pv_azim(" << pv_azim[2 * i] << "): " << pv_azim[2 * i + 1] << std::endl;
     }
     out_pv_azim.close();
+    
+    // Tabulate the DM velocity distribution in radial direction and write it to a file
+    obs.pv_rad(nVel, 8.122, 0, pv_rad);
+    std::ofstream out_pv_rad("out/pv_rad.dat");
+    for (int i = 0; i < nVel; i++) {
+        out_pv_rad << pv_rad[2 * i] << "\t" << pv_rad[2 * i + 1] << "\n";
+        if (verbose) std::cout << "pv_rad(" << pv_rad[2 * i] << "): " << pv_rad[2 * i + 1] << std::endl;
+    }
+    out_pv_rad.close();
     
     double dt = difftime(time(NULL), tStart);
     std::cout << "Done in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;

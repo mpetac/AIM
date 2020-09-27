@@ -187,6 +187,7 @@ std::complex<double> Model::psi_inverse(std::complex<double> xi, double E, doubl
  */
 
 double Model::Rcirc(double E, double tolerance, int limit) {
+    if (E == 0) return 1e306;
     int i = 0;
     double Rc = 0, dR = 1.;
     while(i < limit) {

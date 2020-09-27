@@ -32,6 +32,10 @@ private:
     
     /// Function for computing the DM's azimuthal velocity distribution at a given point
     double pv_azim_int(double v_merid, double R, double psiRz, double tolerance);
+    
+    /// Function for computing the DM's radial (or equivalently along z-direction) velocity distribution at a given point
+    double pv_rad_int(double v_merid, double R, double psiRz, double tolerance);
+    
     /// GSL error handler
     static void GSL_error_func(const char * reason, const char * file, int line, int gsl_errno);
     
@@ -51,5 +55,9 @@ public:
     /// Computes the probability density distribution of the DM velocity along the azimuthal direction
     void pv_azim(int N, double R, double z, double *result, double tolerance=1e-3);
     
-
+    /// Computes the probability density distribution of the DM velocity along the radial (or equivalently z) direction
+    void pv_rad(int N, double R, double z, double *result, double tolerance=1e-3);
+    
+    /// Computes moments of the DM's velocity distribution
+    double v_mom(int mom, double R, double z, double tolerance=1e-3);
 };
