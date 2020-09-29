@@ -9,6 +9,7 @@
 class Halo {
     
 public:
+    
     /// Computes the halo's gravitational potential
     virtual std::complex<double> psi(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) = 0;
     
