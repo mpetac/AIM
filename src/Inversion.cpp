@@ -39,7 +39,7 @@ Inversion::Inversion(Model *model, int N_E, int N_Lz, double tolerance_F, bool v
     gsl_spline2d_init(Inversion::F, Epts, Lzpts, Fpts, N_E, 2 * N_Lz - 1);
     
     double dt = difftime(time(NULL), tStart);
-    std::cout << "Inversion computed in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;
+    if (Inversion::verbose) std::cout << "Inversion computed in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;
 }
 
 Inversion::~Inversion() {
@@ -58,7 +58,7 @@ Inversion::~Inversion() {
 
 void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, double* Fpts) {
     if(Inversion::model->psi(1., 0, 1.) == Inversion::model->psi(0, 1., 1.)) {
-        std::cout << "Computing spherically symmetric inversion" << std::endl;
+        if (Inversion::verbose) std::cout << "Computing spherically symmetric inversion..." << std::endl;
         std::vector<std::future<double>> vals(N_E);
         for (int i = 0; i < N_E; i++) {
             double *params = new double[2];
@@ -69,7 +69,7 @@ void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, doubl
         for (int i = 0; i < N_E; i++) {
             double val = std::log(1. + vals[i].get());
             if (val < 0) {
-                std::cout << "PSDF-even negative: " << Epts[i] << " -> " << val << std::endl;
+                if (Inversion::verbose) std::cout << "PSDF-even negative: " << Epts[i] << " -> " << val << std::endl;
                 val = 0;
             }
             //std::cout << "PSDF computed: " << Epts[i] << " -> " << val << std::endl;
@@ -80,7 +80,7 @@ void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, doubl
         }
     } else {
         /**/
-        std::cout << "Computing axisymmetric inversion" << std::endl;
+        if (Inversion::verbose) std::cout << "Computing axisymmetric inversion..." << std::endl;
         std::vector<std::future<double>> vals_even(N_E * N_Lz);
         std::vector<std::future<double>> vals_odd(N_E * N_Lz);
         for (int i = 0; i < N_E; i++) {
@@ -99,11 +99,11 @@ void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, doubl
                 double val_even = vals_even[i * N_Lz + j].get();
                 double val_odd = vals_odd[i * N_Lz + j].get();
                 if (val_even < 0) {
-                    std::cout << "PSDF-even negative: " << Epts[i] << ", " << Lzpts[j + N_Lz - 1] << " -> " << val_even << ", " << val_odd << std::endl;
+                    if (Inversion::verbose) std::cout << "Warning! f+ negative: " << Epts[i] << ", " << Lzpts[j + N_Lz - 1] << " -> " << val_even << ", " << val_odd << std::endl;
                     val_even = 0;
                 }
                 if (std::abs(val_odd) > val_even) {
-                    std::cout << "PSDF-odd too large: " << Epts[i] << ", " << Lzpts[j + N_Lz - 1] << " -> " << val_even << ", " << val_odd << std::endl;
+                    if (Inversion::verbose) std::cout << "Warning! f- larger then f+: " << Epts[i] << ", " << Lzpts[j + N_Lz - 1] << " -> " << val_even << ", " << val_odd << std::endl;
                     val_odd = val_even * (1. - 2. * int(std::signbit(val_odd)));
                 }
 //                 std::cout << "PSDF computed: " << Epts[i] << ", " << Lzpts[j + N_Lz - 1] << " -> " << val_even << ", " << val_odd << std::endl;
@@ -143,7 +143,7 @@ double F_even_integrand(double t, void *params) {
  */
 
 double Inversion::F_even(double* params) {
-    if (Inversion::verbose) std::cout << "Computing F-even: " << params[0] << ", " << params[1] << std::endl;
+//     if (Inversion::verbose) std::cout << "Computing F-even: " << params[0] << ", " << params[1] << std::endl;
     
     if (params[0] == 0) return 0;
     
@@ -193,7 +193,7 @@ double F_odd_integrand(double t, void *params) {
  */
 
 double Inversion::F_odd(double* params) {
-    if (Inversion::verbose) std::cout << "Computing F-odd: " << params[0] << ", " << params[1] << std::endl;
+//     if (Inversion::verbose) std::cout << "Computing F-odd: " << params[0] << ", " << params[1] << std::endl;
     
     if (!Inversion::model->is_rotating() || params[0] == 0 || params[1] == 0) return 0;
     
@@ -224,7 +224,7 @@ double Inversion::F_odd(double* params) {
 
 double Inversion::eval_F(double E, double Lz) {
     if (E < 0 || E > 1 || Lz < -1 || Lz > 1) {
-        std::cout << "PSDF eval out of range: " << E << ", " << Lz << std::endl;
+        if (Inversion::verbose) std::cout << "Warning! PSDF eval out of range: " << E << ", " << Lz << std::endl;
         return 0;
     }
     return std::exp(gsl_spline2d_eval(F, E, Lz, EAcc, LzAcc)) - 1.;

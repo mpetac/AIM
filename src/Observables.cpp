@@ -5,10 +5,11 @@
  * @param inv Instance of the PSDF inversion class
  */
 
-Observables::Observables(Model *model, Inversion *inversion) {
+Observables::Observables(Model *model, Inversion *inversion, bool verbose) {
     gsl_set_error_handler(&Observables::GSL_error_func);
     Observables::model = model;
     Observables::inversion = inversion;
+    Observables::verbose = verbose;
 }
 
 
@@ -86,8 +87,13 @@ double Observables::rho_int(double R, double z, double tolerance) {
  */
 
 void Observables::rho(int N, double* Rpts, double* zpts, double* result, double tolerance) {
-    for (int i = 0; i < N; i++) {
-        result[i] = Observables::rho_int(Rpts[i], zpts[i], tolerance);
+    time_t tStart = time(NULL);
+    
+    for (int i = 0; i < N; i++)  result[i] = Observables::rho_int(Rpts[i], zpts[i], tolerance);
+    
+    if (Observables::verbose) {
+        double dt = difftime(time(NULL), tStart);
+        std::cout << "Numerical density profile computed in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;
     }
 }
 
@@ -100,16 +106,23 @@ void Observables::rho(int N, double* Rpts, double* zpts, double* result, double 
  */
 
 void Observables::pv_mag(int N, double R, double z, double* result, double tolerance) {
+    time_t tStart = time(NULL);
+    
     double R2 = std::pow(R, 2), z2 = std::pow(z, 2);
     double rhoRz = std::real(Observables::model->rho(R2, z2, std::sqrt(R2 + z2)));
     double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
     double vEsc = std::sqrt(2. * psiRz);
     for (int i = 0; i < N; i++) {
         struct velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, 0, 0};
-        double v = vEsc * i / (N - 1.);
+        double v = Observables::vMax * i / (N - 1.);
         result[2 * i] = v;
-        if (v == 0 || v == vEsc) result[2 * i + 1] = 0;
+        if (v == 0 || v >= vEsc) result[2 * i + 1] = 0;
         else result[2 * i + 1] = 4 * M_PI / rhoRz * rho_int_v(v, &p);
+    }
+    
+    if (Observables::verbose) {
+        double dt = difftime(time(NULL), tStart);
+        std::cout << "Velocity magnitude distribution computed in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;
     }
 }
 
@@ -160,15 +173,22 @@ double Observables::pv_merid_int(double v_merid, double R, double psiRz, double 
  */
 
 void Observables::pv_merid(int N, double R, double z, double* result, double tolerance) {
+    time_t tStart = time(NULL);
+    
     double R2 = std::pow(R, 2), z2 = std::pow(z, 2);
     double rhoRz = std::real(Observables::model->rho(R2, z2, std::sqrt(R2 + z2)));
     double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
     double vEsc = std::sqrt(2. * psiRz);
     for (int i = 0; i < N; i++) {
-        double v_merid = vEsc * i / (N - 1.);
+        double v_merid = Observables::vMax * i / (N - 1.);
         result[2 * i] = v_merid;
-        if (v_merid == 0 || v_merid == vEsc) result[2 * i + 1] = 0;
+        if (v_merid == 0 || v_merid >= vEsc) result[2 * i + 1] = 0;
         else result[2 * i + 1] = 2 * M_PI * v_merid / rhoRz * Observables::pv_merid_int(v_merid, R, psiRz, tolerance);
+    }
+    
+    if (Observables::verbose) {
+        double dt = difftime(time(NULL), tStart);
+        std::cout << "Meridional velocity distribution computed in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;
     }
 }
 
@@ -219,15 +239,22 @@ double Observables::pv_azim_int(double v_azim, double R, double psiRz, double to
  */
 
 void Observables::pv_azim(int N, double R, double z, double* result, double tolerance) {
+    time_t tStart = time(NULL);
+    
     double R2 = std::pow(R, 2), z2 = std::pow(z, 2);
     double rhoRz = std::real(Observables::model->rho(R2, z2, std::sqrt(R2 + z2)));
     double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
     double vEsc = std::sqrt(2. * psiRz);
     for (int i = 0; i < N; i++) {
-        double v_azim = vEsc * (2. * i / (N - 1.) - 1.);
+        double v_azim = Observables::vMax * (2. * i / (N - 1.) - 1.);
         result[2 * i] = v_azim;
         if (std::abs(v_azim) >= vEsc) result[2 * i + 1] = 0;
         else result[2 * i + 1] = 2. * M_PI / rhoRz * Observables::pv_azim_int(v_azim, R, psiRz, tolerance);
+    }
+    
+    if (Observables::verbose) {
+        double dt = difftime(time(NULL), tStart);
+        std::cout << "Azimuthal velocity distribution computed in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;
     }
 }
 
@@ -302,19 +329,28 @@ double Observables::pv_rad_int(double v_rad, double R, double psiRz, double tole
  */
 
 void Observables::pv_rad(int N, double R, double z, double* result, double tolerance) {
+    time_t tStart = time(NULL);
+    
     double R2 = std::pow(R, 2), z2 = std::pow(z, 2);
     double rhoRz = std::real(Observables::model->rho(R2, z2, std::sqrt(R2 + z2)));
     double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
     double vEsc = std::sqrt(2. * psiRz);
     for (int i = 0; i < N; i++) {
-        double v_rad = vEsc * (2. * i / (N - 1.) - 1.);
+        double v_rad = Observables::vMax * (2. * i / (N - 1.) - 1.);
         result[2 * i] = v_rad;
         if (std::abs(v_rad) >= vEsc) result[2 * i + 1] = 0;
         else result[2 * i + 1] = 2. / rhoRz * Observables::pv_rad_int(v_rad, R, psiRz, tolerance);
     }
+    
+    if (Observables::verbose) {
+        double dt = difftime(time(NULL), tStart);
+        std::cout << "Radial velocity distribution computed in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;
+    }
 }
 
 double Observables::v_mom(int mom, double R, double z, double tolerance) {
+    time_t tStart = time(NULL);
+    
     double R2 = std::pow(R, 2), z2 = std::pow(z, 2);
     double rhoRz = std::real(Observables::model->rho(R2, z2, std::sqrt(R2 + z2)));
     double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
@@ -330,6 +366,10 @@ double Observables::v_mom(int mom, double R, double z, double tolerance) {
     gsl_integration_qags(&F, 0, vEsc, 0, tolerance, Observables::nIntervals, workspace, &result, &abserr);
     gsl_integration_workspace_free(workspace);
     
+    if (Observables::verbose) {
+        double dt = difftime(time(NULL), tStart);
+        std::cout << "Velocity moment computed in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;
+    }
     return 4. * M_PI / rhoRz * result; 
 }
 

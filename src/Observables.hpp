@@ -1,8 +1,10 @@
 #pragma once
 
+#include <time.h>
 #include <complex>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_integration.h>
+
 #include "Inversion.hpp"
 #include "Model.hpp"
 #include "Structs.hpp"
@@ -20,6 +22,10 @@ private:
     Inversion *inversion;
     /// Number of intervals used in the numerical integration
     size_t nIntervals = 1e5;
+    /// Parameter controling verbose output
+    bool verbose;
+    /// Maximum velocity to which the velocity probability distribution is computed
+    double vMax = 1000.;
     
     /// Function for computing the DM density at a given point
     double rho_int(double R, double z, double tolerance);
@@ -41,7 +47,7 @@ private:
     
 public:
     /// Initializer
-    Observables(Model *model, Inversion *inversion);
+    Observables(Model *model, Inversion *inversion, bool verbose = 0);
 
     /// Computes the DM density profile
     void rho(int N, double *Rpts, double *zpts, double *result, double tolerance=1e-3);
