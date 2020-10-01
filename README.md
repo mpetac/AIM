@@ -2,12 +2,12 @@
 
 Code for computing equilibrium axisymmetric phase-space distribution function. It provides highly efficent and user-friendly implementation of an algorithm presented in [Hunter \& Qian](https://academic.oup.com/mnras/article/262/2/401/1161204), [Qian et al.](https://academic.oup.com/mnras/article/274/2/602/2896126) and [Petac \& Ullio](https://journals.aps.org/prd/abstract/10.1103/PhysRevD.99.043003). The code is written in C++, however, it can be also be deployed from Python using the provided pybind11 wrapper.
 
-This project is distributed under GPL v3.0 licence. If you use this code for a scientific project, please cite our paper that discusses the details of the inversion method: [Petac \& Ullio](https://journals.aps.org/prd/abstract/10.1103/PhysRevD.99.043003).
+This project is distributed under GPL v3.0 licence. If you use this code for a scientific project, please cite our paper that discusses the details of the implemented inversion method: [Petac \& Ullio](https://journals.aps.org/prd/abstract/10.1103/PhysRevD.99.043003).
 
 ## Requirements
 
 To compile the source code the following tools have to be installed on your system:
-* g++ (recommended version 7.5)
+* gcc (recommended version 7.5)
 * GSL (recommended version 2.4)
 * cmake 2.6 or later
 * pybind11 2.5 or later (optional, needed for compiling the Python wrapper)
@@ -34,12 +34,15 @@ The code can be used in C++ as demonstrated in the following example (see main.c
 #include "src/baryons/Baryons_H_2MN.hpp"
 
 
-// Define struct with DM halo parameters. Here we asume spherical NFW density profile. First parameter is the scale density (in units of M_sol / kpc^3) while the second parameter is scale density in units of kpc.
+// Define struct with DM halo parameters.
+// Here we asume spherical NFW density profile.
+// First parameter is the scale density (in units of M_sol / kpc^3) while the second parameter is scale density (in units of kpc).
 halo_2p p_nfw = {1e7, 13.};
 // Initialize the DM halo object.
 Halo_NFW halo(p_nfw);
 
-// Define structs related to the baryonic distribution. In this example we assume a model consisting of two Myiamoto-Nagai disks (first parameter is the disk mass in units of M_sol,+ while the second and third parameters are scale length and scale height in units of kpc) and a spherical Hernquist bulge (first parameter is the bulge mass in units of M_sol while the second parameter is the scale lenght in units of kpc).
+// Define structs related to the baryonic distribution.
+// In this example we assume a model consisting of two Myiamoto-Nagai disks (first parameter is the disk mass in units of M_sol,+ while the second and third parameters are scale length and scale height in units of kpc) and a spherical Hernquist bulge (first parameter is the bulge mass in units of M_sol while the second parameter is the scale lenght in units of kpc).
 disk_3p disk1 = {5e10, 3.6, 0.5};
 disk_3p disk2 = {0., 1., 1.};
 bulge_2p bulge = {1e11, 1.};
@@ -102,6 +105,6 @@ density_profile = f.rho(20, Rpts, zpts)
 velocity_distribution = f.pv_mag(100, 8.122, 0)
 ```
 
-## Full documentation
+## Documentation
 
 Source files contain brief comments that should be sufficient for understanding of the code. Comprehensive documentation based on these comments can be generated through Doxygen using the provided doxy setup file.
