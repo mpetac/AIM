@@ -107,4 +107,4 @@ velocity_distribution = f.pv_mag(100, 8.122, 0)
 
 ## Documentation
 
-Source files contain brief comments that should be sufficient for understanding of the code. Comprehensive documentation based on these comments can be generated through Doxygen using the provided doxy setup file.
+Source files contain brief comments that should be sufficient for understanding of the code. Comprehensive documentation based on these comments can be generated through Doxygen using the provided setup file ("Doxyfile").
