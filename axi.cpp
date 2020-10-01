@@ -16,6 +16,7 @@ int main(int argc, char **argv) {
     time_t tStart = time(NULL);
     bool verbose = 0;
     
+    /*
     double *params = new double[16];
     std::string line;
     std::ifstream paramsf("params.dat");
@@ -33,17 +34,25 @@ int main(int argc, char **argv) {
     bulge_2p bulge = {params[6], params[7]};
     halo_2p p_nfw = {std::pow(10., params[8] + 9.), params[9]};
     halo_rot_2p rot_nfw = {params[13], params[14]};
+    */
+    
+    disk_3p disk1 = {0., 3.6, 0.5};
+    disk_3p disk2 = {0, 1., 1.};
+    bulge_2p bulge = {0., 0.5};
+    halo_2p p_nfw = {1e7, 13.};
+    halo_rot_2p rot_nfw = {0, 1.};
     
     Halo_NFW halo(p_nfw, rot_nfw);
     Baryons_H_2MN baryons(disk1, disk2, bulge);
     
     Model model(&halo, &baryons);
     
-    Inversion psdf(&model, 1000, 20);
+    Inversion psdf(&model, 100, 10, 1e-3, 1);
     
-    Observables obs(&model, &psdf);
+    Observables obs(&model, &psdf, 1);
     
-    int nPts = 20;
+    /*
+    int nPts = 100;
     double Rpts[nPts], zpts[nPts], result[nPts];
     double logRmin = -1, logRmax = 3.;
     for (int i = 0; i < nPts; i++) {
@@ -51,7 +60,7 @@ int main(int argc, char **argv) {
         zpts[i] = 0;
     }
     obs.rho(nPts, Rpts, zpts, result);
-    std::ofstream out_density("inversion_HQ/rho.dat");
+    std::ofstream out_density("out/rho.dat");
     for (int i = 0; i < nPts; i++) {
         double rho_true = std::real(model.rho(Rpts[i] * Rpts[i], 0, Rpts[i]));
         out_density << Rpts[i] << "\t" << result[i] << "\t" << rho_true << "\n";
@@ -59,7 +68,7 @@ int main(int argc, char **argv) {
     }
     out_density.close();
     
-    std::ofstream out_v_mom("inversion_HQ/moments.dat");
+    std::ofstream out_v_mom("out/moments.dat");
     for (int i = 0; i < nPts; i++) {
         double mom_m2 = obs.v_mom(-2, Rpts[i], 0);
         double mom_m1 = obs.v_mom(-1, Rpts[i], 0);
@@ -70,21 +79,22 @@ int main(int argc, char **argv) {
         if (verbose) std::cout << "v_mom:" << mom_m2 << ", " << mom_m1 << ", " << mom_p1 << ", " << mom_p2 << std::endl;
     }
     out_v_mom.close();
-    
+    */
     
     int nVel = 100;
     double pv_mag[2 * nVel], pv_merid[2 * nVel], pv_azim[2 * nVel], pv_rad[2 * nVel];
     
     obs.pv_mag(nVel, 8.122, 0, pv_mag);
-    std::ofstream out_pv_mag("inversion_HQ/velocity_mag.dat");
+    std::ofstream out_pv_mag("out/velocity_mag.dat");
     for (int i = 0; i < nVel; i++) {
         out_pv_mag << pv_mag[2 * i] << "\t" << pv_mag[2 * i + 1] << "\n";
         if (verbose) std::cout << "pv_mag(" << pv_mag[2 * i] << "): " << pv_mag[2 * i + 1] << std::endl;
     }
     out_pv_mag.close();
     
+    
     obs.pv_merid(nVel, 8.122, 0, pv_merid);
-    std::ofstream out_pv_merid("inversion_HQ/velocity_merid.dat");
+    std::ofstream out_pv_merid("out/velocity_merid.dat");
     for (int i = 0; i < nVel; i++) {
         out_pv_merid << pv_merid[2 * i] << "\t" << pv_merid[2 * i + 1] << "\n";
         if (verbose) std::cout << "pv_merid(" << pv_merid[2 * i] << "): " << pv_merid[2 * i + 1] << std::endl;
@@ -92,7 +102,7 @@ int main(int argc, char **argv) {
     out_pv_merid.close();
     
     obs.pv_azim(nVel, 8.122, 0, pv_azim);
-    std::ofstream out_pv_azim("inversion_HQ/velocity_f.dat");
+    std::ofstream out_pv_azim("out/velocity_f.dat");
     for (int i = 0; i < nVel; i++) {
         out_pv_azim << pv_azim[2 * i] << "\t" << pv_azim[2 * i + 1] << "\n";
         if (verbose) std::cout << "pv_azim(" << pv_azim[2 * i] << "): " << pv_azim[2 * i + 1] << std::endl;
@@ -100,12 +110,13 @@ int main(int argc, char **argv) {
     out_pv_azim.close();
     
     obs.pv_rad(nVel, 8.122, 0, pv_rad);
-    std::ofstream out_pv_rad("inversion_HQ/velocity_R.dat");
+    std::ofstream out_pv_rad("out/velocity_R.dat");
     for (int i = 0; i < nVel; i++) {
         out_pv_rad << pv_rad[2 * i] << "\t" << pv_rad[2 * i + 1] << "\n";
         if (verbose) std::cout << "pv_rad(" << pv_rad[2 * i] << "): " << pv_rad[2 * i + 1] << std::endl;
     }
     out_pv_rad.close();
+
     
     double dt = difftime(time(NULL), tStart);
     std::cout << "Done in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;

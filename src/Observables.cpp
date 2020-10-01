@@ -89,7 +89,10 @@ double Observables::rho_int(double R, double z, double tolerance) {
 void Observables::rho(int N, double* Rpts, double* zpts, double* result, double tolerance) {
     time_t tStart = time(NULL);
     
-    for (int i = 0; i < N; i++)  result[i] = Observables::rho_int(Rpts[i], zpts[i], tolerance);
+    //for (int i = 0; i < N; i++)  result[i] = Observables::rho_int(Rpts[i], zpts[i], tolerance);
+    std::vector<std::future<double>> vals(N);
+    for (int i = 0; i < N; i++) vals[i] = std::async(&Observables::rho_int, this, Rpts[i], zpts[i], tolerance);
+    for (int i = 0; i < N; i++) result[i] = vals[i].get();
     
     if (Observables::verbose) {
         double dt = difftime(time(NULL), tStart);
@@ -112,13 +115,40 @@ void Observables::pv_mag(int N, double R, double z, double* result, double toler
     double rhoRz = std::real(Observables::model->rho(R2, z2, std::sqrt(R2 + z2)));
     double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
     double vEsc = std::sqrt(2. * psiRz);
+    
+    
+    /*
     for (int i = 0; i < N; i++) {
         struct velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, 0, 0};
         double v = Observables::vMax * i / (N - 1.);
         result[2 * i] = v;
         if (v == 0 || v >= vEsc) result[2 * i + 1] = 0;
-        else result[2 * i + 1] = 4 * M_PI / rhoRz * rho_int_v(v, &p);
+        else result[2 * i + 1] = 4. * M_PI / rhoRz * rho_int_v(v, &p);
     }
+    */
+    
+    std::vector<std::future<double>> vals(N);
+    for (int i = 0; i < N; i++) {
+        struct velocity_int_params *p = new velocity_int_params();
+        p->model = Observables::model;
+        p->inversion = Observables::inversion;
+        p->nIntervals = Observables::nIntervals;
+        p->tolerance = tolerance;
+        p->R = R;
+        p->psiRz = psiRz;
+        p->v = 0;
+        p->vf = 0;
+        
+        double v = Observables::vMax * i / (N - 1.);
+        result[2 * i] = v;
+        if (v == 0 || v >= vEsc) result[2 * i + 1] = 0;
+        else vals[i] = std::async(rho_int_v, v, p);
+    }
+    for (int i = 0; i < N; i++) {
+        double v = result[2 * i];
+        if (v > 0 && v < vEsc) result[2 * i + 1] = 4. * M_PI / rhoRz * vals[i].get();
+    }
+    
     
     if (Observables::verbose) {
         double dt = difftime(time(NULL), tStart);
@@ -179,12 +209,28 @@ void Observables::pv_merid(int N, double R, double z, double* result, double tol
     double rhoRz = std::real(Observables::model->rho(R2, z2, std::sqrt(R2 + z2)));
     double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
     double vEsc = std::sqrt(2. * psiRz);
+    
+    /*
     for (int i = 0; i < N; i++) {
         double v_merid = Observables::vMax * i / (N - 1.);
         result[2 * i] = v_merid;
         if (v_merid == 0 || v_merid >= vEsc) result[2 * i + 1] = 0;
         else result[2 * i + 1] = 2 * M_PI * v_merid / rhoRz * Observables::pv_merid_int(v_merid, R, psiRz, tolerance);
     }
+    */
+    
+    std::vector<std::future<double>> vals(N);
+    for (int i = 0; i < N; i++) {
+        double v = Observables::vMax * i / (N - 1.);
+        result[2 * i] = v;
+        if (v == 0 || v >= vEsc) result[2 * i + 1] = 0;
+        else vals[i] = std::async(&Observables::pv_merid_int, this, v, R, psiRz, tolerance);
+    }
+    for (int i = 0; i < N; i++) {
+        double v = result[2 * i];
+        if (v > 0 && v < vEsc) result[2 * i + 1] = 2. * M_PI * v / rhoRz * vals[i].get();
+    }
+    
     
     if (Observables::verbose) {
         double dt = difftime(time(NULL), tStart);
@@ -245,12 +291,28 @@ void Observables::pv_azim(int N, double R, double z, double* result, double tole
     double rhoRz = std::real(Observables::model->rho(R2, z2, std::sqrt(R2 + z2)));
     double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
     double vEsc = std::sqrt(2. * psiRz);
+    
+    /*
     for (int i = 0; i < N; i++) {
         double v_azim = Observables::vMax * (2. * i / (N - 1.) - 1.);
         result[2 * i] = v_azim;
         if (std::abs(v_azim) >= vEsc) result[2 * i + 1] = 0;
         else result[2 * i + 1] = 2. * M_PI / rhoRz * Observables::pv_azim_int(v_azim, R, psiRz, tolerance);
     }
+    */
+    
+    std::vector<std::future<double>> vals(N);
+    for (int i = 0; i < N; i++) {
+        double v = Observables::vMax * (2. * i / (N - 1.) - 1.);
+        result[2 * i] = v;
+        if (std::abs(v) >= vEsc) result[2 * i + 1] = 0;
+        else vals[i] = std::async(&Observables::pv_azim_int, this, v, R, psiRz, tolerance);
+    }
+    for (int i = 0; i < N; i++) {
+        double v = result[2 * i];
+        if (std::abs(v) < vEsc) result[2 * i + 1] = 2. * M_PI / rhoRz * vals[i].get();
+    }
+    
     
     if (Observables::verbose) {
         double dt = difftime(time(NULL), tStart);
@@ -335,11 +397,26 @@ void Observables::pv_rad(int N, double R, double z, double* result, double toler
     double rhoRz = std::real(Observables::model->rho(R2, z2, std::sqrt(R2 + z2)));
     double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
     double vEsc = std::sqrt(2. * psiRz);
+    
+    /*
     for (int i = 0; i < N; i++) {
         double v_rad = Observables::vMax * (2. * i / (N - 1.) - 1.);
         result[2 * i] = v_rad;
         if (std::abs(v_rad) >= vEsc) result[2 * i + 1] = 0;
         else result[2 * i + 1] = 2. / rhoRz * Observables::pv_rad_int(v_rad, R, psiRz, tolerance);
+    }
+    */
+    
+    std::vector<std::future<double>> vals(N);
+    for (int i = 0; i < N; i++) {
+        double v = Observables::vMax * (2. * i / (N - 1.) - 1.);
+        result[2 * i] = v;
+        if (std::abs(v) >= vEsc) result[2 * i + 1] = 0;
+        else vals[i] = std::async(&Observables::pv_rad_int, this, v, R, psiRz, tolerance);
+    }
+    for (int i = 0; i < N; i++) {
+        double v = result[2 * i];
+        if (std::abs(v) < vEsc) result[2 * i + 1] = 2. / rhoRz * vals[i].get();
     }
     
     if (Observables::verbose) {
