@@ -7,10 +7,10 @@ This project is distributed under GPL v3.0 licence. If you use this code for a s
 ## Requirements
 
 To compile the source code the following tools have to be installed on your system:
-* gcc (recommended version 7.5)
-* GSL (recommended version 2.4)
-* cmake 2.6 or later
-* pybind11 2.5 or later (optional, needed for compiling the Python wrapper)
+* gcc (recommended version 7.5 or later)
+* GSL (recommended version 2.4 or later)
+* cmake version 2.6 or later
+* pybind11 version 2.5 or later (optional, needed for compiling the Python wrapper)
 * doxygen (optional, needed for automatic generation of the documentation)
 
 ## Examples
