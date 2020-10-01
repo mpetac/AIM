@@ -425,6 +425,13 @@ void Observables::pv_rad(int N, double R, double z, double* result, double toler
     }
 }
 
+/**
+ * @param mom Velocity moment (i.e. <v^{mom}>)
+ * @param R The value of R-coordinate
+ * @param z The value of z-coordinate
+ * @param tolerance Relative tolerance used in performing the numerical integrals
+ */
+
 double Observables::v_mom(int mom, double R, double z, double tolerance) {
     time_t tStart = time(NULL);
     
