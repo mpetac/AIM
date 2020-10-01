@@ -98,6 +98,10 @@ Rpts = np.linspace(1, 200, 20)
 zpts = np.zeros(20)
 density_profile = f.rho(20, Rpts, zpts)
 
-# Compute the local (R ~ 8.122 kpc, z ~ 0) velocity distribution of DM using 100 velocity points.
+# Compute the local (R~8.122 kpc, z~0) velocity distribution of DM using 100 velocity points.
 velocity_distribution = f.pv_mag(100, 8.122, 0)
 ```
+
+#### Documentation
+
+Source files contain brief comments that should be sufficient for understanding of the code. Comprehensive documentation based on these comments can be generated through Doxygen using the provided doxy setup file.
