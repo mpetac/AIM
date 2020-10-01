@@ -11,9 +11,9 @@ To compile the source code the following tools have to be installed on your syst
 * pybind11 2.5 or later (optional, needed for compiling the Python wrapper)
 * doxygen (optional, needed for automatic generation of the documentation)
 
-## Usage
+## Examples
 
-The code can be used either from C++ or Python. While the Python wrapper provides modern and simple interface, running it from C++ allows for more control (mainly related to the accuracy of various numerical perscriptions).
+The code can be used either from C++ or Python. While the Python wrapper provides modern and simple interface, running it from C++ allows for more control (mainly related to the accuracy of various numerical perscriptions). Futhermore, the C++ class structure allows for simple extension the code to new DM density profile, halo rotational properties and baryonic gravitational potentials.
 
 #### C++
 
@@ -68,6 +68,8 @@ int nVel = 100;
 double pv_mag[2 * nVel];
 obs.pv_mag(nVel, 8.122, 0, pv_mag);
 ```
+
+To add new baryonic or halo models add the corresponding source files in /src/halo or /src/baryons folders, respectfully. They have to extend the virtual parent class Halo.hpp or Baryons.hpp.
 
 #### Python
 
