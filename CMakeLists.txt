@@ -14,9 +14,9 @@ file(GLOB baryons "src/baryons/*.cpp")
 
 find_package(GSL REQUIRED)
 
-add_executable(axi_psdf axi.cpp ${halos} ${baryons} ${srcs})
-target_link_libraries(axi_psdf GSL::gsl GSL::gslcblas pthread)
-install(TARGETS axi_psdf RUNTIME DESTINATION bin)
+add_executable(aim main.cpp ${halos} ${baryons} ${srcs})
+target_link_libraries(aim GSL::gsl GSL::gslcblas pthread)
+install(TARGETS aim RUNTIME DESTINATION bin)
 
 add_executable(tests tests.cpp ${halos} ${baryons} ${srcs})
 target_link_libraries(tests GSL::gsl GSL::gslcblas pthread CppUTest)
