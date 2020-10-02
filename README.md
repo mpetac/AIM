@@ -4,7 +4,7 @@ Code for computing equilibrium axisymmetric phase-space distribution function. I
 
 This project is distributed under GPL v3.0 licence. If you use this code for a scientific project, please cite our paper that discusses the details of the implemented inversion method: [Petac \& Ullio](https://journals.aps.org/prd/abstract/10.1103/PhysRevD.99.043003).
 
-## Requirements
+## Requirements and installation
 
 To compile the source code the following tools have to be installed on your system:
 * gcc (recommended version 7.5 or later)
@@ -12,6 +12,15 @@ To compile the source code the following tools have to be installed on your syst
 * cmake version 2.6 or later
 * pybind11 version 2.5 or later (optional, needed for compiling the Python wrapper)
 * doxygen (optional, needed for automatic generation of the documentation)
+
+After cloning the repository you can build the project into subfolder "build":
+
+```terminal
+mkdir build
+cd build
+cmake ..
+make all
+```
 
 ## Examples
 
