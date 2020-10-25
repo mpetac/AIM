@@ -46,7 +46,7 @@ The code can be used in C++ as demonstrated in the following example (see main.c
 // Define struct with DM halo parameters.
 // Here we asume spherical NFW density profile.
 // First parameter is the scale density (in units of M_sol / kpc^3) while the second parameter is scale density (in units of kpc).
-halo_2p p_nfw = {1e7, 13.};
+halo_2p p_nfw = {1e8, 13.};
 // Initialize the DM halo object.
 Halo_NFW halo(p_nfw);
 
@@ -98,7 +98,7 @@ import AIM
 f = AIM.PSDF(True)
 
 # Setup a halo model with spherical NFW density profile.
-f.setHalo('NFW', [1e7, 13.])
+f.setHalo('NFW', [1e8, 13.])
 # Setup a baryonic model composed of Hernquist bulge and two Myiamoto-Nagai disks.
 f.setBaryons('H_2MN', [5e10, 3.6, 0.5, 1e10, 2.5, 1., 1e10, 0.5])
 
