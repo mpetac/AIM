@@ -6,10 +6,11 @@
  */
 
 Observables::Observables(Model *model, Inversion *inversion, bool verbose) {
-    gsl_set_error_handler(&Observables::GSL_error_func);
     Observables::model = model;
     Observables::inversion = inversion;
     Observables::verbose = verbose;
+    if (verbose) gsl_set_error_handler(&Observables::GSL_error_func);
+    else gsl_set_error_handler(&Observables::GSL_error_func_silent);
 }
 
 
@@ -112,9 +113,10 @@ void Observables::pv_mag(int N, double R, double z, double* result, double toler
     time_t tStart = time(NULL);
     
     double R2 = std::pow(R, 2), z2 = std::pow(z, 2);
-    double rhoRz = std::real(Observables::model->rho(R2, z2, std::sqrt(R2 + z2)));
     double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
     double vEsc = std::sqrt(2. * psiRz);
+    //double rhoRz = std::real(Observables::model->rho(R2, z2, std::sqrt(R2 + z2)));
+    double rhoRz = Observables::rho_int(R2, z2, tolerance);
     
     
     /*
@@ -206,9 +208,10 @@ void Observables::pv_merid(int N, double R, double z, double* result, double tol
     time_t tStart = time(NULL);
     
     double R2 = std::pow(R, 2), z2 = std::pow(z, 2);
-    double rhoRz = std::real(Observables::model->rho(R2, z2, std::sqrt(R2 + z2)));
     double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
     double vEsc = std::sqrt(2. * psiRz);
+    //double rhoRz = std::real(Observables::model->rho(R2, z2, std::sqrt(R2 + z2)));
+    double rhoRz = Observables::rho_int(R2, z2, tolerance);
     
     /*
     for (int i = 0; i < N; i++) {
@@ -288,9 +291,10 @@ void Observables::pv_azim(int N, double R, double z, double* result, double tole
     time_t tStart = time(NULL);
     
     double R2 = std::pow(R, 2), z2 = std::pow(z, 2);
-    double rhoRz = std::real(Observables::model->rho(R2, z2, std::sqrt(R2 + z2)));
     double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
     double vEsc = std::sqrt(2. * psiRz);
+    //double rhoRz = std::real(Observables::model->rho(R2, z2, std::sqrt(R2 + z2)));
+    double rhoRz = Observables::rho_int(R2, z2, tolerance);
     
     /*
     for (int i = 0; i < N; i++) {
@@ -394,9 +398,10 @@ void Observables::pv_rad(int N, double R, double z, double* result, double toler
     time_t tStart = time(NULL);
     
     double R2 = std::pow(R, 2), z2 = std::pow(z, 2);
-    double rhoRz = std::real(Observables::model->rho(R2, z2, std::sqrt(R2 + z2)));
     double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
     double vEsc = std::sqrt(2. * psiRz);
+    //double rhoRz = std::real(Observables::model->rho(R2, z2, std::sqrt(R2 + z2)));
+    double rhoRz = Observables::rho_int(R2, z2, tolerance);
     
     /*
     for (int i = 0; i < N; i++) {
@@ -436,10 +441,11 @@ double Observables::v_mom(int mom, double R, double z, double tolerance) {
     time_t tStart = time(NULL);
     
     double R2 = std::pow(R, 2), z2 = std::pow(z, 2);
-    double rhoRz = std::real(Observables::model->rho(R2, z2, std::sqrt(R2 + z2)));
     double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
     double vEsc = std::sqrt(2. * psiRz);
     double result, abserr;
+    //double rhoRz = std::real(Observables::model->rho(R2, z2, std::sqrt(R2 + z2)));
+    double rhoRz = Observables::rho_int(R2, z2, tolerance);
         
     struct velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, 0, 1. * mom};
     //    rho_int_v(v, &p);
@@ -468,5 +474,15 @@ double Observables::v_mom(int mom, double R, double z, double tolerance) {
 
 void Observables::GSL_error_func(const char* reason, const char* file, int line, int gsl_errno) {
     std::cout << " -> GSL error #" << gsl_errno << " in line " << line << " of " << file <<": " << gsl_strerror(gsl_errno) << std::endl;
+}
+
+/**
+ * @param reason Reason for raising the error
+ * @param file Name of the file in which the error occured
+ * @param line Line in which the error occured
+ * @param gsl_errno GSL error code
+ */
+
+void Observables::GSL_error_func_silent(const char* reason, const char* file, int line, int gsl_errno) {
 }
 

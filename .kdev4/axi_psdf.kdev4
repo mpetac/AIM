@@ -3,7 +3,7 @@ BuildItems=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x
 
 [CMake]
 Build Directory Count=3
-Current Build Directory Index-Host System=1
+Current Build Directory Index-Host System=2
 
 [CMake][CMake Build Directory 0]
 Build Directory Path=/home/mpetac/Uni/Dev/MW/axi_cpp/axi_psdf/build
@@ -26,14 +26,13 @@ Install Directory=/usr/local
 Runtime=Host System
 
 [CMake][CMake Build Directory 2]
-Build Directory Path=/home/mcshell/Uni/MW/axi_cpp/axi_psdf/build
-Build Type=Debug
+Build Directory Path=/home/mcshell/Uni/MW/axi_psdf/build
+Build Type=
 CMake Binary=/usr/bin/cmake
 CMake Executable=/usr/bin/cmake
 Environment Profile=
 Extra Arguments=
 Install Directory=/usr/local
-Runtime=Host System
 
 [Launch]
 Launch Configurations=Launch Configuration 0,Launch Configuration 1

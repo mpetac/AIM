@@ -58,6 +58,8 @@ private:
     
     /// GSL error handler
     static void GSL_error_func(const char * reason, const char * file, int line, int gsl_errno);
+    /// Silent GSL error handler
+    static void GSL_error_func_silent(const char * reason, const char * file, int line, int gsl_errno);
     
 public:
     /// Initializer which performs the interpolation of the PSDF

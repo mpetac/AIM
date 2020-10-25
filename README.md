@@ -62,7 +62,7 @@ Baryons_H_2MN baryons(disk1, disk2, bulge);
 Model model(&halo, &baryons);
 
 // Interpolate the PSDF obtained for the specified galactic model with given number of relative energy and angular momentum points.
-Inversion psdf(&model, 1000, 10);
+Inversion psdf(&model, 1000, 20);
 
 // Initialize the class for computing various observable quantities from the PSDF (namely DM density and various projections of the velocity distribution).
 Observables obs(&model, &psdf);
@@ -77,7 +77,7 @@ for (int i = 0; i < nPts; i++) {
 }
 obs.rho(nPts, Rpts, zpts, result);
 
-// Evaluate the probability distribution for the velocity magnitude at R=8.122 kpc and z=0 using 100 velocity points.
+// Compute the local (R~8.122 kpc, z~0) velocity distribution of DM using 100 velocity points.
 int nVel = 100;
 double pv_mag[2 * nVel];
 obs.pv_mag(nVel, 8.122, 0, pv_mag);
@@ -106,7 +106,7 @@ f.setBaryons('H_2MN', [5e10, 3.6, 0.5, 1e10, 2.5, 1., 1e10, 0.5])
 f.compute(1000, 20)
 
 # Compute the DM density profile from the obtained distribution function in 20 radial points.
-Rpts = np.linspace(1, 200, 20)
+Rpts = np.geomspace(1, 1000, 20)
 zpts = np.zeros(20)
 density_profile = f.rho(20, Rpts, zpts)
 
