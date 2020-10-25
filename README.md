@@ -103,10 +103,10 @@ f.setHalo('NFW', [1e8, 13.])
 f.setBaryons('H_2MN', [5e10, 3.6, 0.5, 1e10, 2.5, 1., 1e10, 0.5])
 
 # Compute the distribution function with a given number of relative energy and angular momentum points.
-f.compute(1000, 20)
+f.compute(500, 20)
 
 # Compute the DM density profile from the obtained distribution function in 20 radial points.
-Rpts = np.geomspace(1, 500, 20)
+Rpts = np.geomspace(1, 1000, 20)
 zpts = np.zeros(20)
 density_profile = f.rho(20, Rpts, zpts)
 
