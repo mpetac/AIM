@@ -10,6 +10,7 @@ Observables::Observables(Model *model, Inversion *inversion, bool verbose) {
     Observables::model = model;
     Observables::inversion = inversion;
     Observables::verbose = verbose;
+    Observables::vMax = std::sqrt(2. * std::real(model->psi(0, 0, 0)));
 }
 
 
