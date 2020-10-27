@@ -13,7 +13,8 @@ Inversion::Inversion(Model *model, int N_E, int N_Lz, double tolerance_F, bool v
     Inversion::model = model;
     Inversion::tolerance_F = tolerance_F;
     Inversion::verbose = verbose;
-    gsl_set_error_handler(&Inversion::GSL_error_func);
+    if (verbose) gsl_set_error_handler(&Inversion::GSL_error_func);
+    else gsl_set_error_handler(&Inversion::GSL_error_func_silent);
     
     time_t tStart = time(NULL);
     
@@ -35,7 +36,7 @@ Inversion::Inversion(Model *model, int N_E, int N_Lz, double tolerance_F, bool v
     
     Inversion::EAcc = gsl_interp_accel_alloc();
     Inversion::LzAcc = gsl_interp_accel_alloc();
-    Inversion::F = gsl_spline2d_alloc(gsl_interp2d_bilinear, N_E, 2 * N_Lz - 1);
+    Inversion::F = gsl_spline2d_alloc(gsl_interp2d_bicubic, N_E, 2 * N_Lz - 1);
     gsl_spline2d_init(Inversion::F, Epts, Lzpts, Fpts, N_E, 2 * N_Lz - 1);
     
     double dt = difftime(time(NULL), tStart);
@@ -64,7 +65,7 @@ void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, doubl
             double *params = new double[2];
             params[0] = Epts[i];
             params[1] = 0;
-            vals[i] = std::async(&Inversion::F_even, this, params);
+            vals[i] = std::async(std::launch::async, &Inversion::F_even, this, params);
         }
         for (int i = 0; i < N_E; i++) {
             double val = std::log(1. + vals[i].get());
@@ -88,9 +89,9 @@ void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, doubl
                 double *params = new double[2];
                 params[0] = Epts[i];
                 params[1] = Lzpts[j + N_Lz - 1];
-                // for single threaded execution add "std::launch::deferred" as first argument
-                vals_even[i * N_Lz + j] = std::async(&Inversion::F_even, this, params);
-                vals_odd[i * N_Lz + j] = std::async(&Inversion::F_odd, this, params);
+                // for single threaded execution change to "std::launch::deferred"
+                vals_even[i * N_Lz + j] = std::async(std::launch::async, &Inversion::F_even, this, params);
+                vals_odd[i * N_Lz + j] = std::async(std::launch::async, &Inversion::F_odd, this, params);
             }
         }
         
@@ -242,5 +243,15 @@ double Inversion::eval_F(double E, double Lz) {
 
 void Inversion::GSL_error_func(const char* reason, const char* file, int line, int gsl_errno) {
     std::cout << " -> GSL error #" << gsl_errno << " in line " << line << " of " << file <<": " << gsl_strerror(gsl_errno) << std::endl;
+}
+
+/**
+ * @param reason Reason for raising the error
+ * @param file Name of the file in which the error occured
+ * @param line Line in which the error occured
+ * @param gsl_errno GSL error code
+ */
+
+void Inversion::GSL_error_func_silent(const char* reason, const char* file, int line, int gsl_errno) {
 }
 

@@ -7,6 +7,7 @@ set(CMAKE_SHARED_MODULE_PREFIX "")
 set(CMAKE_CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS "-O3")
 #set(CMAKE_CXX_FLAGS "-g")
+set(PYBIND11_PYTHON_VERSION 2.7)
 
 file(GLOB srcs "src/*.cpp")
 file(GLOB halos "src/halos/*.cpp")

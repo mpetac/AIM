@@ -4,7 +4,7 @@ Code for computing equilibrium axisymmetric phase-space distribution function. I
 
 This project is distributed under GPL v3.0 licence. If you use this code for a scientific project, please cite our paper that discusses the details of the implemented inversion method: [Petac \& Ullio](https://journals.aps.org/prd/abstract/10.1103/PhysRevD.99.043003).
 
-## Requirements
+## Requirements and installation
 
 To compile the source code the following tools have to be installed on your system:
 * gcc (recommended version 7.5 or later)
@@ -12,6 +12,15 @@ To compile the source code the following tools have to be installed on your syst
 * cmake version 2.6 or later
 * pybind11 version 2.5 or later (optional, needed for compiling the Python wrapper)
 * doxygen (optional, needed for automatic generation of the documentation)
+
+After cloning the repository you can build the project into subfolder "build":
+
+```terminal
+mkdir build
+cd build
+cmake ..
+make all
+```
 
 ## Examples
 
@@ -37,7 +46,7 @@ The code can be used in C++ as demonstrated in the following example (see main.c
 // Define struct with DM halo parameters.
 // Here we asume spherical NFW density profile.
 // First parameter is the scale density (in units of M_sol / kpc^3) while the second parameter is scale density (in units of kpc).
-halo_2p p_nfw = {1e7, 13.};
+halo_2p p_nfw = {1e8, 13.};
 // Initialize the DM halo object.
 Halo_NFW halo(p_nfw);
 
@@ -53,7 +62,7 @@ Baryons_H_2MN baryons(disk1, disk2, bulge);
 Model model(&halo, &baryons);
 
 // Interpolate the PSDF obtained for the specified galactic model with given number of relative energy and angular momentum points.
-Inversion psdf(&model, 1000, 10);
+Inversion psdf(&model, 500, 20);
 
 // Initialize the class for computing various observable quantities from the PSDF (namely DM density and various projections of the velocity distribution).
 Observables obs(&model, &psdf);
@@ -68,7 +77,7 @@ for (int i = 0; i < nPts; i++) {
 }
 obs.rho(nPts, Rpts, zpts, result);
 
-// Evaluate the probability distribution for the velocity magnitude at R=8.122 kpc and z=0 using 100 velocity points.
+// Compute the local (R~8.122 kpc, z~0) velocity distribution of DM using 100 velocity points.
 int nVel = 100;
 double pv_mag[2 * nVel];
 obs.pv_mag(nVel, 8.122, 0, pv_mag);
@@ -89,15 +98,15 @@ import AIM
 f = AIM.PSDF(True)
 
 # Setup a halo model with spherical NFW density profile.
-f.setHalo('NFW', [1e7, 13.])
+f.setHalo('NFW', [1e8, 13.])
 # Setup a baryonic model composed of Hernquist bulge and two Myiamoto-Nagai disks.
 f.setBaryons('H_2MN', [5e10, 3.6, 0.5, 1e10, 2.5, 1., 1e10, 0.5])
 
 # Compute the distribution function with a given number of relative energy and angular momentum points.
-f.compute(1000, 20)
+f.compute(500, 20)
 
 # Compute the DM density profile from the obtained distribution function in 20 radial points.
-Rpts = np.linspace(1, 200, 20)
+Rpts = np.geomspace(1, 1000, 20)
 zpts = np.zeros(20)
 density_profile = f.rho(20, Rpts, zpts)
 
