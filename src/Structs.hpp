@@ -102,6 +102,20 @@ struct velocity_int_params {
     double vf;
 };
 
+struct relative_velocity_int_params {
+    void *model;
+    void *inversion;
+    size_t nIntervals;
+    double tolerance;
+    double R;
+    double psiRz;
+    double vMax;
+    double v_rel;
+    double uf;
+    double um;
+    double wf;
+};
+
 struct potential_int_params {
     void *halo;
     std::complex<double> R2;

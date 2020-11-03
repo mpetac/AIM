@@ -32,9 +32,6 @@ private:
     /// Function for computing the DM density at a given point
     double rho_int(double R, double z, double tolerance);
     
-    /// Function for computing the DM's velocity magnitude distribution at a given point
-    double pv_mag_int(double R, double z, double tolerance);
-    
     /// Function for computing the DM's meridional velocity distribution at a given point
     double pv_merid_int(double v_merid, double R, double psiRz, double tolerance);
     
@@ -43,6 +40,12 @@ private:
     
     /// Function for computing the DM's radial (or equivalently along z-direction) velocity distribution at a given point
     double pv_rad_int(double v_merid, double R, double psiRz, double tolerance);
+    
+    /// Function for computing the DM's velocity magnitude distribution at a given point
+    double pv_rel_int(double v_rel, double R, double psiRz, double tolerance);
+    
+    /// Function for computing the occupation number in given a given phase-space region
+    double occupation_int(double Emin, double Emax, double Lzmin, double Lzmax, double tolerance);
     
     /// GSL error handler
     static void GSL_error_func(const char * reason, const char * file, int line, int gsl_errno);
@@ -68,6 +71,12 @@ public:
     /// Computes the probability density distribution of the DM velocity along the radial (or equivalently z) direction
     void pv_rad(int N, double R, double z, double *result, double tolerance=1e-3);
     
+    /// Computes the probability density distribution of the DM relative velocity magnitude
+    void pv_rel(int N, double R, double z, double *result, double tolerance=1e-3);
+    
     /// Computes moments of the DM's velocity distribution
     double v_mom(int mom, double R, double z, double tolerance=1e-3);
+    
+    /// Computes the occupation number in given a given phase-space region
+    void occupation(int N_E, int N_Lz, double *result, double tolerance=1e-3);
 };
