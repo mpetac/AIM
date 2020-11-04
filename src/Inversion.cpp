@@ -39,25 +39,6 @@ Inversion::Inversion(Model *model, int N_E, int N_Lz, double tolerance_F, bool v
     Inversion::F = gsl_spline2d_alloc(gsl_interp2d_bicubic, N_E, 2 * N_Lz - 1);
     gsl_spline2d_init(Inversion::F, Epts, Lzpts, Fpts, N_E, 2 * N_Lz - 1);
     
-    int N_Lc = N_E;
-    double Lcpts[N_Lc];
-    double LcI[N_Lc];
-    
-    double epsilon = 1.02;
-    for (int i = 0; i < N_Lc; i++) {
-        Lcpts[N_Lc - 1 - i] = 1. - std::pow(epsilon, i) / std::pow(epsilon, N_Lc - 1);
-    }
-    
-    for (int i = 0; i < N_Lc; i++) {
-        double Rc = model->Rcirc(Lcpts[i] * Inversion::psi0);
-        double psi_dR2_Rc = std::real(model->psi_dR2(std::pow(Rc, 2), 0, 0));
-        LcI[i] = 1. / (std::pow(Rc, 2) * std::sqrt(-2. * psi_dR2_Rc));
-    }
-    
-    Inversion::LcAcc = gsl_interp_accel_alloc();
-    Inversion::LcInv = gsl_spline_alloc(gsl_interp_cspline, N_Lc);
-    gsl_spline_init(Inversion::LcInv, Lcpts, LcI, N_Lc);
-    
     double dt = difftime(time(NULL), tStart);
     if (Inversion::verbose) std::cout << "Inversion computed in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;
 }
@@ -249,20 +230,6 @@ double Inversion::eval_F(double E, double Lz) {
     }
     return std::exp(gsl_spline2d_eval(F, E, Lz, EAcc, LzAcc)) - 1.;
 }
-
-
-/**
- * @param E Value of the relative energy
- */
-
-double Inversion::eval_LcInv(double E) {
-    if (E < 0 || E > 1) {
-        if (Inversion::verbose) std::cout << "Warning! LcInv eval out of range: " << E << std::endl;
-        return 0;
-    }
-    return gsl_spline_eval(LcInv, E, LzAcc);
-}
-
 
 /**
  * @param reason Reason for raising the error

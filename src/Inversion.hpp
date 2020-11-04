@@ -24,10 +24,8 @@ class Inversion {
 private:
     /// Interpolation spline for the phase-space distribution function
     gsl_spline2d *F;
-    /// Interpolation spline for the maximum angular momentum at given relative energy
-    gsl_spline *LcInv;
     /// Accelerators for the evaluation of spline
-    gsl_interp_accel *EAcc, *LzAcc, *LcAcc;
+    gsl_interp_accel *EAcc, *LzAcc;
     /// Number of intervals used in the numerical integration
     size_t nIntervals = 1e5;
     
@@ -72,8 +70,4 @@ public:
     
     /// Returns the value of the PSDF
     double eval_F(double E, double Lz);
-    
-    /// Returns the reciprocal value of angular momentum for a circular orbit at given E
-    double eval_LcInv(double E);
-    
 };

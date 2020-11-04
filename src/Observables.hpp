@@ -45,7 +45,6 @@ private:
     double pv_rel_int(double v_rel, double R, double psiRz, double tolerance);
     
     /// Function for computing the occupation number in given a given phase-space region
-    double occupation_int(double Emin, double Emax, double Lzmin, double Lzmax, double tolerance);
     
     /// GSL error handler
     static void GSL_error_func(const char * reason, const char * file, int line, int gsl_errno);
@@ -55,6 +54,7 @@ private:
 public:
     /// Initializer
     Observables(Model *model, Inversion *inversion, bool verbose = 0);
+    double occupation_int(double Emin, double Emax, double Lzmin, double Lzmax, double tolerance);
 
     /// Computes the DM density profile
     void rho(int N, double *Rpts, double *zpts, double *result, double tolerance=1e-3);

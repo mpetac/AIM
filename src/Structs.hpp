@@ -126,3 +126,18 @@ struct potential_int_params {
     double tolerance;
     size_t nIntervals;
 };
+
+struct occupation_params {
+    void *model;
+    void *inversion;
+    size_t nIntervals;
+    double Emin;
+    double Emax;
+    double Lzmin;
+    double Lzmax;
+    double tolerance;
+    double R;
+    double z;
+    double E;
+    double Lzc;
+};

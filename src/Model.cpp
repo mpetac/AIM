@@ -215,3 +215,61 @@ double Model::Rcirc(double E, double tolerance, int limit) {
 }
 
 
+double Model::R_psi(double psi, double z, double tolerance, int limit) {
+    if (psi == 0) return 1e306;
+    
+    double z2 = std::pow(z, 2);
+    double R0 = 0, dR = 1.;
+    int i = 0;
+    while(i < limit) {
+        i++;
+        double R = R0 + dR;
+        double R2 = std::pow(R, 2);
+        double r = std::sqrt(R2 + z2);
+        double psi_R = std::real(Model::psi(R2, z2, r));
+        
+        if (psi > psi_R) dR /= 2.;
+        else {
+            R0 = R;
+            dR *= 2.;
+        }
+        
+        if (std::abs(psi_R - psi) < tolerance * psi) {
+            R0 = R;
+            break;
+        }
+    }
+    
+    if (Model::verbose && i >= limit) std::cout << "Inversion of the potential did not converge! Psi = " << psi << ", z = " << z << std::endl;
+    return R0;
+}
+
+double Model::z_psi(double psi, double R, double tolerance, int limit) {
+    if (psi == 0) return 1e306;
+    
+    double R2 = std::pow(R, 2);
+    double z0 = 0, dz = 1.;
+    int i = 0;
+    while(i < limit) {
+        i++;
+        double z = z0 + dz;
+        double z2 = std::pow(z, 2);
+        double r = std::sqrt(R2 + z2);
+        double psi_z = std::real(Model::psi(R2, z2, r));
+        
+        if (psi > psi_z) dz /= 2.;
+        else {
+            z0 = z;
+            dz *= 2.;
+        }
+        
+        if (std::abs(psi_z - psi) < tolerance * psi) {
+            z0 = z;
+            break;
+        }
+    }
+    
+    if (Model::verbose && i >= limit) std::cout << "Inversion of the potential did not converge! Psi = " << psi << ", R = " << R << std::endl;
+    return z0;
+}
+
