@@ -36,7 +36,7 @@ Inversion::Inversion(Model *model, int N_E, int N_Lz, double tolerance_F, bool v
     
     Inversion::EAcc = gsl_interp_accel_alloc();
     Inversion::LzAcc = gsl_interp_accel_alloc();
-    Inversion::F = gsl_spline2d_alloc(gsl_interp2d_bicubic, N_E, 2 * N_Lz - 1);
+    Inversion::F = gsl_spline2d_alloc(gsl_interp2d_bilinear, N_E, 2 * N_Lz - 1);
     gsl_spline2d_init(Inversion::F, Epts, Lzpts, Fpts, N_E, 2 * N_Lz - 1);
     
     double dt = difftime(time(NULL), tStart);
@@ -228,7 +228,10 @@ double Inversion::eval_F(double E, double Lz) {
         if (Inversion::verbose) std::cout << "Warning! PSDF eval out of range: " << E << ", " << Lz << std::endl;
         return 0;
     }
-    return std::exp(gsl_spline2d_eval(F, E, Lz, EAcc, LzAcc)) - 1.;
+    double f = std::exp(gsl_spline2d_eval(F, E, Lz, EAcc, LzAcc)) - 1.;
+//     return f > 0 ? f : 0;
+//     if (f < 0) std::cout << "F negative: " << f << ", " << E << ", " << Lz << std::endl;
+    return f;
 }
 
 /**

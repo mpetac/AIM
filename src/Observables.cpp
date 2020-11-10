@@ -36,7 +36,8 @@ double rho_int_c(double c, void *params) {
     Inversion *inversion = (Inversion *) p->inversion;
     
     double E = (p->psiRz - 0.5 * std::pow(p->v,2)) / model->psi0;
-    double L = c;
+    double Rc = model->Rcirc(E * model->psi0);
+    double L = p->R * p->v * c / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
     
     return inversion->eval_F(E, L);
 }
@@ -123,7 +124,7 @@ void Observables::pv_mag(int N, double R, double z, double* result, double toler
     double R2 = std::pow(R, 2), z2 = std::pow(z, 2);
     double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
     double vEsc = std::sqrt(2. * psiRz);
-    double rhoRz = Observables::rho_int(R2, z2, tolerance);
+    double rhoRz = Observables::rho_int(R, z, tolerance);
     
     std::vector<std::future<double>> vals(N);
     for (int i = 0; i < N; i++) {
@@ -166,7 +167,8 @@ double pv_merid_int_vf(double vf, void *params) {
     Inversion *inversion = (Inversion *) p->inversion;
     
     double E = (p->psiRz - 0.5 * (std::pow(p->v, 2) + std::pow(vf, 2))) / model->psi0;
-    double L = vf / std::sqrt(std::pow(p->v, 2) + std::pow(vf, 2));
+    double Rc = model->Rcirc(E * model->psi0);
+    double L = p->R * vf / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
     
     return inversion->eval_F(E, L);
 }
@@ -205,7 +207,7 @@ void Observables::pv_merid(int N, double R, double z, double* result, double tol
     double R2 = std::pow(R, 2), z2 = std::pow(z, 2);
     double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
     double vEsc = std::sqrt(2. * psiRz);
-    double rhoRz = Observables::rho_int(R2, z2, tolerance);
+    double rhoRz = Observables::rho_int(R, z, tolerance);
     
     std::vector<std::future<double>> vals(N);
     for (int i = 0; i < N; i++) {
@@ -238,7 +240,8 @@ double pv_azim_int_vm(double vm, void *params) {
     Inversion *inversion = (Inversion *) p->inversion;
     
     double E = (p->psiRz - 0.5 * (std::pow(p->v, 2) + std::pow(vm, 2))) / model->psi0;
-    double L = p->v / std::sqrt(std::pow(p->v, 2) + std::pow(vm, 2));
+    double Rc = model->Rcirc(E * model->psi0);
+    double L = p->R * p->v / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
     
     return vm * inversion->eval_F(E, L);
 }
@@ -277,7 +280,7 @@ void Observables::pv_azim(int N, double R, double z, double* result, double tole
     double R2 = std::pow(R, 2), z2 = std::pow(z, 2);
     double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
     double vEsc = std::sqrt(2. * psiRz);
-    double rhoRz = Observables::rho_int(R2, z2, tolerance);
+    double rhoRz = Observables::rho_int(R, z, tolerance);
     
     std::vector<std::future<double>> vals(N);
     for (int i = 0; i < N; i++) {
@@ -311,7 +314,8 @@ double pv_rad_int_vz(double vz, void *params) {
     Inversion *inversion = (Inversion *) p->inversion;
     
     double E = (p->psiRz - 0.5 * (std::pow(p->v, 2) + std::pow(p->vf, 2) + std::pow(vz, 2))) / model->psi0;
-    double L = p->vf / std::sqrt(std::pow(p->v, 2) + std::pow(p->vf, 2) + std::pow(vz, 2));
+    double Rc = model->Rcirc(E * model->psi0);
+    double L = p->R * p->vf / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
     
     return inversion->eval_F(E, L);
 }
@@ -373,7 +377,7 @@ void Observables::pv_rad(int N, double R, double z, double* result, double toler
     double R2 = std::pow(R, 2), z2 = std::pow(z, 2);
     double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
     double vEsc = std::sqrt(2. * psiRz);
-    double rhoRz = Observables::rho_int(R2, z2, tolerance);
+    double rhoRz = Observables::rho_int(R, z, tolerance);
     
     std::vector<std::future<double>> vals(N);
     for (int i = 0; i < N; i++) {
@@ -408,7 +412,8 @@ double pv_rel_wm_int(double wm, void * params) {
     Inversion *inversion = (Inversion *) p->inversion;
     
     double E = (p->psiRz - 0.5 * (std::pow(wm, 2) + std::pow(p->wf, 2))) / model->psi0;
-    double L = p->wf / std::sqrt(std::pow(wm, 2) + std::pow(p->wf, 2));
+    double Rc = model->Rcirc(E * model->psi0);
+    double L = p->R * p->wf / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
     double f = inversion->eval_F(E, L);
     
     double um2 = std::pow(p->um, 2), wm2 = std::pow(wm, 2);
@@ -424,20 +429,16 @@ double pv_rel_wf_int(double wf, void * params) {
     double vMax = std::sqrt(2 * p->psiRz - std::pow(wf, 2));//sqrt(2. * p->P3 - pow(wf, 2) - pow(p->P6, 2) - pow(p->P7, 2));
     double vmin = maxv(df - p->um, p->um - df);
     double vmax = minv(vMax, df + p->um);
-    
-    if (vmin < vmax) {
-        double result, abserr;
-        gsl_function F;
-        F.function = &pv_rel_wm_int;
-        F.params = p;
-        gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(p->nIntervals);
-        gsl_integration_qags(&F, vmin, vmax, 0, p->tolerance, p->nIntervals, workspace, &result, &abserr);
-        gsl_integration_workspace_free(workspace);
-        return result;
-    } else {
-        //printf("vmin > vmax in wf_integrand (vmin: %g, vmax: %g, vesc: %g)\n", vmin, vmax, vMax);
-        return 0;
-    }
+    if (vmax < vmin) return 0;
+
+    double result, abserr;
+    gsl_function F;
+    F.function = &pv_rel_wm_int;
+    F.params = p;
+    gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(p->nIntervals);
+    gsl_integration_qags(&F, vmin, vmax, 0, p->tolerance, p->nIntervals, workspace, &result, &abserr);
+    gsl_integration_workspace_free(workspace);
+    return result;
 }
 
 double pv_rel_um_int(double um, void * params) {
@@ -449,24 +450,22 @@ double pv_rel_um_int(double um, void * params) {
     Inversion *inversion = (Inversion *) p->inversion;
     
     double E = (p->psiRz - 0.5 * (std::pow(um, 2) + std::pow(p->uf, 2))) / model->psi0;
-    double L = p->uf / std::sqrt(std::pow(um, 2) + std::pow(p->uf, 2));
+    double Rc = model->Rcirc(E * model->psi0);
+    double L = p->R * p->uf / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
     double f = inversion->eval_F(E, L);
-    
     
     double vmin = maxv(-p->vMax, p->uf - p->v_rel);
     double vmax = minv(p->vMax, p->uf + p->v_rel);
-    if (vmin < vmax) {
-        double result, abserr;
-        gsl_function F;
-        F.function = &pv_rel_wf_int;
-        F.params = p;
-        gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(p->nIntervals);
-        gsl_integration_qags(&F, vmin, vmax, 0, p->tolerance, p->nIntervals, workspace, &result, &abserr);
-        gsl_integration_workspace_free(workspace);
-        return f * result;
-    } else {
-        return 0;
-    }
+    if (vmax < vmin) return 0;
+    
+    double result, abserr;
+    gsl_function F;
+    F.function = &pv_rel_wf_int;
+    F.params = p;
+    gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(p->nIntervals);
+    gsl_integration_qags(&F, vmin, vmax, 0, p->tolerance, p->nIntervals, workspace, &result, &abserr);
+    gsl_integration_workspace_free(workspace);
+    return f * result;
 }
 
 
@@ -487,6 +486,8 @@ double pv_rel_uf_int(double uf, void * params) {
 
 
 double Observables::pv_rel_int(double v_rel, double R, double psiRz, double tolerance) {
+    time_t tStart = time(NULL);
+    
     double vMax = std::sqrt(2. * psiRz);
     struct relative_velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, vMax, v_rel, 0, 0, 0};
     
@@ -514,7 +515,7 @@ void Observables::pv_rel(int N, double R, double z, double* result, double toler
     double R2 = std::pow(R, 2), z2 = std::pow(z, 2);
     double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
     double vEsc = std::sqrt(2. * psiRz);
-    double rhoRz = Observables::rho_int(R2, z2, tolerance);
+    double rhoRz = Observables::rho_int(R, z, tolerance);
     
     std::vector<std::future<double>> vals(N);
     for (int i = 0; i < N; i++) {
@@ -549,7 +550,7 @@ double Observables::v_mom(int mom, double R, double z, double tolerance) {
     double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
     double vEsc = std::sqrt(2. * psiRz);
     double result, abserr;
-    double rhoRz = Observables::rho_int(R2, z2, tolerance);
+    double rhoRz = Observables::rho_int(R, z, tolerance);
         
     struct velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, 0, 1. * mom};
     gsl_function F;
@@ -572,11 +573,8 @@ double occupation_int_Lz(double Lz, void *params) {
     
     struct occupation_params * p = (struct occupation_params *) params;
     
-//     Model *model = (Model *) p->model;
     Inversion *inversion = (Inversion *) p->inversion;
     
-//     double E = p->E / model->psi0;
-//     double L = Lz / p->Lzc;
     return inversion->eval_F(p->E, Lz);
 }
 
@@ -589,19 +587,22 @@ double occupation_int_E(double E, void *params) {
     Model *model = (Model *) p->model;
     p->E = E / model->psi0;
     
-    double R2 = std::pow(p->R, 2), z2 = std::pow(p->z, 2);
-    double r = std::sqrt(R2 + z2);
-//     double Lzc = p->R * std::sqrt(2. * (std::real(model->psi(R2, z2, r)) - E));
-    //double vMax = p->R * std::sqrt(2. * (std::real(model->psi(R2, z2, r)) - E));
-    //double Lzmin = p->Lzmin, Lzmax = p->Lzmax * vMax;
+    double vfMax = std::sqrt(2. * (p->psiRz - E));
+    double Rc = model->Rcirc(E);
+    double Lzc = std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc)));
+
+    double Lzmin = maxv(-p->R * vfMax / Lzc, p->Lzmin);
+    double Lzmax = minv(p->R * vfMax / Lzc, p->Lzmax);
+    if (Lzmax < Lzmin) return 0;
+    
     double result, abserr;
     gsl_function F;
     F.function = &occupation_int_Lz;
     F.params = p;
     gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(p->nIntervals);
-    gsl_integration_qags(&F, p->Lzmin, p->Lzmax, 0, p->tolerance, p->nIntervals, workspace, &result, &abserr);
+    gsl_integration_qags(&F, Lzmin, Lzmax, 0, p->tolerance, p->nIntervals, workspace, &result, &abserr);
     gsl_integration_workspace_free(workspace);
-    return p->R * std::sqrt(2. * (std::real(model->psi(R2, z2, r)) - E)) * result;
+    return Lzc * result;
 }
 
 
@@ -609,14 +610,19 @@ double occupation_int_z(double z, void *params) {
     time_t tStart = time(NULL);
     
     struct occupation_params * p = (struct occupation_params *) params;
-    p->z = z;
     
     Model *model = (Model *) p->model;
     
     double R2 = std::pow(p->R, 2), z2 = std::pow(p->z, 2);
     double r = std::sqrt(R2 + z2);
+    double psiRz = std::real(model->psi(R2, z2, r));
+    p->psiRz = psiRz;
+    p->z = z;
+    
     double Emin = p->Emin * model->psi0;
-    double Emax = minv(p->Emax * model->psi0, std::real(model->psi(R2, z2, r)));
+    double Emax = minv(p->Emax * model->psi0, psiRz);
+    if (Emax < Emin) return 0;
+    
     double result, abserr;
     gsl_function F;
     F.function = &occupation_int_E;
@@ -650,7 +656,7 @@ double occupation_int_R(double R, void *params) {
 double Observables::occupation_int(double Emin, double Emax, double Lzmin, double Lzmax, double tolerance) {
     time_t tStart = time(NULL);
     
-    struct occupation_params p = {Observables::model, Observables::inversion, Observables::nIntervals, Emin, Emax, Lzmin, Lzmax, tolerance, 0, 0, 0};
+    struct occupation_params p = {Observables::model, Observables::inversion, Observables::nIntervals, Emin, Emax, Lzmin, Lzmax, tolerance, 0, 0, 0, 0};
     double Rmax = Observables::model->R_psi(Emin * Observables::model->psi0, 0);
     double result, abserr;
     gsl_function F;
@@ -660,40 +666,37 @@ double Observables::occupation_int(double Emin, double Emax, double Lzmin, doubl
     gsl_integration_qags(&F, 0, Rmax, 0, tolerance, Observables::nIntervals, workspace, &result, &abserr);
     gsl_integration_workspace_free(workspace);
     
+    /*
     if (Observables::verbose) {
         double dt = difftime(time(NULL), tStart);
         std::cout << "Occupation number (" << Emin << ", " << Emax << ", " << Lzmin << ", " << Lzmax << " -> " << result << ") computed in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;
     }
+    */
     return 2. * std::pow(2. * M_PI, 2) * result;
 }
 
 
-void Observables::occupation(int N_E, int N_Lz, double* result, double tolerance) {
+void Observables::occupation(int N_E, int N_Lz, double *Epts, double *Lzpts, double* result, double tolerance) {
     time_t tStart = time(NULL);
-    int Npts = N_E * N_Lz;
-    double Epts[N_E];
-    double Lzpts[N_Lz];
     
-    for (int i = 0; i < N_E; i++) {
-        Epts[i] = 1. * i / (N_E - 1.);
-    }
-    
-    for (int i = 0; i < N_Lz; i++) {
-        Lzpts[i] = 2. * i / (N_Lz - 1.) - 1.;
-    }
+    int Npts = (N_E - 1) * (N_Lz - 1);
     /*
-    for (int i = 0; i < N_E - 1; i++) {
-        for (int j = 0; j < N_Lz - 1; j++) {
-            result[i * N_Lz + j] = Observables::occupation_int(Epts[i], Epts[i + 1], Lzpts[j], Lzpts[j + 1], tolerance);
-            std::cout << i << ", " << j << ": " << result[i * N_Lz + j] << std::endl;
-        }
+    double Epts[N_E + 1];
+    double Lzpts[N_Lz + 1];
+    
+    for (int i = 0; i < N_E + 1; i++) {
+        Epts[i] = 0.89 * i / (1. * N_E) + 0.1;
+    }
+    
+    for (int i = 0; i < N_Lz + 1; i++) {
+        Lzpts[i] = 2. * i / (1. * N_Lz) - 1.;
     }
     */
     
     std::vector<std::future<double>> vals(Npts);
     for (int i = 0; i < N_E - 1; i++) {
         for (int j = 0; j < N_Lz - 1; j++) {
-            vals[i * N_Lz + j] = std::async(&Observables::occupation_int, this, Epts[i], Epts[i + 1], Lzpts[j], Lzpts[j + 1], tolerance);
+            vals[i * (N_Lz - 1) + j] = std::async(&Observables::occupation_int, this, Epts[i], Epts[i + 1], Lzpts[j], Lzpts[j + 1], tolerance);
         }
     }
     for (int i = 0; i < Npts; i++) {

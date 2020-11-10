@@ -138,6 +138,6 @@ struct occupation_params {
     double tolerance;
     double R;
     double z;
+    double psiRz;
     double E;
-    double Lzc;
 };

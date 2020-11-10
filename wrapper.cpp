@@ -101,14 +101,14 @@ class PSDF {
             }
         }
         
-        py::array_t<double> rho(int N, py::array_t<double> R, py::array_t<double> z) {
+        py::array_t<double> rho(int N, py::array_t<double> R, py::array_t<double> z, double tolearance=1e-3) {
             py::buffer_info Rpts_buffer = R.request();
             py::buffer_info zpts_buffer = z.request();
             double *Rpts = (double *) Rpts_buffer.ptr;
             double *zpts = (double *) zpts_buffer.ptr;
             double *result = new double[N];
 
-            PSDF::observables->rho(N, Rpts, zpts, result);
+            PSDF::observables->rho(N, Rpts, zpts, result, tolearance);
             
             return PSDF::py_array(N, result);
         }
@@ -129,32 +129,49 @@ class PSDF {
             return PSDF::py_array(N, result);
         }
         
-        double v_mom(int mom, double R, double z) {
-            return PSDF::observables->v_mom(mom, R, z);
+        double v_mom(int mom, double R, double z, double tolearance=1e-3) {
+            return PSDF::observables->v_mom(mom, R, z, tolearance);
         }
         
-        py::array_t<double> pv_mag(int N, double R, double z) {
+        py::array_t<double> pv_mag(int N, double R, double z, double tolearance=1e-3) {
             double *result = new double[2 * N];
-            PSDF::observables->pv_mag(N, R, z, result);
+            PSDF::observables->pv_mag(N, R, z, result, tolearance);
             return PSDF::py_array(2 * N, result);
         }
         
-        py::array_t<double> pv_merid(int N, double R, double z) {
+        py::array_t<double> pv_merid(int N, double R, double z, double tolearance=1e-3) {
             double *result = new double[2 * N];
-            PSDF::observables->pv_merid(N, R, z, result);
+            PSDF::observables->pv_merid(N, R, z, result, tolearance);
             return PSDF::py_array(2 * N, result);
         }
         
-        py::array_t<double> pv_azim(int N, double R, double z) {
+        py::array_t<double> pv_azim(int N, double R, double z, double tolearance=1e-3) {
             double *result = new double[2 * N];
-            PSDF::observables->pv_azim(N, R, z, result);
+            PSDF::observables->pv_azim(N, R, z, result, tolearance);
             return PSDF::py_array(2 * N, result);
         }
         
-        py::array_t<double> pv_rad(int N, double R, double z) {
+        py::array_t<double> pv_rad(int N, double R, double z, double tolearance=1e-3) {
             double *result = new double[2 * N];
-            PSDF::observables->pv_rad(N, R, z, result);
+            PSDF::observables->pv_rad(N, R, z, result, tolearance);
             return PSDF::py_array(2 * N, result);
+        }
+        
+        py::array_t<double> pv_rel(int N, double R, double z, double tolearance=1e-1) {
+            double *result = new double[2 * N];
+            PSDF::observables->pv_rel(N, R, z, result, tolearance);
+            return PSDF::py_array(2 * N, result);
+        }
+        
+        py::array_t<double> occupation(int N_E, int N_Lz, py::array_t<double> Epts, py::array_t<double> Lzpts, double tolearance=1e-1) {
+            int Npts = (N_E - 1) * (N_Lz - 1);
+            py::buffer_info Epts_buffer = Epts.request();
+            py::buffer_info Lzpts_buffer = Lzpts.request();
+            double *E = (double *) Epts_buffer.ptr;
+            double *Lz = (double *) Lzpts_buffer.ptr;
+            double *result = new double[Npts];
+            PSDF::observables->occupation(N_E, N_Lz, E, Lz, result, tolearance);
+            return PSDF::py_array(Npts, result);
         }
         
 };
@@ -167,11 +184,12 @@ PYBIND11_MODULE(AIM, m) {
         .def("setBaryons", &PSDF::setBaryons)
         .def("compute", &PSDF::compute)
         .def("rho", &PSDF::rho)
-        .def("v_mom", &PSDF::v_mom)
+        .def("rho_true", &PSDF::rho_true)
         .def("pv_mag", &PSDF::pv_mag)
         .def("pv_merid", &PSDF::pv_merid)
         .def("pv_azim", &PSDF::pv_azim)
         .def("pv_rad", &PSDF::pv_rad)
-        .def("rho_true", &PSDF::rho_true);
+        .def("pv_rel", &PSDF::pv_rel)
+        .def("v_mom", &PSDF::v_mom)
+        .def("occupation", &PSDF::occupation);
 }
- 

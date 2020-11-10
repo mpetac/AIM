@@ -22,6 +22,8 @@ cmake ..
 make all
 ```
 
+Note: if you do not wish to compile the Python wrapper you can remove the last three lines from _CMakeLists.txt_.
+
 ## Examples
 
 The code can be used either from C++ or Python. While the Python wrapper provides modern and simple interface, running it from C++ allows for more control (mainly related to the accuracy of various numerical perscriptions). Futhermore, the C++ class structure allows for simple extension the code to new DM density profile, halo rotational properties and baryonic gravitational potentials.
