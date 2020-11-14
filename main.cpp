@@ -109,7 +109,7 @@ int main(int argc, char **argv) {
     Model model(&halo, &baryons);
     
     // Interpolate the PSDF obtained for the specified galactic model with given number of relative energy and angular momentum points
-    Inversion psdf(&model, 100, 10, 1e-3, 1);
+    Inversion psdf(&model, 500, 20, 1e-3, 1);
     
     // Initialize the class for computing various observable quantities from the PSDF (namely DM density and various projections of the velocity distribution)
     Observables obs(&model, &psdf);
@@ -121,15 +121,17 @@ int main(int argc, char **argv) {
     char suffix[64];
     sprintf(suffix, "test");
     
+    std::cout << obs.v_rel_mom(0, 100., z, 1e-1) << std::endl;
     
-    //print_density(50, model, obs, verbose, suffix);
-    //print_pv(1, 100, R, z, obs, verbose, suffix);
-    //print_pv(2, 100, R, z, obs, verbose, suffix);
-    //print_pv(3, 100, R, z, obs, verbose, suffix);
-    //print_pv(4, 100, R, z, obs, verbose, suffix);
-    print_pv(5, 7, R, z, obs, verbose, suffix);
+    /*
+    print_density(50, model, obs, verbose, suffix);
+    print_pv(1, 100, R, z, obs, verbose, suffix);
+    print_pv(2, 100, R, z, obs, verbose, suffix);
+    print_pv(3, 100, R, z, obs, verbose, suffix);
+    print_pv(4, 100, R, z, obs, verbose, suffix);
+    //print_pv(5, 7, R, z, obs, verbose, suffix);
     print_occupation(10, 5, obs, verbose, suffix);
-    
+    */
     
     /* * * VELOCITY DISTRIBUTIONS * * */
     

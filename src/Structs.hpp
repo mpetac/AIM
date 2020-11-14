@@ -100,6 +100,7 @@ struct velocity_int_params {
     double psiRz;
     double v;
     double vf;
+    int moment;
 };
 
 struct relative_velocity_int_params {
@@ -114,6 +115,7 @@ struct relative_velocity_int_params {
     double uf;
     double um;
     double wf;
+    int moment;
 };
 
 struct potential_int_params {

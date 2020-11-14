@@ -77,6 +77,9 @@ public:
     /// Computes moments of the DM's velocity distribution
     double v_mom(int mom, double R, double z, double tolerance=1e-3);
     
+    /// Computes moments of the DM's relative velocity distribution
+    double v_rel_mom(int mom, double R, double z, double tolerance=1e-3);
+    
     /// Computes the occupation number in given a given phase-space region
     void occupation(int N_E, int N_Lz, double *Epts, double *Lzpts, double *result, double tolerance=1e-3);
 };

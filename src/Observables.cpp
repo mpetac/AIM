@@ -61,7 +61,7 @@ double rho_int_v(double v, void *params) {
     gsl_integration_qags(&F, 0, 1, 0, p->tolerance, p->nIntervals, workspace, &result, &abserr);
     gsl_integration_workspace_free(workspace);
     
-    return std::pow(v, 2 + p->vf) * result;
+    return std::pow(v, 2. + p->moment) * result;
 }
 
 /**
@@ -76,7 +76,7 @@ double Observables::rho_int(double R, double z, double tolerance) {
     double R2 = std::pow(R, 2), z2 = std::pow(z, 2);
     double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
     
-    struct velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, 0, 0};
+    struct velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, 0, 0, 0};
     
     gsl_function F;
     F.function = &rho_int_v;
@@ -137,6 +137,7 @@ void Observables::pv_mag(int N, double R, double z, double* result, double toler
         p->psiRz = psiRz;
         p->v = 0;
         p->vf = 0;
+        p->moment = 0;
         
         double v = Observables::vMax * i / (N - 1.);
         result[2 * i] = v;
@@ -181,7 +182,7 @@ double pv_merid_int_vf(double vf, void *params) {
  */
 
 double Observables::pv_merid_int(double v_merid, double R, double psiRz, double tolerance) {
-    struct velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, v_merid, 0};
+    struct velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, v_merid, 0, 0};
     double vMax = std::sqrt(2. * psiRz - std::pow(v_merid, 2));
     double result, abserr;
     gsl_function F;
@@ -254,7 +255,7 @@ double pv_azim_int_vm(double vm, void *params) {
  */
 
 double Observables::pv_azim_int(double v_azim, double R, double psiRz, double tolerance) {
-    struct velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, v_azim, 0};
+    struct velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, v_azim, 0, 0};
     double vMax = std::sqrt(2. * psiRz - std::pow(v_azim, 2));
     double result, abserr;
     gsl_function F;
@@ -351,7 +352,7 @@ double pv_rad_int_vf(double vf, void *params) {
  */
 
 double Observables::pv_rad_int(double v_rad, double R, double psiRz, double tolerance) {
-    struct velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, v_rad, 0};
+    struct velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, v_rad, 0, 0};
     double vMax = std::sqrt(2. * psiRz - std::pow(v_rad, 2));
     double result, abserr;
     gsl_function F;
@@ -486,10 +487,8 @@ double pv_rel_uf_int(double uf, void * params) {
 
 
 double Observables::pv_rel_int(double v_rel, double R, double psiRz, double tolerance) {
-    time_t tStart = time(NULL);
-    
     double vMax = std::sqrt(2. * psiRz);
-    struct relative_velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, vMax, v_rel, 0, 0, 0};
+    struct relative_velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, vMax, v_rel, 0, 0, 0, 0};
     
     double result, abserr;
     gsl_function F;
@@ -517,9 +516,11 @@ void Observables::pv_rel(int N, double R, double z, double* result, double toler
     double vEsc = std::sqrt(2. * psiRz);
     double rhoRz = Observables::rho_int(R, z, tolerance);
     
+    double lnvmax = std::log(Observables::vMax + 1.);
     std::vector<std::future<double>> vals(N);
     for (int i = 0; i < N; i++) {
-        double v = 2. * Observables::vMax * i / (N - 1.);
+        //double v = 2. * Observables::vMax * i / (N - 1.);
+        double v = std::exp(lnvmax * i / (N - 1.)) - 1.;
         result[2 * i] = v;
         if (v == 0 || v >= 2 * vEsc) result[2 * i + 1] = 0;
         else vals[i] = std::async(&Observables::pv_rel_int, this, v, R, psiRz, tolerance);
@@ -552,7 +553,7 @@ double Observables::v_mom(int mom, double R, double z, double tolerance) {
     double result, abserr;
     double rhoRz = Observables::rho_int(R, z, tolerance);
         
-    struct velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, 0, 1. * mom};
+    struct velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, 0, 0, mom};
     gsl_function F;
     F.function = &rho_int_v;
     F.params = &p;
@@ -565,6 +566,54 @@ double Observables::v_mom(int mom, double R, double z, double tolerance) {
         std::cout << "Velocity moment computed in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;
     }
     return 4. * M_PI / rhoRz * result; 
+}
+
+
+/**
+ * @param mom Velocity moment (i.e. <v^{mom}>)
+ * @param R The value of R-coordinate
+ * @param z The value of z-coordinate
+ * @param tolerance Relative tolerance used in performing the numerical integrals
+ */
+
+double v_rel_mom_int(double v_rel, void *params) {
+    struct relative_velocity_int_params * p = (struct relative_velocity_int_params *) params;
+    p->v_rel = v_rel;
+    
+    double result, abserr;
+    gsl_function F;
+    F.function = &pv_rel_uf_int;
+    F.params = p;
+    gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(p->nIntervals);
+    gsl_integration_qags(&F, -p->vMax, p->vMax, 0, p->tolerance, p->nIntervals, workspace, &result, &abserr);
+    gsl_integration_workspace_free(workspace);
+    return std::pow(v_rel, 1. + p->moment) * result;
+}
+
+double Observables::v_rel_mom(int mom, double R, double z, double tolerance) {
+    time_t tStart = time(NULL);
+    
+    double R2 = std::pow(R, 2), z2 = std::pow(z, 2);
+    double psiRz = std::real(Observables::model->psi(R2, z2, std::sqrt(R2 + z2)));
+    double vEsc = std::sqrt(2. * psiRz);
+    double result, abserr;
+    double rhoRz = Observables::rho_int(R, z, tolerance);
+    
+    struct relative_velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, vEsc, 0, 0, 0, 0, mom};
+    
+    gsl_function F;
+    F.function = &v_rel_mom_int;
+    F.params = &p;
+    gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(Observables::nIntervals);
+    gsl_integration_qags(&F, 0, 2. * vEsc, 0, tolerance, Observables::nIntervals, workspace, &result, &abserr);
+    gsl_integration_workspace_free(workspace);
+    
+    if (Observables::verbose) {
+        double dt = difftime(time(NULL), tStart);
+        std::cout << "Relative velocity moment computed in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;
+    }
+    
+    return 4. * M_PI / std::pow(rhoRz, 2) * result;
 }
 
 
