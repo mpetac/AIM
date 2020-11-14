@@ -115,15 +115,11 @@ int main(int argc, char **argv) {
     Observables obs(&model, &psdf);
     
     
-    // Tabulate the DM density distribution and write it to a file
     bool verbose = 0;
     double R = 8.122, z = 0;
     char suffix[64];
     sprintf(suffix, "test");
     
-    std::cout << obs.v_rel_mom(0, 100., z, 1e-1) << std::endl;
-    
-    /*
     print_density(50, model, obs, verbose, suffix);
     print_pv(1, 100, R, z, obs, verbose, suffix);
     print_pv(2, 100, R, z, obs, verbose, suffix);
@@ -131,59 +127,6 @@ int main(int argc, char **argv) {
     print_pv(4, 100, R, z, obs, verbose, suffix);
     //print_pv(5, 7, R, z, obs, verbose, suffix);
     print_occupation(10, 5, obs, verbose, suffix);
-    */
-    
-    /* * * VELOCITY DISTRIBUTIONS * * */
-    
-    /*
-    int nVel = 30;
-    double pv_mag[2 * nVel], pv_merid[2 * nVel], pv_azim[2 * nVel], pv_rad[2 * nVel], pv_rel[2 * nVel];
-    
-    // Tabulate the magnitude of DM velocity distribution and write it to a file
-    obs.pv_mag(nVel, 8.122, 0, pv_mag);
-    std::ofstream out_pv_mag("out/pv_mag.dat");
-    for (int i = 0; i < nVel; i++) {
-        out_pv_mag << pv_mag[2 * i] << "\t" << pv_mag[2 * i + 1] << "\n";
-        if (verbose) std::cout << "pv_mag(" << pv_mag[2 * i] << "): " << pv_mag[2 * i + 1] << std::endl;
-    }
-    out_pv_mag.close();
-    
-    // Tabulate the DM velocity distribution in meridional plane and write it to a file
-    obs.pv_merid(nVel, 8.122, 0, pv_merid);
-    std::ofstream out_pv_merid("out/pv_merid.dat");
-    for (int i = 0; i < nVel; i++) {
-        out_pv_merid << pv_merid[2 * i] << "\t" << pv_merid[2 * i + 1] << "\n";
-        if (verbose) std::cout << "pv_merid(" << pv_merid[2 * i] << "): " << pv_merid[2 * i + 1] << std::endl;
-    }
-    out_pv_merid.close();
-    
-    // Tabulate the DM velocity distribution in azimuthal direction and write it to a file
-    obs.pv_azim(nVel, 8.122, 0, pv_azim);
-    std::ofstream out_pv_azim("out/pv_azim.dat");
-    for (int i = 0; i < nVel; i++) {
-        out_pv_azim << pv_azim[2 * i] << "\t" << pv_azim[2 * i + 1] << "\n";
-        if (verbose) std::cout << "pv_azim(" << pv_azim[2 * i] << "): " << pv_azim[2 * i + 1] << std::endl;
-    }
-    out_pv_azim.close();
-    
-    // Tabulate the DM velocity distribution in radial direction and write it to a file
-    obs.pv_rad(nVel, 8.122, 0, pv_rad);
-    std::ofstream out_pv_rad("out/pv_rad.dat");
-    for (int i = 0; i < nVel; i++) {
-        out_pv_rad << pv_rad[2 * i] << "\t" << pv_rad[2 * i + 1] << "\n";
-        if (verbose) std::cout << "pv_rad(" << pv_rad[2 * i] << "): " << pv_rad[2 * i + 1] << std::endl;
-    }
-    out_pv_rad.close();
-    
-    
-    obs.pv_rel(nVel, 8.122, 0, pv_rel, 1e-1);
-    std::ofstream out_pv_rel("out/pv_rel.dat");
-    for (int i = 0; i < nVel; i++) {
-        out_pv_rel << pv_rel[2 * i] << "\t" << pv_rel[2 * i + 1] << "\n";
-        if (verbose) std::cout << "pv_rel(" << pv_rel[2 * i] << "): " << pv_rel[2 * i + 1] << std::endl;
-    }
-    out_pv_rel.close();
-    */
     
     double dt = difftime(time(NULL), tStart);
     std::cout << "Done in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;
