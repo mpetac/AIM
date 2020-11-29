@@ -516,7 +516,7 @@ void Observables::pv_rel(int N, double R, double z, double* result, double toler
     double vEsc = std::sqrt(2. * psiRz);
     double rhoRz = Observables::rho_int(R, z, tolerance);
     
-    double lnvmax = std::log(Observables::vMax + 1.);
+    double lnvmax = std::log(2. * Observables::vMax + 1.);
     std::vector<std::future<double>> vals(N);
     for (int i = 0; i < N; i++) {
         //double v = 2. * Observables::vMax * i / (N - 1.);

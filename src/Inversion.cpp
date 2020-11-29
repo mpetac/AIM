@@ -60,6 +60,7 @@ Inversion::~Inversion() {
 void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, double* Fpts) {
     if(Inversion::model->psi(1., 0, 1.) == Inversion::model->psi(0, 1., 1.)) {
         if (Inversion::verbose) std::cout << "Computing spherically symmetric inversion..." << std::endl;
+        Inversion::h = 0;
         std::vector<std::future<double>> vals(N_E);
         for (int i = 0; i < N_E; i++) {
             double *params = new double[2];
