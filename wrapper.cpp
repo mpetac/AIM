@@ -174,6 +174,12 @@ class PSDF {
             return PSDF::py_array(Npts, result);
         }
         
+        py::array_t<double> dd(int N, double t, int power, double R=8.122, double vR=11., double vPhi=-1., double vz=7., double vEarth=30., double vmax=1000., double tolearance=1e-3) {
+            double *result = new double[N];
+            PSDF::observables->dd(N, result, t, power, R, vR, vPhi, vz, vEarth, vmax, tolearance);
+            return PSDF::py_array(N, result);
+        }
+        
 };
 
 
@@ -191,5 +197,6 @@ PYBIND11_MODULE(AIM, m) {
         .def("pv_rad", &PSDF::pv_rad)
         .def("pv_rel", &PSDF::pv_rel)
         .def("v_mom", &PSDF::v_mom)
-        .def("occupation", &PSDF::occupation);
+        .def("occupation", &PSDF::occupation)
+        .def("dd", &PSDF::dd);
 }

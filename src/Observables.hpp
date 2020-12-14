@@ -87,6 +87,6 @@ public:
     void occupation(int N_E, int N_Lz, double *Epts, double *Lzpts, double *result, double tolerance=1e-3);
     
     /// Computes the direct detection astrophysical factor
-    void dd(int N, double *result, double t=0, double power=-1., double R=8.122, double vR=11., double vPhi=-1., double vz=7., double vEarth=30., double vmax=-1., double tolerance=1e-3);
+    void dd(int N, double *result, double t=0, double power=-1., double R=8.122, double vR=11., double vPhi=-1., double vz=7., double vEarth=30., double vmax=1000., double tolerance=1e-3);
     
 };
