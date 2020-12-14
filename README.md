@@ -11,6 +11,7 @@ To compile the source code the following tools have to be installed on your syst
 * GSL (recommended version 2.4 or later)
 * cmake version 2.6 or later
 * pybind11 version 2.5 or later (optional, needed for compiling the Python wrapper)
+* Cpputest (optional, needed for compiling the Unit tests)
 * doxygen (optional, needed for automatic generation of the documentation)
 
 After cloning the repository you can build the project into subfolder "build":
@@ -22,7 +23,7 @@ cmake ..
 make all
 ```
 
-Note: if you do not wish to compile the Python wrapper you can remove the last three lines from _CMakeLists.txt_.
+Note: if you do not wish to compile the Unit tests or Python wrapper you can remove the corresponding lines from _CMakeLists.txt_.
 
 ## Examples
 
