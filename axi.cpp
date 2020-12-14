@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
     
     Model model(&halo, &baryons);
     
-    Inversion psdf(&model, 100, 10, 1e-3, 1);
+    Inversion psdf(&model, 100, 10);
     
     Observables obs(&model, &psdf, 1);
     

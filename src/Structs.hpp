@@ -143,3 +143,24 @@ struct occupation_params {
     double psiRz;
     double E;
 };
+
+struct dd_params {
+    void *model;
+    void *inversion;
+    double cE;
+    double sE;
+    double power;
+    double psiR;
+    double R;
+    double vR_sol;
+    double vPhi_sol;
+    double vz_sol;
+    double vEarth;
+    double vmin;
+    double ct;
+    double st;
+    double cf;
+    double sf;
+    double tolerance;
+    size_t nIntervals;
+};

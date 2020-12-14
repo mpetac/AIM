@@ -569,13 +569,6 @@ double Observables::v_mom(int mom, double R, double z, double tolerance) {
 }
 
 
-/**
- * @param mom Velocity moment (i.e. <v^{mom}>)
- * @param R The value of R-coordinate
- * @param z The value of z-coordinate
- * @param tolerance Relative tolerance used in performing the numerical integrals
- */
-
 double v_rel_mom_int(double v_rel, void *params) {
     struct relative_velocity_int_params * p = (struct relative_velocity_int_params *) params;
     p->v_rel = v_rel;
@@ -589,6 +582,14 @@ double v_rel_mom_int(double v_rel, void *params) {
     gsl_integration_workspace_free(workspace);
     return std::pow(v_rel, 1. + p->moment) * result;
 }
+
+
+/**
+ * @param mom Relative velocity moment (i.e. <v^{mom}>)
+ * @param R The value of R-coordinate
+ * @param z The value of z-coordinate
+ * @param tolerance Relative tolerance used in performing the numerical integrals
+ */
 
 double Observables::v_rel_mom(int mom, double R, double z, double tolerance) {
     time_t tStart = time(NULL);
@@ -621,7 +622,6 @@ double occupation_int_Lz(double Lz, void *params) {
     time_t tStart = time(NULL);
     
     struct occupation_params * p = (struct occupation_params *) params;
-    
     Inversion *inversion = (Inversion *) p->inversion;
     
     return inversion->eval_F(p->E, Lz);
@@ -725,6 +725,15 @@ double Observables::occupation_int(double Emin, double Emax, double Lzmin, doubl
 }
 
 
+/**
+ * @param N_E Number or relative energy bins
+ * @param N_Lz Number of angular momentum bins
+ * @param Epts Relative energy bin edges
+ * @param Lzpts Angular momentum bin edges
+ * @param result An array for storing the results
+ * @param tolerance Relative tolerance used in performing the numerical integrals
+ */
+
 void Observables::occupation(int N_E, int N_Lz, double *Epts, double *Lzpts, double* result, double tolerance) {
     time_t tStart = time(NULL);
     
@@ -758,6 +767,137 @@ void Observables::occupation(int N_E, int N_Lz, double *Epts, double *Lzpts, dou
     }
 }
 
+
+double dd_int_v(double v, void *params) {
+    struct dd_params * p = (struct dd_params *) params;
+    Model *model = (Model *) p->model;
+    Inversion *inversion = (Inversion *) p->inversion;
+    
+    double vx = v * p->cf * p->st + p->vR_sol + p->vEarth * (0.9931 * p->cE - 0.0670 * p->sE);
+    double vy = v * p->sf * p->st + p->vPhi_sol + p->vEarth * (0.1170 * p->cE + 0.4927 * p->sE);
+    double vz = v * p->ct + p->vz_sol + p->vEarth * (-0.01032 * p->cE - 0.8676 * p->sE);
+    
+    double v2 = pow(vx, 2) + pow(vy, 2) + pow(vz, 2);
+    
+    double E = (p->psiR - 0.5 * v2) / model->psi0;
+    if (E < 0) return 0;
+    double Rc = model->Rcirc(p->psiR - 0.5 * v2);
+    double Lzc = std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc)));
+    double Lz = p->R * vy / Lzc;
+    if (Lz < -1.) Lz = -1.;
+    if (Lz > 1.) Lz = 1.;
+    return std::pow(v, 2. + p->power) * inversion->eval_F(E, Lz);
+}
+
+
+double dd_int_phi(double phi, void *params) {
+    struct dd_params * p = (struct dd_params *) params;
+    p->cf = std::cos(phi);
+    p->sf = std::sin(phi);
+    
+    double cA = - (p->cf * p->st * (p->vR_sol + p->vEarth * (0.9931 * p->cE - 0.0670 * p->sE)) + p->sf * p->st * (p->vPhi_sol + p->vEarth * (0.1170 * p->cE + 0.4927 * p->sE)) + p->ct * (p->vz_sol + p->vEarth * (-0.01032 * p->cE - 0.8676 * p->sE)));
+    double cB = - (pow(p->vPhi_sol, 2) + pow(p->vR_sol, 2) + pow(p->vz_sol, 2) + pow(p->vEarth, 2) + p->vEarth * (p->sE * (0.9854 * p->vPhi_sol - 0.1358 * p->vR_sol - 1.7352 * p->vz_sol) + p->cE * (0.234 * p->vPhi_sol + 1.9862 * p->vR_sol - 0.02064 * p->vz_sol - 0.00164952 * p->vEarth * p->sE)));
+    double vMax = cA + sqrt(pow(cA, 2) + cB + 2 * p->psiR);
+    
+    if (p->vmin >= vMax) return 0;
+    
+    double result, abserr;
+    gsl_function F;
+    F.function = &dd_int_v;
+    F.params = p;
+    gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(p->nIntervals);
+    gsl_integration_qags(&F, p->vmin, vMax, 0, p->tolerance, p->nIntervals, workspace, &result, &abserr);
+    gsl_integration_workspace_free(workspace);
+    
+    return result;
+}
+
+
+double dd_int_theta(double theta, void *params) {
+    struct dd_params * p = (struct dd_params *) params;
+    p->ct = std::cos(theta);
+    p->st = std::sin(theta);
+    
+    double result, abserr;
+    gsl_function F;
+    F.function = &dd_int_phi;
+    F.params = p;
+    gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(p->nIntervals);
+    gsl_integration_qags(&F, 0, 2. * M_PI, 0, p->tolerance, p->nIntervals, workspace, &result, &abserr);
+    gsl_integration_workspace_free(workspace);
+    
+    return p->st * result;
+}
+
+
+/**
+ * @param vmin v_{min}
+ * @param params DD parameters
+ */
+
+double Observables::dd_int(double vmin, dd_params params) {
+    time_t tStart = time(NULL);
+    
+    dd_params p = {Observables::model, Observables::inversion, params.cE, params.sE, params.power, params.psiR, params.R, params.vR_sol, params.vPhi_sol, params.vz_sol, params.vEarth, vmin, 0, 0, 0, 0, params.tolerance, Observables::nIntervals};
+    
+    double result, abserr;
+    gsl_function F;
+    F.function = &dd_int_theta;
+    F.params = &p;
+    gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(params.nIntervals);
+    gsl_integration_qags(&F, 0, M_PI, 0, params.tolerance, params.nIntervals, workspace, &result, &abserr);
+    gsl_integration_workspace_free(workspace);
+    
+    /*
+    if (Observables::verbose) {
+        double dt = difftime(time(NULL), tStart);
+        std::cout << "Occupation number (" << Emin << ", " << Emax << ", " << Lzmin << ", " << Lzmax << " -> " << result << ") computed in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;
+    }
+    */
+    return result;
+}
+
+
+/**
+ * @param N Number of v_{min} bins
+ * @param result An array for storing the results
+ * @param t Time in the year (between 0 and 1)
+ * @param power Velocity power used in the itegral (set to -1 for computing g(v_{min}) and 1 for h(v_{min}))
+ * @param R Radial distance
+ * @param vR Peculiar radial velocity
+ * @param vPhi Peculiar azimuthal velocity
+ * @param vz Peculiar z velocity
+ * @param vEarth Earth's circular velocity
+ * @param vmax Maximum velocity to which the astrophysical factor is tabulated (can be greater then the sum of peculair motion and escape velocity!)
+ * @param tolerance Relative tolerance used in performing the numerical integrals
+ */
+
+void Observables::dd(int N, double* result, double t, double power, double R, double vR, double vPhi, double vz, double vEarth, double vmax, double tolerance) {
+    time_t tStart = time(NULL);
+    
+    double cE = std::cos(2. * M_PI * t);
+    double sE = std::sin(2. * M_PI * t);
+    double psiR = std::real(Observables::model->psi(std::pow(R, 2), 0, R));
+    if (vPhi == -1) vPhi = std::sqrt(-2. * std::pow(R, 2) * std::real(Observables::model->psi_dR2(std::pow(R, 2), 0, R))) + 12.;
+    
+    dd_params params = {Observables::model, Observables::inversion, cE, sE, power, psiR, R, vR, vPhi, vz, vEarth, 0, 0, 0, 0, 0, tolerance, Observables::nIntervals};
+    
+    std::vector<std::future<double>> vals(N);
+    for (int i = 0; i < N; i++) {
+        double vmin = i * vmax / (N - 1.);
+        vals[i] = std::async(&Observables::dd_int, this, vmin, params);
+    }
+    
+    double rho_inverse = 1. / Observables::rho_int(R, 0, tolerance);
+    for (int i = 0; i < N; i++) {
+        result[i] = vals[i].get() * rho_inverse;
+    }
+    
+    if (Observables::verbose) {
+        double dt = difftime(time(NULL), tStart);
+        std::cout << "DD astrophysical factor computed in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;
+    }
+}
 
 
 

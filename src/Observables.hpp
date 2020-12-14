@@ -44,8 +44,11 @@ private:
     /// Function for computing the DM's velocity magnitude distribution at a given point
     double pv_rel_int(double v_rel, double R, double psiRz, double tolerance);
     
-    /// Function for computing the occupation number in given a given phase-space region
+    /// Function for computing the mass in a given phase-space region
     double occupation_int(double Emin, double Emax, double Lzmin, double Lzmax, double tolerance);
+    
+    /// Function for computing the DD astrophysical factor
+    double dd_int(double vmin, dd_params params);
     
     /// GSL error handler
     static void GSL_error_func(const char * reason, const char * file, int line, int gsl_errno);
@@ -80,6 +83,10 @@ public:
     /// Computes moments of the DM's relative velocity distribution
     double v_rel_mom(int mom, double R, double z, double tolerance=1e-3);
     
-    /// Computes the occupation number in given a given phase-space region
+    /// Computes the mass in phase-space bins
     void occupation(int N_E, int N_Lz, double *Epts, double *Lzpts, double *result, double tolerance=1e-3);
+    
+    /// Computes the direct detection astrophysical factor
+    void dd(int N, double *result, double t=0, double power=-1., double R=8.122, double vR=11., double vPhi=-1., double vz=7., double vEarth=30., double vmax=-1., double tolerance=1e-3);
+    
 };
