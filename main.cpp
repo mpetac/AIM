@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
     
     // Define struct with DM halo parameters. Here we asume spherical DM density profile with density 1e7 M_sol / kpc^3 and scale density of 13 kpc.
     halo_2p p_nfw = {1e7, 15.};
-    halo_rot_3p rot_nfw = {1., 15., 1.};
+    halo_rot_3p rot_nfw = {0., 15., 1.};
     // Initialize the DM halo object.
     Halo_NFW halo(p_nfw, rot_nfw);
     
