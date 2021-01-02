@@ -126,7 +126,7 @@ int main(int argc, char **argv) {
     Model model(&halo, &baryons);
     
     // Interpolate the PSDF obtained for the specified galactic model with given number of relative energy and angular momentum points
-    Inversion psdf(&model, 500, 20, 1e-3, 1);
+    Inversion psdf(&model, 500, 20);
     
     // Initialize the class for computing various observable quantities from the PSDF (namely DM density and various projections of the velocity distribution)
     Observables obs(&model, &psdf);
