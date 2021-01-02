@@ -57,22 +57,22 @@ class PSDF {
             
             if (type.compare("NFW") == 0) {
                 halo_2p halo_params = {params[0], params[1]};
-                halo_rot_2p halo_rot_params = {params[6], params[7]};
+                halo_rot_3p halo_rot_params = {params[6], params[7], params[8]};
                 PSDF::halo = new Halo_NFW(halo_params, halo_rot_params);
             }
             else if (type.compare("BUR") == 0) {
                 halo_2p halo_params = {params[0], params[1]};
-                halo_rot_2p halo_rot_params = {params[6], params[7]};
+                halo_rot_3p halo_rot_params = {params[6], params[7], params[8]};
                 PSDF::halo = new Halo_BUR(halo_params, halo_rot_params);
             }
             else if (type.compare("gNFW") == 0) {
                 halo_6p halo_params = {params[0], params[1], 1., 3., params[2], 1.};
-                halo_rot_2p halo_rot_params = {params[6], params[7]};
+                halo_rot_3p halo_rot_params = {params[6], params[7], params[8]};
                 PSDF::halo = new Halo_gNFW(halo_params, halo_rot_params);
             }
             else if (type.compare("sABC") == 0) {
                 halo_6p halo_params = {params[0], params[1], params[3], params[4], params[2], params[5]};
-                halo_rot_2p halo_rot_params = {params[6], params[7]};
+                halo_rot_3p halo_rot_params = {params[6], params[7], params[8]};
                 PSDF::halo = new Halo_sABC(halo_params, halo_rot_params);
             }
             

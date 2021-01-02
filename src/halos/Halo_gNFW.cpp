@@ -6,7 +6,7 @@
  * @param r Value of the radial distance
  */
 
-Halo_gNFW::Halo_gNFW(const halo_6p& gNFW, const halo_rot_2p& gNFW_rot) {
+Halo_gNFW::Halo_gNFW(const halo_6p& gNFW, const halo_rot_3p& gNFW_rot) {
     if(gNFW.alpha != 1.) std::cout << "Warning: gNFW halo requires alpha = 1!" << std::endl;
     if(gNFW.beta != 3.) std::cout << "Warning: gNFW halo requires beta = 3!" << std::endl;
     if(gNFW.q != 1.) std::cout << "Warning: gNFW halo requires q = 1!" << std::endl;
@@ -113,10 +113,29 @@ std::complex<double> Halo_gNFW::rho_d2z2(std::complex<double> R2, std::complex<d
 
 /** 
  * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
  */
 
-std::complex<double> Halo_gNFW::v_phi(std::complex<double> R2) {
-    return Parametric_funcs::v_phi(R2, Halo_gNFW::halo_rot);
+std::complex<double> Halo_gNFW::v_phi(std::complex<double> R2, std::complex<double> z2) {
+    return Parametric_funcs::v_phi(R2, z2, Halo_gNFW::halo_rot);
+}
+
+/** 
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ */
+
+std::complex<double> Halo_gNFW::v_phi_dz2(std::complex<double> R2, std::complex<double> z2) {
+    return Parametric_funcs::v_phi_dz2(R2, z2, Halo_gNFW::halo_rot);
+}
+
+/** 
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ */
+
+std::complex<double> Halo_gNFW::v_phi_d2z2(std::complex<double> R2, std::complex<double> z2) {
+    return Parametric_funcs::v_phi_d2z2(R2, z2, Halo_gNFW::halo_rot);
 }
 
 

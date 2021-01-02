@@ -185,9 +185,8 @@ double F_odd_integrand(double t, void *params) {
     std::complex<double> jac = std::pow(xi - p->E, -0.5);
     std::complex<double> R2 = std::pow(p->Lz, 2) / (2. * (xi - p->E));
     std::complex<double> z2 = model->psi_inverse(xi, p->E, p->Lz, z2interp->z2_eval(t));
-    std::complex<double> drho_dpsi = model->rho_d2psi2(R2, z2, std::sqrt(R2 + z2));
-    std::complex<double> vPhi = model->v_phi(R2);
-    return std::real(dxi * jac * drho_dpsi * vPhi);
+    std::complex<double> drhovphi_dpsi = model->rho_vphi_d2psi2(R2, z2, std::sqrt(R2 + z2));
+    return std::real(dxi * jac * drhovphi_dpsi);
 }
 
 /**

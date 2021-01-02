@@ -241,11 +241,42 @@ std::complex<double> Parametric_funcs::rho_sABC_d2z2(std::complex<double> m2, co
 
 /** 
  * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
  * @param obj Struct with the halo parameters
  */
 
-std::complex<double> Parametric_funcs::v_phi(std::complex<double> R2, const struct halo_rot_2p& obj) {
+std::complex<double> Parametric_funcs::v_phi(std::complex<double> R2, std::complex<double> z2, const struct halo_rot_3p& obj) {
     std::complex<double> R = std::sqrt(R2);
-    return obj.omega * R / (1. + std::pow(R / obj.r_a, 2));
+    return obj.omega * R / (1. + (R2 + z2 / std::pow(obj.q, 2)) / std::pow(obj.r_a, 2));
 }
+
+/** 
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ * @param obj Struct with the halo parameters
+ */
+
+std::complex<double> Parametric_funcs::v_phi_dz2(std::complex<double> R2, std::complex<double> z2, const struct halo_rot_3p& obj) {
+    double ra2 = std::pow(obj.r_a, 2);
+    double q2 = std::pow(obj.q, 2);
+    std::complex<double> m2 = R2 + z2 / q2;
+    return -Parametric_funcs::v_phi(R2, z2, obj) / (q2 * (m2 + ra2));
+}
+
+/** 
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ * @param obj Struct with the halo parameters
+ */
+
+std::complex<double> Parametric_funcs::v_phi_d2z2(std::complex<double> R2, std::complex<double> z2, const struct halo_rot_3p& obj) {
+    double ra2 = std::pow(obj.r_a, 2);
+    double q2 = std::pow(obj.q, 2);
+    std::complex<double> m2 = R2 + z2 / q2;
+    return Parametric_funcs::v_phi(R2, z2, obj) * 2. / std::pow(q2 * (m2 + ra2), 2);
+}
+
+
+
+
 

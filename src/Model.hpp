@@ -55,8 +55,17 @@ public:
     /// Computes the second derivative of DM density profile with respect to the gravitational potential
     std::complex<double> rho_d2psi2(std::complex<double> R2, std::complex<double> z2, std::complex<double> r);
     
+    /// Computes the second derivative of DM density times rotationa profile with respect to the gravitational potential
+    std::complex<double> rho_vphi_d2psi2(std::complex<double> R2, std::complex<double> z2, std::complex<double> r);
+    
     /// Computes the DM rotational velocity
-    std::complex<double> v_phi(std::complex<double> R2);
+    std::complex<double> v_phi(std::complex<double> R2, std::complex<double> z2);
+    
+    /// Computes the first derivative of halo's mean rotation around the z-axis with respect to z2
+    std::complex<double> v_phi_dz2(std::complex<double> R2, std::complex<double> z2);
+    
+    /// Computes the second derivative of halo's mean rotation around the z-axis with respect to z2
+    std::complex<double> v_phi_d2z2(std::complex<double> R2, std::complex<double> z2);
     
     /// Compute the inverse of the total gravitational potential (i.e. z2 = psi^{-1}(xi, R2))
     std::complex<double> psi_inverse(std::complex<double> xi, double E, double Lz, std::complex<double> z0 = 1e3+1e3i, double tolerance = 1e-6, int limit = 200);

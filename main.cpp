@@ -110,8 +110,9 @@ int main(int argc, char **argv) {
     
     // Define struct with DM halo parameters. Here we asume spherical DM density profile with density 1e7 M_sol / kpc^3 and scale density of 13 kpc.
     halo_2p p_nfw = {1e7, 15.};
+    halo_rot_3p rot_nfw = {1., 15., 1.};
     // Initialize the DM halo object.
-    Halo_NFW halo(p_nfw);
+    Halo_NFW halo(p_nfw, rot_nfw);
     
     // Define structs related to the baryonic distribution. In this example we assume a model consisting of tow Myiamoto-Nagai disks and a spherical Hernquist bulge.
     //disk_3p disk1 = {5e10, 3.6, 0.4};
@@ -140,7 +141,7 @@ int main(int argc, char **argv) {
     
     print_density(50, model, obs, verbose, suffix);
     print_pv(1, 100, R, z, obs, verbose, suffix1);
-    print_pv(2, 100, R, z, obs, verbose, suffix);
+    //print_pv(2, 100, R, z, obs, verbose, suffix);
     print_pv(3, 100, R, z, obs, verbose, suffix);
     print_pv(4, 100, R, z, obs, verbose, suffix);
     //print_pv(5, 7, R, z, obs, verbose, suffix);

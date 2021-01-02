@@ -62,9 +62,10 @@ struct halo_6p {
  * @param r_a Rotatinal scale radius [kpc]
  */
 
-struct halo_rot_2p {
+struct halo_rot_3p {
     double omega;
     double r_a;
+    double q;
 };
 
 /**

@@ -84,6 +84,12 @@ public:
     /// Computes the second derivative of alpha-beta-gamma density profile with respect to r2
     static std::complex<double> rho_sABC_d2z2(std::complex<double> m2, const struct halo_6p& obj);
     
-    /// Computes the rotational velocity assuming that the halo is rotating "on cylinders"
-    static std::complex<double> v_phi(std::complex<double> R2, const struct halo_rot_2p& obj);
+    /// Computes the rotational velocity
+    static std::complex<double> v_phi(std::complex<double> R2, std::complex<double> z2, const struct halo_rot_3p& obj);
+    
+    /// Computes the first derivative of rotational velocity with respect to z2
+    static std::complex<double> v_phi_dz2(std::complex<double> R2, std::complex<double> z2, const struct halo_rot_3p& obj);
+    
+    /// Computes the second derivative of rotational velocity with respect to z2
+    static std::complex<double> v_phi_d2z2(std::complex<double> R2, std::complex<double> z2, const struct halo_rot_3p& obj);
 };

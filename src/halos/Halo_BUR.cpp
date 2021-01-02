@@ -82,10 +82,29 @@ std::complex<double> Halo_BUR::rho_d2z2(std::complex<double> R2, std::complex<do
 
 /** 
  * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
  */
 
-std::complex<double> Halo_BUR::v_phi(std::complex<double> R2) {
-    return Parametric_funcs::v_phi(R2, Halo_BUR::halo_rot);
+std::complex<double> Halo_BUR::v_phi(std::complex<double> R2, std::complex<double> z2) {
+    return Parametric_funcs::v_phi(R2, z2, Halo_BUR::halo_rot);
+}
+
+/** 
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ */
+
+std::complex<double> Halo_BUR::v_phi_dz2(std::complex<double> R2, std::complex<double> z2) {
+    return Parametric_funcs::v_phi_dz2(R2, z2, Halo_BUR::halo_rot);
+}
+
+/** 
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ */
+
+std::complex<double> Halo_BUR::v_phi_d2z2(std::complex<double> R2, std::complex<double> z2) {
+    return Parametric_funcs::v_phi_d2z2(R2, z2, Halo_BUR::halo_rot);
 }
 
 

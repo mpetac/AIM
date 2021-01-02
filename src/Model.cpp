@@ -101,11 +101,47 @@ std::complex<double> Model::rho_d2psi2(std::complex<double> R2, std::complex<dou
 
 /** 
  * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ * @param r Value of radial coordinate
  */
 
-std::complex<double> Model::v_phi(std::complex<double> R2) {
-    return Model::halo->v_phi(R2);
+std::complex<double> Model::rho_vphi_d2psi2(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
+    std::complex<double> dpsi_dz2 = Model::psi_dz2(R2, z2, r);
+    std::complex<double> rho = Model::rho(R2, z2, r);
+    std::complex<double> drho_dz2 = Model::rho_dz2(R2, z2, r);
+    std::complex<double> vphi = Model::v_phi(R2, z2);
+    std::complex<double> dvphi_dz2 = Model::v_phi_dz2(R2, z2);
+    return (Model::rho_d2z2(R2, z2, r) * vphi + 2. * drho_dz2 * dvphi_dz2 + rho * Model::v_phi_d2z2(R2, z2)) * std::pow(dpsi_dz2, -2) - (drho_dz2 * vphi + rho * dvphi_dz2) * Model::psi_d2z2(R2, z2, r) * std::pow(dpsi_dz2, -3);
 }
+
+
+/** 
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ */
+
+std::complex< double > Model::v_phi(std::complex< double > R2, std::complex< double > z2) {
+    return Model::halo->v_phi(R2, z2);
+}
+
+/** 
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ */
+
+std::complex<double> Model::v_phi_dz2(std::complex<double> R2, std::complex<double> z2) {
+    return Model::halo->v_phi_dz2(R2, z2);
+}
+
+/** 
+ * @param R2 Value of the R-coordinate squared
+ * @param z2 Value of the z-coordinate squared
+ */
+
+std::complex<double> Model::v_phi_d2z2(std::complex<double> R2, std::complex<double> z2) {
+    return Model::halo->v_phi_d2z2(R2, z2);
+}
+
 
 bool Model::is_rotating() {
     return Model::halo->is_rotating();
