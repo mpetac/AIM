@@ -7,6 +7,7 @@
 #include "src/Inversion.hpp"
 #include "src/Model.hpp"
 #include "src/Structs.hpp"
+#include "src/halos/Halo_BUR.hpp"
 #include "src/halos/Halo_NFW.hpp"
 #include "src/halos/Halo_gNFW.hpp"
 #include "src/halos/Halo_sABC.hpp"

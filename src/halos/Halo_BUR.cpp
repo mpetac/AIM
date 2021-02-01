@@ -7,7 +7,7 @@
  */
 
 std::complex<double> Halo_BUR::psi(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
-    return Parametric_funcs::psi_NFW(r, Halo_BUR::halo);
+    return Parametric_funcs::psi_BUR(r, Halo_BUR::halo);
 }
 
 /** 
@@ -17,7 +17,7 @@ std::complex<double> Halo_BUR::psi(std::complex<double> R2, std::complex<double>
  */
 
 std::complex<double> Halo_BUR::psi_dR2(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
-    return Parametric_funcs::psi_NFW_dr2(r, Halo_BUR::halo);
+    return Parametric_funcs::psi_BUR_dr2(r, Halo_BUR::halo);
 }
 
 /** 
@@ -27,7 +27,7 @@ std::complex<double> Halo_BUR::psi_dR2(std::complex<double> R2, std::complex<dou
  */
 
 std::complex<double> Halo_BUR::psi_dz2(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
-    return Parametric_funcs::psi_NFW_dr2(r, Halo_BUR::halo);
+    return Parametric_funcs::psi_BUR_dr2(r, Halo_BUR::halo);
 }
 
 /** 
@@ -37,7 +37,7 @@ std::complex<double> Halo_BUR::psi_dz2(std::complex<double> R2, std::complex<dou
  */
 
 std::complex<double> Halo_BUR::psi_d2R2z2(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
-    return Parametric_funcs::psi_NFW_d2r2(r, Halo_BUR::halo);
+    return Parametric_funcs::psi_BUR_d2r2(r, Halo_BUR::halo);
 }
 
 /** 
@@ -47,7 +47,7 @@ std::complex<double> Halo_BUR::psi_d2R2z2(std::complex<double> R2, std::complex<
  */
 
 std::complex<double> Halo_BUR::psi_d2z2(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
-    return Parametric_funcs::psi_NFW_d2r2(r, Halo_BUR::halo);
+    return Parametric_funcs::psi_BUR_d2r2(r, Halo_BUR::halo);
 }
 
 /** 
@@ -57,7 +57,7 @@ std::complex<double> Halo_BUR::psi_d2z2(std::complex<double> R2, std::complex<do
  */
 
 std::complex<double> Halo_BUR::rho(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
-    return Parametric_funcs::rho_NFW(r, Halo_BUR::halo);
+    return Parametric_funcs::rho_BUR(r, Halo_BUR::halo);
 }
 
 /** 
@@ -67,7 +67,7 @@ std::complex<double> Halo_BUR::rho(std::complex<double> R2, std::complex<double>
  */
 
 std::complex<double> Halo_BUR::rho_dz2(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
-    return Parametric_funcs::rho_NFW_dr2(r, Halo_BUR::halo);
+    return Parametric_funcs::rho_BUR_dr2(r, Halo_BUR::halo);
 }
 
 /** 
@@ -77,7 +77,7 @@ std::complex<double> Halo_BUR::rho_dz2(std::complex<double> R2, std::complex<dou
  */
 
 std::complex<double> Halo_BUR::rho_d2z2(std::complex<double> R2, std::complex<double> z2, std::complex<double> r) {
-    return Parametric_funcs::rho_NFW_d2r2(r, Halo_BUR::halo);
+    return Parametric_funcs::rho_BUR_d2r2(r, Halo_BUR::halo);
 }
 
 /** 
