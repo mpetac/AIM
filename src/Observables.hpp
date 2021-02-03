@@ -41,8 +41,11 @@ private:
     /// Function for computing the DM's radial (or equivalently along z-direction) velocity distribution at a given point
     double pv_rad_int(double v_merid, double R, double psiRz, double tolerance);
     
-    /// Function for computing the DM's velocity magnitude distribution at a given point
+    /// Function for computing the DM's relative velocity distribution at a given point
     double pv_rel_int(double v_rel, double R, double psiRz, double tolerance);
+    
+    /// Function for computing the DM's relative velocity distribution at a given point for a spherically symmetric system
+    double pv_rel_sph_int(double v_rel, double R, double psiRz, double tolerance);
     
     /// Function for computing the mass in a given phase-space region
     double occupation_int(double Emin, double Emax, double Lzmin, double Lzmax, double tolerance);

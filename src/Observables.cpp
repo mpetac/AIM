@@ -65,6 +65,23 @@ double rho_int_v(double v, void *params) {
 }
 
 /**
+ * Utility function for computing the numerical integral over velocity magnitude for isotropic (i.e. spherically symmetric) system
+ * @param v Velocity magnitude
+ * @param params Struct with the required information
+ */
+
+double rho_int_v_iso(double v, void *params) {
+    struct velocity_int_params *p = (velocity_int_params *) params;
+    
+    Model *model = (Model *) p->model;
+    Inversion *inversion = (Inversion *) p->inversion;
+    
+    double E = (p->psiRz - 0.5 * std::pow(v, 2)) / model->psi0;
+    
+    return std::pow(v, 2. + p->moment) * inversion->eval_F(E, 0);
+}
+
+/**
  * @param R Value of the R-coordinate
  * @param z Value of the z-coordinate
  * @param tolerance Relative tolerance used in performing the numerical integrals
@@ -79,7 +96,8 @@ double Observables::rho_int(double R, double z, double tolerance) {
     struct velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, 0, 0, 0};
     
     gsl_function F;
-    F.function = &rho_int_v;
+    if (Observables::model->spherical) F.function = &rho_int_v_iso;
+    else F.function = &rho_int_v;
     F.params = &p;
     gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(Observables::nIntervals);
     gsl_integration_qags(&F, 0, std::sqrt(2. * psiRz), 0, tolerance, Observables::nIntervals, workspace, &result, &abserr);
@@ -142,7 +160,10 @@ void Observables::pv_mag(int N, double R, double z, double* result, double toler
         double v = Observables::vMax * i / (N - 1.);
         result[2 * i] = v;
         if (v == 0 || v >= vEsc) result[2 * i + 1] = 0;
-        else vals[i] = std::async(rho_int_v, v, p);
+        else {
+            if (Observables::model->spherical) vals[i] = std::async(rho_int_v_iso, v, p);
+            else vals[i] = std::async(rho_int_v, v, p);
+        }
     }
     for (int i = 0; i < N; i++) {
         double v = result[2 * i];
@@ -168,8 +189,11 @@ double pv_merid_int_vf(double vf, void *params) {
     Inversion *inversion = (Inversion *) p->inversion;
     
     double E = (p->psiRz - 0.5 * (std::pow(p->v, 2) + std::pow(vf, 2))) / model->psi0;
-    double Rc = model->Rcirc(E * model->psi0);
-    double L = p->R * vf / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
+    double L = 0;
+    if (!model->spherical) {
+        double Rc = model->Rcirc(E * model->psi0);
+        double L = p->R * vf / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
+    }
     
     return inversion->eval_F(E, L);
 }
@@ -241,8 +265,11 @@ double pv_azim_int_vm(double vm, void *params) {
     Inversion *inversion = (Inversion *) p->inversion;
     
     double E = (p->psiRz - 0.5 * (std::pow(p->v, 2) + std::pow(vm, 2))) / model->psi0;
-    double Rc = model->Rcirc(E * model->psi0);
-    double L = p->R * p->v / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
+    double L = 0;
+    if (!model->spherical) {
+        double Rc = model->Rcirc(E * model->psi0);
+        double L = p->R * p->v / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
+    }
     
     return vm * inversion->eval_F(E, L);
 }
@@ -380,16 +407,22 @@ void Observables::pv_rad(int N, double R, double z, double* result, double toler
     double vEsc = std::sqrt(2. * psiRz);
     double rhoRz = Observables::rho_int(R, z, tolerance);
     
+    double symmetry_factor = 1.;
+    if (Observables::model->spherical) symmetry_factor = M_PI;
+    
     std::vector<std::future<double>> vals(N);
     for (int i = 0; i < N; i++) {
         double v = Observables::vMax * (2. * i / (N - 1.) - 1.);
         result[2 * i] = v;
         if (std::abs(v) >= vEsc) result[2 * i + 1] = 0;
-        else vals[i] = std::async(&Observables::pv_rad_int, this, v, R, psiRz, tolerance);
+        else {
+            if (Observables::model->spherical) vals[i] = std::async(&Observables::pv_azim_int, this, v, R, psiRz, tolerance);
+            else vals[i] = std::async(&Observables::pv_rad_int, this, v, R, psiRz, tolerance);
+        }
     }
     for (int i = 0; i < N; i++) {
         double v = result[2 * i];
-        if (std::abs(v) < vEsc) result[2 * i + 1] = 2. / rhoRz * vals[i].get();
+        if (std::abs(v) < vEsc) result[2 * i + 1] = 2. * symmetry_factor / rhoRz * vals[i].get();
     }
     
     if (Observables::verbose) {
@@ -500,6 +533,56 @@ double Observables::pv_rel_int(double v_rel, double R, double psiRz, double tole
     return result;
 }
 
+double pv_rel_w_int(double w, void * params) {
+    struct relative_velocity_int_params * p = (struct relative_velocity_int_params *) params;
+    
+    Model *model = (Model *) p->model;
+    Inversion *inversion = (Inversion *) p->inversion;
+    
+    double E = (p->psiRz - 0.5 * std::pow(w, 2)) / model->psi0;
+    double f = inversion->eval_F(E, 0);
+    return w * f;
+}
+
+double pv_rel_u_int(double u, void * params) {
+    struct relative_velocity_int_params * p = (struct relative_velocity_int_params *) params;
+    p->um = u;
+    
+    Model *model = (Model *) p->model;
+    Inversion *inversion = (Inversion *) p->inversion;
+    
+    double E = (p->psiRz - 0.5 * std::pow(u, 2)) / model->psi0;
+    double f = inversion->eval_F(E, 0);
+    
+    double vmin = std::abs(u - p->v_rel);
+    double vmax = minv(p->vMax, u + p->v_rel);
+    if (vmax <= vmin) return 0;
+    
+    double result, abserr;
+    gsl_function F;
+    F.function = &pv_rel_w_int;
+    F.params = p;
+    gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(p->nIntervals);
+    gsl_integration_qags(&F, vmin, vmax, 0, p->tolerance, p->nIntervals, workspace, &result, &abserr);
+    gsl_integration_workspace_free(workspace);
+    return u * f * result;
+}
+
+
+double Observables::pv_rel_sph_int(double v_rel, double R, double psiRz, double tolerance) {
+    double vMax = std::sqrt(2. * psiRz);
+    struct relative_velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, vMax, v_rel, 0, 0, 0, 0};
+    
+    double result, abserr;
+    gsl_function F;
+    F.function = &pv_rel_u_int;
+    F.params = &p;
+    gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(Observables::nIntervals);
+    gsl_integration_qags(&F, 0, vMax, 0, tolerance, Observables::nIntervals, workspace, &result, &abserr);
+    gsl_integration_workspace_free(workspace);
+    return 2. * M_PI * result;
+}
+
 /**
  * @param N Number of points in which the velocity distribution will be computed
  * @param R The value of R-coordinate
@@ -523,7 +606,10 @@ void Observables::pv_rel(int N, double R, double z, double* result, double toler
         double v = std::exp(lnvmax * i / (N - 1.)) - 1.;
         result[2 * i] = v;
         if (v == 0 || v >= 2 * vEsc) result[2 * i + 1] = 0;
-        else vals[i] = std::async(&Observables::pv_rel_int, this, v, R, psiRz, tolerance);
+        else {
+            if (Observables::model->spherical) vals[i] = std::async(&Observables::pv_rel_sph_int, this, v, R, psiRz, tolerance);
+            else vals[i] = std::async(&Observables::pv_rel_int, this, v, R, psiRz, tolerance);
+        }
     }
     for (int i = 0; i < N; i++) {
         double v = result[2 * i];
@@ -555,7 +641,8 @@ double Observables::v_mom(int mom, double R, double z, double tolerance) {
         
     struct velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, 0, 0, mom};
     gsl_function F;
-    F.function = &rho_int_v;
+    if (Observables::model->spherical) F.function = &rho_int_v_iso;
+    else F.function = &rho_int_v;
     F.params = &p;
     gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(Observables::nIntervals);
     gsl_integration_qags(&F, 0, vEsc, 0, tolerance, Observables::nIntervals, workspace, &result, &abserr);

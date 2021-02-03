@@ -5,6 +5,8 @@ Model::Model(Halo* halo_model, Baryons* baryons_model, bool v) {
     Model::baryons = baryons_model;
     Model::verbose = v;
     Model::psi0 = std::real(Model::psi(0, 0, 0));
+    Model::spherical = Model::psi(1., 0, 1.) == Model::psi(0, 1., 1.);
+    Model::rotating = Model::halo->is_rotating();
 }
 
 
@@ -140,11 +142,6 @@ std::complex<double> Model::v_phi_dz2(std::complex<double> R2, std::complex<doub
 
 std::complex<double> Model::v_phi_d2z2(std::complex<double> R2, std::complex<double> z2) {
     return Model::halo->v_phi_d2z2(R2, z2);
-}
-
-
-bool Model::is_rotating() {
-    return Model::halo->is_rotating();
 }
 
 /** 

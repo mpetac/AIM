@@ -58,7 +58,7 @@ Inversion::~Inversion() {
  */
 
 void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, double* Fpts) {
-    if(Inversion::model->psi(1., 0, 1.) == Inversion::model->psi(0, 1., 1.)) {
+    if(Inversion::model->spherical) {
         if (Inversion::verbose) std::cout << "Computing Eddington's inversion..." << std::endl;
         Inversion::h = 0;
         std::vector<std::future<double>> vals(N_E);
@@ -196,7 +196,7 @@ double F_odd_integrand(double t, void *params) {
 double Inversion::F_odd(double* params) {
 //     if (Inversion::verbose) std::cout << "Computing F-odd: " << params[0] << ", " << params[1] << std::endl;
     
-    if (!Inversion::model->is_rotating() || params[0] == 0 || params[1] == 0) return 0;
+    if (!Inversion::model->rotating || params[0] == 0 || params[1] == 0) return 0;
     
     double result, abserr;
     double E = params[0] * Inversion::model->psi0;

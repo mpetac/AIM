@@ -24,6 +24,10 @@ public:
     Baryons* baryons;
     /// Normalization of the gravitational potential
     double psi0;
+    /// Flag for spherically symmetric models
+    double spherical;
+    /// Flag for rotating models
+    double rotating;
     
     /// Initializer for th galactic model
     Model(Halo* halo_model, Baryons* baryons_model, bool v = 1);
@@ -78,8 +82,4 @@ public:
     
     /// Computes the value of z corresponding to the given values of psi and R
     double z_psi(double psi, double R, double tolerance = 1e-6, int limit = 1000);
-    
-    
-    /// Check whether the halo is rotating or not
-    bool is_rotating();
 };

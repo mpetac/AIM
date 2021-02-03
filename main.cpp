@@ -55,7 +55,7 @@ void print_pv(int type, int N, double R, double z, Observables obs, bool verbose
             sprintf(type_name, "rad");
             break;
         case 5:
-            obs.pv_rel(N, R, z, pv);
+            obs.pv_rel(N, R, z, pv, 1e-1);
             sprintf(type_name, "rel");
             break;
     }
@@ -140,9 +140,9 @@ int main(int argc, char **argv) {
     print_density(50, model, obs, verbose, suffix);
     print_pv(1, 100, R, z, obs, verbose, suffix);
     print_pv(2, 100, R, z, obs, verbose, suffix);
-    print_pv(3, 100, R, z, obs, verbose, suffix);
+    //print_pv(3, 100, R, z, obs, verbose, suffix);
     //print_pv(4, 100, R, z, obs, verbose, suffix);
-    //print_pv(5, 7, R, z, obs, verbose, suffix);
+    //print_pv(5, 100, R, z, obs, verbose, suffix);
     //print_occupation(10, 5, obs, verbose, suffix);
     //print_dd(50, 0., -1., 800., obs, verbose, suffix);
     
