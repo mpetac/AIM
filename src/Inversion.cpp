@@ -59,14 +59,15 @@ Inversion::~Inversion() {
 
 void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, double* Fpts) {
     if(Inversion::model->psi(1., 0, 1.) == Inversion::model->psi(0, 1., 1.)) {
-        if (Inversion::verbose) std::cout << "Computing spherically symmetric inversion..." << std::endl;
+        if (Inversion::verbose) std::cout << "Computing Eddington's inversion..." << std::endl;
         Inversion::h = 0;
         std::vector<std::future<double>> vals(N_E);
         for (int i = 0; i < N_E; i++) {
-            double *params = new double[2];
-            params[0] = Epts[i];
-            params[1] = 0;
-            vals[i] = std::async(std::launch::async, &Inversion::F_even, this, params);
+            //double *params = new double[2];
+            //params[0] = Epts[i];
+            //params[1] = 0;
+            //vals[i] = std::async(std::launch::async, &Inversion::F_even, this, params);
+            vals[i] = std::async(std::launch::async, &Inversion::F_eddington, this, Epts[i]);
         }
         for (int i = 0; i < N_E; i++) {
             double val = std::log(1. + vals[i].get());
@@ -81,7 +82,6 @@ void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, doubl
             }
         }
     } else {
-        /**/
         if (Inversion::verbose) std::cout << "Computing axisymmetric inversion..." << std::endl;
         std::vector<std::future<double>> vals_even(N_E * N_Lz);
         std::vector<std::future<double>> vals_odd(N_E * N_Lz);
@@ -218,6 +218,48 @@ double Inversion::F_odd(double* params) {
     return result * Inversion::result_fact_odd;
 }
 
+
+/**
+ * @param r Radial distance
+ * @param params Struct with data needed for evaluating the contour integral
+ */
+
+double F_eddington_integrand(double r, void *params) {
+    inversion_eddington_params *p = (inversion_eddington_params *) params;
+    Model *model = (Model *) p->model;
+    
+    double r2 = std::pow(r, 2);
+    double psi_r = std::real(model->psi(r2, 0, r));
+    double dpsi_dr2 = std::real(model->psi_dR2(r2, 0, r));
+    
+    double jac = std::pow(p->E - psi_r, -0.5);
+    double d2rho_dpsi2 = std::real(model->rho_d2psi2(r2, 0, r));
+    
+    return -2. * r * dpsi_dr2 * d2rho_dpsi2 * jac;
+}
+
+/**
+ * @param E Values of the relative energy
+ */
+
+double Inversion::F_eddington(double E) {
+    if (E == 0) return 0;
+    
+    double result, abserr;
+    double rE = std::sqrt(std::real(Inversion::model->psi_inverse(E * Inversion::model->psi0, 0, 0, 1)));
+    inversion_eddington_params p = {Inversion::model, std::real(Inversion::model->psi(std::pow(rE, 2), 0, rE))};
+    
+    gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(Inversion::nIntervals);
+    gsl_function F;
+    F.params = &p;
+    F.function = &F_eddington_integrand;
+    gsl_integration_qagiu(&F, rE, 0, Inversion::tolerance_F, Inversion::nIntervals, workspace, &result, &abserr);
+    gsl_integration_workspace_free(workspace);
+    
+    return result * Inversion::result_fact_even;
+}
+
+
 /**
  * @param E Value of the relative energy
  * @param Lz Value of the angular momentum
@@ -229,8 +271,6 @@ double Inversion::eval_F(double E, double Lz) {
         return 0;
     }
     double f = std::exp(gsl_spline2d_eval(F, E, Lz, EAcc, LzAcc)) - 1.;
-//     return f > 0 ? f : 0;
-//     if (f < 0) std::cout << "F negative: " << f << ", " << E << ", " << Lz << std::endl;
     return f;
 }
 

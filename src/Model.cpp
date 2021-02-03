@@ -246,7 +246,7 @@ double Model::Rcirc(double E, double tolerance, int limit) {
         }
     }
     
-    if (Model::verbose && i >= limit) std::cout << "Rc inversion did not converge! E = " << E << std::endl;
+    if (Model::verbose && i >= limit) std::cout << "Rc inversion did not converge! E = " << E << "-> Rc = " << Rc << ", E(Rc) = " << std::real(Model::psi(Rc * Rc, 0, Rc) + (Rc * Rc) * Model::psi_dR2(Rc * Rc, 0, Rc)) << std::endl;
     return Rc;
 }
 

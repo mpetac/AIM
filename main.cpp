@@ -15,7 +15,7 @@
 
 void print_density(int N, Model model, Observables obs, bool verbose, char *suffix) {
     double Rpts[N], zpts[N], result[N];
-    double logRmin = -1, logRmax = 3.;
+    double logRmin = -1, logRmax = 3;
     for (int i = 0; i < N; i++) {
         Rpts[i] = std::pow(10., logRmin + (logRmax - logRmin) * i / (N - 1));
         zpts[i] = 0;
@@ -110,13 +110,12 @@ int main(int argc, char **argv) {
     time_t tStart = time(NULL);
     
     // Define struct with DM halo parameters. Here we asume spherical DM density profile with density 1e7 M_sol / kpc^3 and scale density of 13 kpc.
-    halo_2p p_nfw = {1e7, 15.};
-    halo_rot_3p rot_nfw = {0., 15., 1.};
+    halo_2p halo_p = {1e7, 15.};
+    halo_rot_3p halo_rot = {0., 15., 1.};
     // Initialize the DM halo object.
-    Halo_NFW halo(p_nfw, rot_nfw);
+    Halo_NFW halo(halo_p, halo_rot);
     
     // Define structs related to the baryonic distribution. In this example we assume a model consisting of tow Myiamoto-Nagai disks and a spherical Hernquist bulge.
-    //disk_3p disk1 = {5e10, 3.6, 0.4};
     disk_3p disk1 = {5e10, 4., 0.4};
     disk_3p disk2 = {0., 1., 1.};
     bulge_2p bulge = {1e10, 0.5};
@@ -127,7 +126,7 @@ int main(int argc, char **argv) {
     Model model(&halo, &baryons);
     
     // Interpolate the PSDF obtained for the specified galactic model with given number of relative energy and angular momentum points
-    Inversion psdf(&model, 500, 20);
+    Inversion psdf(&model, 500, 20, 1e-3, 1);
     
     // Initialize the class for computing various observable quantities from the PSDF (namely DM density and various projections of the velocity distribution)
     Observables obs(&model, &psdf);
@@ -135,19 +134,17 @@ int main(int argc, char **argv) {
     
     bool verbose = 0;
     double R = 8.122, z = 0;
-    char suffix[64], suffix1[64], suffix2[64];
+    char suffix[64];
     sprintf(suffix, "axi");
-    sprintf(suffix1, "axi_R");
-    sprintf(suffix2, "axi_z");
     
     print_density(50, model, obs, verbose, suffix);
-    print_pv(1, 100, R, z, obs, verbose, suffix1);
-    //print_pv(2, 100, R, z, obs, verbose, suffix);
+    print_pv(1, 100, R, z, obs, verbose, suffix);
+    print_pv(2, 100, R, z, obs, verbose, suffix);
     print_pv(3, 100, R, z, obs, verbose, suffix);
-    print_pv(4, 100, R, z, obs, verbose, suffix);
+    //print_pv(4, 100, R, z, obs, verbose, suffix);
     //print_pv(5, 7, R, z, obs, verbose, suffix);
     //print_occupation(10, 5, obs, verbose, suffix);
-    print_dd(50, 0., -1., 800., obs, verbose, suffix);
+    //print_dd(50, 0., -1., 800., obs, verbose, suffix);
     
     
     double dt = difftime(time(NULL), tStart);

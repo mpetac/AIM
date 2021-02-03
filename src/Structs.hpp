@@ -92,6 +92,11 @@ struct inversion_params {
     double h;
 };
 
+struct inversion_eddington_params {
+    void *model;
+    double E;
+};
+
 struct velocity_int_params {
     void *model;
     void *inversion;

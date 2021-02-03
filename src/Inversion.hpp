@@ -56,6 +56,9 @@ private:
     /// Computes the Lz-odd part of the PSDF
     double F_odd(double *params);
     
+    /// Computes PSDF using Eddington's inversion
+    double F_eddington(double E);
+    
     /// GSL error handler
     static void GSL_error_func(const char * reason, const char * file, int line, int gsl_errno);
     /// Silent GSL error handler
