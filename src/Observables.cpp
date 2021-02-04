@@ -747,22 +747,26 @@ double occupation_int_E(double E, void *params) {
     p->E = E / model->psi0;
     
     double vfMax = std::sqrt(2. * (p->psiRz - E));
-    //double Rc = model->Rcirc(E);
-    //double Lzc = std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc)));
-    double LzcInv = inversion->eval_LcInv(p->E);
     
-    double Lzmin = maxv(-p->R * vfMax * LzcInv, p->Lzmin);
-    double Lzmax = minv(p->R * vfMax * LzcInv, p->Lzmax);
-    if (Lzmax < Lzmin) return 0;
-    
-    double result, abserr;
-    gsl_function F;
-    F.function = &occupation_int_Lz;
-    F.params = p;
-    gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(p->nIntervals);
-    gsl_integration_qags(&F, Lzmin, Lzmax, 0, p->tolerance, p->nIntervals, workspace, &result, &abserr);
-    gsl_integration_workspace_free(workspace);
-    return result / LzcInv;
+    if (model->spherical) return inversion->eval_F(p->E, 0);
+    else {
+        //double Rc = model->Rcirc(E);
+        //double Lzc = std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc)));
+        double LzcInv = inversion->eval_LcInv(p->E);
+        
+        double Lzmin = maxv(-p->R * vfMax * LzcInv, p->Lzmin);
+        double Lzmax = minv(p->R * vfMax * LzcInv, p->Lzmax);
+        if (Lzmax < Lzmin) return 0;
+        
+        double result, abserr;
+        gsl_function F;
+        F.function = &occupation_int_Lz;
+        F.params = p;
+        gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(p->nIntervals);
+        gsl_integration_qags(&F, Lzmin, Lzmax, 0, p->tolerance, p->nIntervals, workspace, &result, &abserr);
+        gsl_integration_workspace_free(workspace);
+        return result / LzcInv;
+    }
 }
 
 
@@ -895,9 +899,12 @@ double dd_int_v(double v, void *params) {
     //double Rc = model->Rcirc(p->psiR - 0.5 * v2);
     //double Lzc = std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc)));
     //double Lz = p->R * vy / Lzc;
-    double Lz = p->R * vy * inversion->eval_LcInv(E);
-    if (Lz < -1.) Lz = -1.;
-    if (Lz > 1.) Lz = 1.;
+    double Lz = 0;
+    if (!model->spherical) {
+        Lz = p->R * vy * inversion->eval_LcInv(E);
+        if (Lz < -1.) Lz = -1.;
+        if (Lz > 1.) Lz = 1.;
+    }
     return std::pow(v, 2. + p->power) * inversion->eval_F(E, Lz);
 }
 

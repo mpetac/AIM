@@ -55,7 +55,7 @@ void print_pv(int type, int N, double R, double z, Observables obs, bool verbose
             sprintf(type_name, "rad");
             break;
         case 5:
-            obs.pv_rel(N, R, z, pv);
+            obs.pv_rel(N, R, z, pv, 1e-1);
             sprintf(type_name, "rel");
             break;
     }
