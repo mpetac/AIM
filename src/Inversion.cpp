@@ -39,6 +39,24 @@ Inversion::Inversion(Model *model, int N_E, int N_Lz, double tolerance_F, bool v
     Inversion::F = gsl_spline2d_alloc(gsl_interp2d_bilinear, N_E, 2 * N_Lz - 1);
     gsl_spline2d_init(Inversion::F, Epts, Lzpts, Fpts, N_E, 2 * N_Lz - 1);
     
+    if (!Inversion::model->spherical) {
+        double EptsLc[Inversion::nInterpLc];
+        double LcInvPts[Inversion::nInterpLc];
+        
+        double base = 2.;
+        double logRcMin = std::log10(1e-6) / std::log10(base), logRcMax = std::log10(1e8) / std::log10(base);
+        for (int i = 0; i < Inversion::nInterpLc; i++) {
+            double Rc = std::pow(base, logRcMin + (logRcMax - logRcMin) * i / (Inversion::nInterpLc - 1.));
+            double Rc2 = std::pow(Rc, 2);
+            EptsLc[Inversion::nInterpLc - i - 1] = std::real(Inversion::model->psi(Rc2, 0, Rc) + Rc2 * Inversion::model->psi_dR2(Rc2, 0, Rc)) / Inversion::model->psi0;
+            LcInvPts[Inversion::nInterpLc - i - 1] = 1. / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(Inversion::model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
+        }
+        
+        Inversion::LcInvAcc = gsl_interp_accel_alloc();
+        Inversion::LcInv = gsl_spline_alloc(gsl_interp_linear, Inversion::nInterpLc);
+        gsl_spline_init(Inversion::LcInv, EptsLc, LcInvPts, Inversion::nInterpLc);
+    }
+    
     double dt = difftime(time(NULL), tStart);
     if (Inversion::verbose) std::cout << "Inversion computed in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;
 }
@@ -156,7 +174,7 @@ double Inversion::F_even(double* params) {
     double psiEnv = std::real(Inversion::model->psi(Rc2, 0, Rc));
     double Lz = params[1] * std::pow(Rc, 2) * std::sqrt(-2. * std::real(Inversion::model->psi_dR2(Rc2, 0, Rc)));
     
-    InversionInterp z2interp(Inversion::model, E, Lz, psiEnv, Inversion::h, Inversion::nInterp);
+    InversionInterp z2interp(Inversion::model, E, Lz, psiEnv, Inversion::h, Inversion::nInterpZ2);
     inversion_params p = {Inversion::model, &z2interp, E, Lz, Rc, psiEnv, Inversion::h};
     
     gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(Inversion::nIntervals);
@@ -205,7 +223,7 @@ double Inversion::F_odd(double* params) {
     double psiEnv = std::real(Inversion::model->psi(Rc2, 0, Rc));
     double Lz = params[1] * std::pow(Rc, 2) * std::sqrt(-2. * std::real(Inversion::model->psi_dR2(Rc2, 0, Rc)));
     
-    InversionInterp z2interp(Inversion::model, E, Lz, psiEnv, Inversion::h, Inversion::nInterp);
+    InversionInterp z2interp(Inversion::model, E, Lz, psiEnv, Inversion::h, Inversion::nInterpZ2);
     inversion_params p = {Inversion::model, &z2interp, E, Lz, Rc, psiEnv, Inversion::h};
     
     gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(Inversion::nIntervals);
@@ -270,8 +288,18 @@ double Inversion::eval_F(double E, double Lz) {
         if (Inversion::verbose) std::cout << "Warning! PSDF eval out of range: " << E << ", " << Lz << std::endl;
         return 0;
     }
-    double f = std::exp(gsl_spline2d_eval(F, E, Lz, EAcc, LzAcc)) - 1.;
+    double f = std::exp(gsl_spline2d_eval(Inversion::F, E, Lz, Inversion::EAcc, Inversion::LzAcc)) - 1.;
     return f;
+}
+
+/**
+ * @param E Value of the relative energy
+ */
+
+double Inversion::eval_LcInv(double E) {
+    double Lc = gsl_spline_eval(Inversion::LcInv, E, Inversion::LcInvAcc);
+    if (std::isnan(Lc)) Lc = 0;
+    return Lc;
 }
 
 /**

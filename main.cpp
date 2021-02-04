@@ -27,7 +27,7 @@ void print_density(int N, Model model, Observables obs, bool verbose, char *suff
     std::ofstream out_density(name);
     for (int i = 0; i < N; i++) {
         double rho_true = std::real(model.rho(Rpts[i] * Rpts[i], 0, Rpts[i]));
-        out_density << Rpts[i] << "\t" << result[i] << "\t" << rho_true << "\n";
+        out_density << Rpts[i] << "\t" << result[i] << "\t" << rho_true << std::endl;
         if (verbose) std::cout << "rho(" << Rpts[i] << "): " << result[i] << " / " << rho_true << " (" << result[i] / rho_true << ")" << std::endl;
     }
     out_density.close();
@@ -55,7 +55,7 @@ void print_pv(int type, int N, double R, double z, Observables obs, bool verbose
             sprintf(type_name, "rad");
             break;
         case 5:
-            obs.pv_rel(N, R, z, pv, 1e-1);
+            obs.pv_rel(N, R, z, pv);
             sprintf(type_name, "rel");
             break;
     }
@@ -64,7 +64,7 @@ void print_pv(int type, int N, double R, double z, Observables obs, bool verbose
     sprintf(name, "out/pv_%s_%s.dat", type_name, suffix);
     std::ofstream out_pv(name);
     for (int i = 0; i < N; i++) {
-        out_pv << pv[2 * i] << "\t" << pv[2 * i + 1] << "\n";
+        out_pv << pv[2 * i] << "\t" << pv[2 * i + 1] << std::endl;
         if (verbose) std::cout << "pv_" << type_name << "(" << pv[2 * i] << "): " << pv[2 * i + 1] << std::endl;
     }
     out_pv.close();
@@ -140,12 +140,11 @@ int main(int argc, char **argv) {
     print_density(50, model, obs, verbose, suffix);
     print_pv(1, 100, R, z, obs, verbose, suffix);
     print_pv(2, 100, R, z, obs, verbose, suffix);
-    //print_pv(3, 100, R, z, obs, verbose, suffix);
+    print_pv(3, 100, R, z, obs, verbose, suffix);
     //print_pv(4, 100, R, z, obs, verbose, suffix);
-    //print_pv(5, 100, R, z, obs, verbose, suffix);
+    //print_pv(5, 50, R, z, obs, verbose, suffix);
     //print_occupation(10, 5, obs, verbose, suffix);
     //print_dd(50, 0., -1., 800., obs, verbose, suffix);
-    
     
     double dt = difftime(time(NULL), tStart);
     std::cout << "Done in " << (int)dt/60 << "m " << (int)dt%60 << "s!" << std::endl;

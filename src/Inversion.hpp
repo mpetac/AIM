@@ -24,15 +24,17 @@ class Inversion {
 private:
     /// Interpolation spline for the phase-space distribution function
     gsl_spline2d *F;
+    /// Interpolation spline for the inverse of the angular momentum of circular orbits
+    gsl_spline *LcInv;
     /// Accelerators for the evaluation of spline
-    gsl_interp_accel *EAcc, *LzAcc;
+    gsl_interp_accel *EAcc, *LzAcc, *LcInvAcc;
+    /// Number of interpolation points
+    size_t nInterpZ2 = 200., nInterpLc = 10000;
     /// Number of intervals used in the numerical integration
     size_t nIntervals = 1e5;
     
     /// Parameter controling verbose output
     bool verbose;
-    /// Number of interpolation points used in the inversion of total gravitational potential
-    int nInterp = 200;
     /// Relative tolerance used in performing the contour integrals
     double tolerance_F;
     /// Width of the contours
@@ -73,4 +75,7 @@ public:
     
     /// Returns the value of the PSDF
     double eval_F(double E, double Lz);
+    
+    /// Returns the value of inverse circular velocity
+    double eval_LcInv(double E);
 };

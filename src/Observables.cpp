@@ -1,5 +1,6 @@
 #include "Observables.hpp"
 
+#include <fstream>
 /**
  * @param model Galactic model
  * @param inv Instance of the PSDF inversion class
@@ -36,8 +37,9 @@ double rho_int_c(double c, void *params) {
     Inversion *inversion = (Inversion *) p->inversion;
     
     double E = (p->psiRz - 0.5 * std::pow(p->v,2)) / model->psi0;
-    double Rc = model->Rcirc(E * model->psi0);
-    double L = p->R * p->v * c / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
+    //double Rc = model->Rcirc(E * model->psi0);
+    //double L = p->R * p->v * c / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
+    double L = p->R * p->v * c * inversion->eval_LcInv(E);
     
     return inversion->eval_F(E, L);
 }
@@ -191,8 +193,9 @@ double pv_merid_int_vf(double vf, void *params) {
     double E = (p->psiRz - 0.5 * (std::pow(p->v, 2) + std::pow(vf, 2))) / model->psi0;
     double L = 0;
     if (!model->spherical) {
-        double Rc = model->Rcirc(E * model->psi0);
-        double L = p->R * vf / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
+        //double Rc = model->Rcirc(E * model->psi0);
+        //L = p->R * vf / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
+        L = p->R * vf * inversion->eval_LcInv(E);
     }
     
     return inversion->eval_F(E, L);
@@ -267,8 +270,9 @@ double pv_azim_int_vm(double vm, void *params) {
     double E = (p->psiRz - 0.5 * (std::pow(p->v, 2) + std::pow(vm, 2))) / model->psi0;
     double L = 0;
     if (!model->spherical) {
-        double Rc = model->Rcirc(E * model->psi0);
-        double L = p->R * p->v / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
+        //double Rc = model->Rcirc(E * model->psi0);
+        //L = p->R * p->v / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
+        L = p->R * p->v * inversion->eval_LcInv(E);
     }
     
     return vm * inversion->eval_F(E, L);
@@ -342,8 +346,9 @@ double pv_rad_int_vz(double vz, void *params) {
     Inversion *inversion = (Inversion *) p->inversion;
     
     double E = (p->psiRz - 0.5 * (std::pow(p->v, 2) + std::pow(p->vf, 2) + std::pow(vz, 2))) / model->psi0;
-    double Rc = model->Rcirc(E * model->psi0);
-    double L = p->R * p->vf / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
+    //double Rc = model->Rcirc(E * model->psi0);
+    //double L = p->R * p->vf / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
+    double L = p->R * p->vf * inversion->eval_LcInv(E);
     
     return inversion->eval_F(E, L);
 }
@@ -446,8 +451,9 @@ double pv_rel_wm_int(double wm, void * params) {
     Inversion *inversion = (Inversion *) p->inversion;
     
     double E = (p->psiRz - 0.5 * (std::pow(wm, 2) + std::pow(p->wf, 2))) / model->psi0;
-    double Rc = model->Rcirc(E * model->psi0);
-    double L = p->R * p->wf / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
+    //double Rc = model->Rcirc(E * model->psi0);
+    //double L = p->R * p->wf / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
+    double L = p->R * p->wf * inversion->eval_LcInv(E);
     double f = inversion->eval_F(E, L);
     
     double um2 = std::pow(p->um, 2), wm2 = std::pow(wm, 2);
@@ -484,8 +490,9 @@ double pv_rel_um_int(double um, void * params) {
     Inversion *inversion = (Inversion *) p->inversion;
     
     double E = (p->psiRz - 0.5 * (std::pow(um, 2) + std::pow(p->uf, 2))) / model->psi0;
-    double Rc = model->Rcirc(E * model->psi0);
-    double L = p->R * p->uf / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
+    //double Rc = model->Rcirc(E * model->psi0);
+    //double L = p->R * p->uf / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
+    double L = p->R * p->uf * inversion->eval_LcInv(E);
     double f = inversion->eval_F(E, L);
     
     double vmin = maxv(-p->vMax, p->uf - p->v_rel);
@@ -670,6 +677,20 @@ double v_rel_mom_int(double v_rel, void *params) {
     return std::pow(v_rel, 1. + p->moment) * result;
 }
 
+double v_rel_mom_sph_int(double v_rel, void *params) {
+    struct relative_velocity_int_params * p = (struct relative_velocity_int_params *) params;
+    p->v_rel = v_rel;
+    
+    double result, abserr;
+    gsl_function F;
+    F.function = &pv_rel_u_int;
+    F.params = p;
+    gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(p->nIntervals);
+    gsl_integration_qags(&F, 0, p->vMax, 0, p->tolerance, p->nIntervals, workspace, &result, &abserr);
+    gsl_integration_workspace_free(workspace);
+    return 2. * M_PI * std::pow(v_rel, 1. + p->moment) * result;
+}
+
 
 /**
  * @param mom Relative velocity moment (i.e. <v^{mom}>)
@@ -690,7 +711,8 @@ double Observables::v_rel_mom(int mom, double R, double z, double tolerance) {
     struct relative_velocity_int_params p = {Observables::model, Observables::inversion, Observables::nIntervals, tolerance, R, psiRz, vEsc, 0, 0, 0, 0, mom};
     
     gsl_function F;
-    F.function = &v_rel_mom_int;
+    if (Observables::model->spherical) F.function = &v_rel_mom_sph_int;
+    else F.function = &v_rel_mom_int;
     F.params = &p;
     gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(Observables::nIntervals);
     gsl_integration_qags(&F, 0, 2. * vEsc, 0, tolerance, Observables::nIntervals, workspace, &result, &abserr);
