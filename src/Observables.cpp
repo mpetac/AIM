@@ -742,15 +742,17 @@ double occupation_int_E(double E, void *params) {
     
     struct occupation_params * p = (struct occupation_params *) params;
     
+    Inversion *inversion = (Inversion *) p->inversion;
     Model *model = (Model *) p->model;
     p->E = E / model->psi0;
     
     double vfMax = std::sqrt(2. * (p->psiRz - E));
-    double Rc = model->Rcirc(E);
-    double Lzc = std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc)));
-
-    double Lzmin = maxv(-p->R * vfMax / Lzc, p->Lzmin);
-    double Lzmax = minv(p->R * vfMax / Lzc, p->Lzmax);
+    //double Rc = model->Rcirc(E);
+    //double Lzc = std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc)));
+    double LzcInv = inversion->eval_LcInv(p->E);
+    
+    double Lzmin = maxv(-p->R * vfMax * LzcInv, p->Lzmin);
+    double Lzmax = minv(p->R * vfMax * LzcInv, p->Lzmax);
     if (Lzmax < Lzmin) return 0;
     
     double result, abserr;
@@ -760,7 +762,7 @@ double occupation_int_E(double E, void *params) {
     gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(p->nIntervals);
     gsl_integration_qags(&F, Lzmin, Lzmax, 0, p->tolerance, p->nIntervals, workspace, &result, &abserr);
     gsl_integration_workspace_free(workspace);
-    return Lzc * result;
+    return result / LzcInv;
 }
 
 
@@ -890,9 +892,10 @@ double dd_int_v(double v, void *params) {
     
     double E = (p->psiR - 0.5 * v2) / model->psi0;
     if (E < 0) return 0;
-    double Rc = model->Rcirc(p->psiR - 0.5 * v2);
-    double Lzc = std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc)));
-    double Lz = p->R * vy / Lzc;
+    //double Rc = model->Rcirc(p->psiR - 0.5 * v2);
+    //double Lzc = std::pow(Rc, 2) * std::sqrt(-2. * std::real(model->psi_dR2(std::pow(Rc, 2), 0, Rc)));
+    //double Lz = p->R * vy / Lzc;
+    double Lz = p->R * vy * inversion->eval_LcInv(E);
     if (Lz < -1.) Lz = -1.;
     if (Lz > 1.) Lz = 1.;
     return std::pow(v, 2. + p->power) * inversion->eval_F(E, Lz);
