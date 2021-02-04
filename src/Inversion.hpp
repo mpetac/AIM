@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fstream>
 #include <time.h>
 #include <future>
 #include <vector>
@@ -46,8 +47,12 @@ private:
     
     /// Galactic model
     Model *model;
+    
     /// Value of the total gravitational potential at the origin (i.e. its maximum value)
     double psi0;
+    
+    /// Minimum and maximum value of E for inverse angular momentum interpolation
+    double EminLcInv = 0, EmaxLcInv = 1;
     
     /// Computes the tabulated values of the PSDF
     void tabulate_F(int N_E, int N_Lz, double *Epts, double *Lzpts, double *Fpts);

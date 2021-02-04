@@ -43,14 +43,24 @@ Inversion::Inversion(Model *model, int N_E, int N_Lz, double tolerance_F, bool v
         double EptsLc[Inversion::nInterpLc];
         double LcInvPts[Inversion::nInterpLc];
         
+        
+        double RcMin = 1., Eval = 0;
+        while (1. - Eval > 1e-6) {
+            double RcMin2 = std::pow(RcMin, 2);
+            Eval = std::real(Inversion::model->psi(RcMin2, 0, RcMin) + RcMin2 * Inversion::model->psi_dR2(RcMin2, 0, RcMin)) / Inversion::model->psi0;
+            RcMin *= 0.5;
+        }
+        
         double base = 2.;
-        double logRcMin = std::log10(1e-6) / std::log10(base), logRcMax = std::log10(1e8) / std::log10(base);
+        double logRcMin = std::log10(RcMin) / std::log10(base), logRcMax = std::log10(1e8) / std::log10(base);
         for (int i = 0; i < Inversion::nInterpLc; i++) {
             double Rc = std::pow(base, logRcMin + (logRcMax - logRcMin) * i / (Inversion::nInterpLc - 1.));
             double Rc2 = std::pow(Rc, 2);
             EptsLc[Inversion::nInterpLc - i - 1] = std::real(Inversion::model->psi(Rc2, 0, Rc) + Rc2 * Inversion::model->psi_dR2(Rc2, 0, Rc)) / Inversion::model->psi0;
             LcInvPts[Inversion::nInterpLc - i - 1] = 1. / (std::pow(Rc, 2) * std::sqrt(-2. * std::real(Inversion::model->psi_dR2(std::pow(Rc, 2), 0, Rc))));
         }
+        Inversion::EminLcInv = EptsLc[0];
+        Inversion::EmaxLcInv = EptsLc[Inversion::nInterpLc - 1];
         
         Inversion::LcInvAcc = gsl_interp_accel_alloc();
         Inversion::LcInv = gsl_spline_alloc(gsl_interp_linear, Inversion::nInterpLc);
@@ -297,9 +307,11 @@ double Inversion::eval_F(double E, double Lz) {
  */
 
 double Inversion::eval_LcInv(double E) {
-    double Lc = gsl_spline_eval(Inversion::LcInv, E, Inversion::LcInvAcc);
-    if (std::isnan(Lc)) Lc = 0;
-    return Lc;
+    if (E > Inversion::EmaxLcInv) return gsl_spline_eval(Inversion::LcInv, Inversion::EmaxLcInv, Inversion::LcInvAcc);
+    else if (E < Inversion::EminLcInv) return 0;
+    else return gsl_spline_eval(Inversion::LcInv, E, Inversion::LcInvAcc);
+    //double Lc = gsl_spline_eval(Inversion::LcInv, E, Inversion::LcInvAcc);
+    //return Lc;
 }
 
 /**
