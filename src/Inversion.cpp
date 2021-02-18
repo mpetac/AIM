@@ -98,15 +98,15 @@ void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, doubl
             vals[i] = std::async(std::launch::async, &Inversion::F_eddington, this, Epts[i]);
         }
         for (int i = 0; i < N_E; i++) {
-            double val = std::log(1. + vals[i].get());
-            if (val < 0) {
+            double val = vals[i].get();
+            if (val < -Inversion::neg_F) {
                 if (Inversion::verbose) std::cout << "PSDF-even negative: " << Epts[i] << " -> " << val << std::endl;
-                val = 0;
+                val = -Inversion::neg_F;
             }
             //std::cout << "PSDF computed: " << Epts[i] << " -> " << val << std::endl;
             for (int j = 0; j < N_Lz; j++) {
-                Fpts[(N_Lz - 1 + j) * N_E + i] = val;
-                Fpts[(N_Lz - 1 - j) * N_E + i] = val;
+                Fpts[(N_Lz - 1 + j) * N_E + i] = std::log(1. + Inversion::neg_F + val);
+                Fpts[(N_Lz - 1 - j) * N_E + i] = std::log(1. + Inversion::neg_F + val);
             }
         }
     } else {
@@ -128,17 +128,24 @@ void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, doubl
             for (int j = 0; j < N_Lz; j++) {
                 double val_even = vals_even[i * N_Lz + j].get();
                 double val_odd = vals_odd[i * N_Lz + j].get();
-                if (val_even < 0) {
+                if (val_even < -Inversion::neg_F) {
                     if (Inversion::verbose) std::cout << "Warning! f+ negative: " << Epts[i] << ", " << Lzpts[j + N_Lz - 1] << " -> " << val_even << ", " << val_odd << std::endl;
-                    val_even = 0;
+                    val_even = -Inversion::neg_F;
                 }
-                if (std::abs(val_odd) > val_even) {
+                //if (std::abs(val_odd) > val_even) {
+                if (val_even + val_odd < -Inversion::neg_F) {
                     if (Inversion::verbose) std::cout << "Warning! f- larger then f+: " << Epts[i] << ", " << Lzpts[j + N_Lz - 1] << " -> " << val_even << ", " << val_odd << std::endl;
-                    val_odd = val_even * (1. - 2. * int(std::signbit(val_odd)));
+                    //val_odd = val_even * (1. - 2. * int(std::signbit(val_odd)));
+                    val_odd = -Inversion::neg_F - val_even;
                 }
+                if (val_even - val_odd < -Inversion::neg_F) {
+                    if (Inversion::verbose) std::cout << "Warning! f- larger then f+: " << Epts[i] << ", " << Lzpts[j + N_Lz - 1] << " -> " << val_even << ", " << val_odd << std::endl;
+                    val_odd = Inversion::neg_F + val_even;
+                }
+                
 //                 std::cout << "PSDF computed: " << Epts[i] << ", " << Lzpts[j + N_Lz - 1] << " -> " << val_even << ", " << val_odd << std::endl;
-                Fpts[(N_Lz - 1 + j) * N_E + i] = std::log(1. + val_even + val_odd);
-                Fpts[(N_Lz - 1 - j) * N_E + i] = std::log(1. + val_even - val_odd);
+                Fpts[(N_Lz - 1 + j) * N_E + i] = std::log(1. + Inversion::neg_F + val_even + val_odd);
+                Fpts[(N_Lz - 1 - j) * N_E + i] = std::log(1. + Inversion::neg_F + val_even - val_odd);
             }
         }
     }
@@ -298,7 +305,7 @@ double Inversion::eval_F(double E, double Lz) {
         if (Inversion::verbose) std::cout << "Warning! PSDF eval out of range: " << E << ", " << Lz << std::endl;
         return 0;
     }
-    double f = std::exp(gsl_spline2d_eval(Inversion::F, E, Lz, Inversion::EAcc, Inversion::LzAcc)) - 1.;
+    double f = std::exp(gsl_spline2d_eval(Inversion::F, E, Lz, Inversion::EAcc, Inversion::LzAcc)) - 1. - Inversion::neg_F;
     return f;
 }
 

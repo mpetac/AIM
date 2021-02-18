@@ -45,6 +45,8 @@ private:
     /// Normalization factor for the Lz-odd part of PSDF
     double result_fact_odd = 1. / (8. * pow(M_PI, 2));
     
+    double neg_F = 1.;
+    
     /// Galactic model
     Model *model;
     
