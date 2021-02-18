@@ -91,22 +91,19 @@ void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, doubl
         Inversion::h = 0;
         std::vector<std::future<double>> vals(N_E);
         for (int i = 0; i < N_E; i++) {
-            //double *params = new double[2];
-            //params[0] = Epts[i];
-            //params[1] = 0;
-            //vals[i] = std::async(std::launch::async, &Inversion::F_even, this, params);
-            vals[i] = std::async(std::launch::async, &Inversion::F_eddington, this, Epts[i]);
+            // for forcing multi-thread execution add std::launch::async
+            // for single threaded execution add "std::launch::deferred"
+            vals[i] = std::async(&Inversion::F_eddington, this, Epts[i]);
         }
         for (int i = 0; i < N_E; i++) {
             double val = vals[i].get();
-            if (val < -Inversion::neg_F) {
+            if (val < -Inversion::F_min) {
                 if (Inversion::verbose) std::cout << "PSDF-even negative: " << Epts[i] << " -> " << val << std::endl;
-                val = -Inversion::neg_F;
+                val = -Inversion::F_min;
             }
-            //std::cout << "PSDF computed: " << Epts[i] << " -> " << val << std::endl;
             for (int j = 0; j < N_Lz; j++) {
-                Fpts[(N_Lz - 1 + j) * N_E + i] = std::log(1. + Inversion::neg_F + val);
-                Fpts[(N_Lz - 1 - j) * N_E + i] = std::log(1. + Inversion::neg_F + val);
+                Fpts[(N_Lz - 1 + j) * N_E + i] = std::log(1. + Inversion::F_min + val);
+                Fpts[(N_Lz - 1 - j) * N_E + i] = std::log(1. + Inversion::F_min + val);
             }
         }
     } else {
@@ -118,9 +115,10 @@ void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, doubl
                 double *params = new double[2];
                 params[0] = Epts[i];
                 params[1] = Lzpts[j + N_Lz - 1];
-                // for single threaded execution change to "std::launch::deferred"
-                vals_even[i * N_Lz + j] = std::async(std::launch::async, &Inversion::F_even, this, params);
-                vals_odd[i * N_Lz + j] = std::async(std::launch::async, &Inversion::F_odd, this, params);
+                // for forcing multi-thread execution add std::launch::async
+                // for single threaded execution add "std::launch::deferred"
+                vals_even[i * N_Lz + j] = std::async(&Inversion::F_even, this, params);
+                vals_odd[i * N_Lz + j] = std::async(&Inversion::F_odd, this, params);
             }
         }
         
@@ -128,24 +126,20 @@ void Inversion::tabulate_F(int N_E, int N_Lz, double* Epts, double* Lzpts, doubl
             for (int j = 0; j < N_Lz; j++) {
                 double val_even = vals_even[i * N_Lz + j].get();
                 double val_odd = vals_odd[i * N_Lz + j].get();
-                if (val_even < -Inversion::neg_F) {
+                if (val_even < -Inversion::F_min) {
                     if (Inversion::verbose) std::cout << "Warning! f+ negative: " << Epts[i] << ", " << Lzpts[j + N_Lz - 1] << " -> " << val_even << ", " << val_odd << std::endl;
-                    val_even = -Inversion::neg_F;
+                    val_even = -Inversion::F_min;
                 }
-                //if (std::abs(val_odd) > val_even) {
-                if (val_even + val_odd < -Inversion::neg_F) {
+                if (val_even + val_odd < -Inversion::F_min) {
                     if (Inversion::verbose) std::cout << "Warning! f- larger then f+: " << Epts[i] << ", " << Lzpts[j + N_Lz - 1] << " -> " << val_even << ", " << val_odd << std::endl;
-                    //val_odd = val_even * (1. - 2. * int(std::signbit(val_odd)));
-                    val_odd = -Inversion::neg_F - val_even;
+                    val_odd = -Inversion::F_min - val_even;
                 }
-                if (val_even - val_odd < -Inversion::neg_F) {
+                if (val_even - val_odd < -Inversion::F_min) {
                     if (Inversion::verbose) std::cout << "Warning! f- larger then f+: " << Epts[i] << ", " << Lzpts[j + N_Lz - 1] << " -> " << val_even << ", " << val_odd << std::endl;
-                    val_odd = Inversion::neg_F + val_even;
+                    val_odd = Inversion::F_min + val_even;
                 }
-                
-//                 std::cout << "PSDF computed: " << Epts[i] << ", " << Lzpts[j + N_Lz - 1] << " -> " << val_even << ", " << val_odd << std::endl;
-                Fpts[(N_Lz - 1 + j) * N_E + i] = std::log(1. + Inversion::neg_F + val_even + val_odd);
-                Fpts[(N_Lz - 1 - j) * N_E + i] = std::log(1. + Inversion::neg_F + val_even - val_odd);
+                Fpts[(N_Lz - 1 + j) * N_E + i] = std::log(1. + Inversion::F_min + val_even + val_odd);
+                Fpts[(N_Lz - 1 - j) * N_E + i] = std::log(1. + Inversion::F_min + val_even - val_odd);
             }
         }
     }
@@ -305,7 +299,7 @@ double Inversion::eval_F(double E, double Lz) {
         if (Inversion::verbose) std::cout << "Warning! PSDF eval out of range: " << E << ", " << Lz << std::endl;
         return 0;
     }
-    double f = std::exp(gsl_spline2d_eval(Inversion::F, E, Lz, Inversion::EAcc, Inversion::LzAcc)) - 1. - Inversion::neg_F;
+    double f = std::exp(gsl_spline2d_eval(Inversion::F, E, Lz, Inversion::EAcc, Inversion::LzAcc)) - 1. - Inversion::F_min;
     return f;
 }
 

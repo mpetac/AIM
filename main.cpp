@@ -126,7 +126,7 @@ int main(int argc, char **argv) {
     Model model(&halo, &baryons);
     
     // Interpolate the PSDF obtained for the specified galactic model with given number of relative energy and angular momentum points
-    Inversion psdf(&model, 2000, 10, 1e-3, 1);
+    Inversion psdf(&model, 5000, 20, 1e-3, 1);
     
     // Initialize the class for computing various observable quantities from the PSDF (namely DM density and various projections of the velocity distribution)
     Observables obs(&model, &psdf);
@@ -135,7 +135,7 @@ int main(int argc, char **argv) {
     bool verbose = 0;
     double R = 8.122, z = 0;
     char suffix[64];
-    sprintf(suffix, "axi_NFW_neg");
+    sprintf(suffix, "axi_NFW_neg_100k");
     
     print_density(50, model, obs, verbose, suffix);
     print_pv(1, 100, R, z, obs, verbose, suffix);

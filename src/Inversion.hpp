@@ -44,8 +44,8 @@ private:
     double result_fact_even = 1. / (2. * pow(M_PI, 2) * std::sqrt(2.));
     /// Normalization factor for the Lz-odd part of PSDF
     double result_fact_odd = 1. / (8. * pow(M_PI, 2));
-    
-    double neg_F = 1.;
+    /// Parameter setting the minimum allowed value of PSDF (i.e. f(E, Lz) >= F_min for all E, Lz)
+    double F_min = 1.;
     
     /// Galactic model
     Model *model;
